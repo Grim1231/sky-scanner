@@ -1,1 +1,54 @@
+# References (cloned repos)
 references/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+junit/
+coverage.xml
+
+# Node (apps/web)
+apps/web/node_modules/
+apps/web/.next/
+apps/web/out/
+
+# Data
+*.csv
+*.parquet
+data/*.json
+!data/seed/
+
+# ML models (large files)
+packages/ml/models/*.pkl
+packages/ml/models/*.joblib
+packages/ml/models/*.pt
+
+# Docker
+*.log
