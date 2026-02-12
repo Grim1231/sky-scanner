@@ -6,8 +6,10 @@ requires-python = ">=3.13"
 dependencies = [
     "sky-scanner-core",
     "sky-scanner-db",
+    "sky-scanner-crawler",
     "celery[redis]>=5.4.0",
     "redis>=5.2.0",
+    "pydantic-settings>=2.0.0",
 ]
 
 [build-system]
@@ -20,3 +22,4 @@ packages = ["src/sky_scanner_scheduler"]
 [tool.uv.sources]
 sky-scanner-core = { workspace = true }
 sky-scanner-db = { workspace = true }
+sky-scanner-crawler = { workspace = true }

@@ -11,6 +11,10 @@ dependencies = [
     "httpx>=0.28.0",
     "celery[redis]>=5.4.0",
     "redis>=5.2.0",
+    "primp>=0.14.0",
+    "protobuf>=5.27.0",
+    "pydantic-settings>=2.0.0",
+    "click>=8.1.0",
 ]
 
 [build-system]
