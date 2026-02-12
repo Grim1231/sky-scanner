@@ -1,0 +1,2182 @@
+[
+  {
+    "airline_code": "KE",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 33,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KE",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KE",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 75,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KE",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 83,
+    "seat_width_inches": 23.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KE",
+    "aircraft_type": "A380-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 33,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KE",
+    "aircraft_type": "A380-800",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KE",
+    "aircraft_type": "A380-800",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 83,
+    "seat_width_inches": 23.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KE",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 33,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KE",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 75,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "OZ",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "OZ",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "OZ",
+    "aircraft_type": "A380-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "OZ",
+    "aircraft_type": "A380-800",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "OZ",
+    "aircraft_type": "A380-800",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 83,
+    "seat_width_inches": 23.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "OZ",
+    "aircraft_type": "B777-200ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "OZ",
+    "aircraft_type": "B777-200ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "NH",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 34,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "NH",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 19.3,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "NH",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 62,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "NH",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 84,
+    "seat_width_inches": 23.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "NH",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 34,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "NH",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 62,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "JL",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 34,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "JL",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 42,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "JL",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "JL",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 84,
+    "seat_width_inches": 23.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "JL",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 34,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "JL",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SQ",
+    "aircraft_type": "A380-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SQ",
+    "aircraft_type": "A380-800",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 50,
+    "seat_width_inches": 25.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SQ",
+    "aircraft_type": "A380-800",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 81,
+    "seat_width_inches": 27.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SQ",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SQ",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 50,
+    "seat_width_inches": 25.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SQ",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SQ",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 50,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SQ",
+    "aircraft_type": "B787-10",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SQ",
+    "aircraft_type": "B787-10",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 50,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CX",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CX",
+    "aircraft_type": "A350-900",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CX",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 73,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CX",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CX",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 73,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CX",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 81,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EK",
+    "aircraft_type": "A380-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 34,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EK",
+    "aircraft_type": "A380-800",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 72,
+    "seat_width_inches": 20.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EK",
+    "aircraft_type": "A380-800",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 86,
+    "seat_width_inches": 23.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EK",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 34,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EK",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 72,
+    "seat_width_inches": 20.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EK",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 82,
+    "seat_width_inches": 23.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QR",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QR",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 78,
+    "seat_width_inches": 21.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QR",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 81,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QR",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QR",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 78,
+    "seat_width_inches": 21.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QR",
+    "aircraft_type": "A380-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QR",
+    "aircraft_type": "A380-800",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 78,
+    "seat_width_inches": 21.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QR",
+    "aircraft_type": "A380-800",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 90,
+    "seat_width_inches": 23.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EY",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EY",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 73,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EY",
+    "aircraft_type": "A380-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EY",
+    "aircraft_type": "A380-800",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 73,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EY",
+    "aircraft_type": "A380-800",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 84,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LH",
+    "aircraft_type": "A340-600",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.3,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LH",
+    "aircraft_type": "A340-600",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LH",
+    "aircraft_type": "A340-600",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 83,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LH",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LH",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 76,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LH",
+    "aircraft_type": "B747-8",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.3,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LH",
+    "aircraft_type": "B747-8",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 76,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LH",
+    "aircraft_type": "B747-8",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 83,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "BA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "BA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "BA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 73,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "BA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 78,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "BA",
+    "aircraft_type": "A350-1000",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "BA",
+    "aircraft_type": "A350-1000",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 79,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AF",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AF",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AF",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 77,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AF",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AF",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 77,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "TK",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "TK",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 78,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "TK",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "TK",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 78,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 75,
+    "seat_width_inches": 20.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AA",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AA",
+    "aircraft_type": "B787-9",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AA",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 75,
+    "seat_width_inches": 20.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AA",
+    "aircraft_type": "A321neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "AA",
+    "aircraft_type": "A321neo",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "DL",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "DL",
+    "aircraft_type": "A350-900",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "DL",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 78,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "DL",
+    "aircraft_type": "B767-400ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "DL",
+    "aircraft_type": "B767-400ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 76,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "DL",
+    "aircraft_type": "A321neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "DL",
+    "aircraft_type": "A321neo",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "UA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "UA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "UA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 78,
+    "seat_width_inches": 21.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "UA",
+    "aircraft_type": "B787-10",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.3,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "UA",
+    "aircraft_type": "B787-10",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 78,
+    "seat_width_inches": 21.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "B6",
+    "aircraft_type": "A321neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.8,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "B6",
+    "aircraft_type": "A321neo",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 20.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "B6",
+    "aircraft_type": "A320",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 34,
+    "seat_width_inches": 17.8,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "WN",
+    "aircraft_type": "B737-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "WN",
+    "aircraft_type": "B737-MAX-8",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "NK",
+    "aircraft_type": "A320neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 28,
+    "seat_width_inches": 17.75,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "NK",
+    "aircraft_type": "A321neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 28,
+    "seat_width_inches": 17.75,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "F9",
+    "aircraft_type": "A320neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 28,
+    "seat_width_inches": 17.7,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "F9",
+    "aircraft_type": "A321neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 28,
+    "seat_width_inches": 17.7,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "FR",
+    "aircraft_type": "B737-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "FR",
+    "aircraft_type": "B737-MAX-8",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "U2",
+    "aircraft_type": "A320neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "U2",
+    "aircraft_type": "A321neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "W6",
+    "aircraft_type": "A321neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 28,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "7C",
+    "aircraft_type": "B737-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "TW",
+    "aircraft_type": "B737-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "LJ",
+    "aircraft_type": "B737-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "MM",
+    "aircraft_type": "A320-200",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "AK",
+    "aircraft_type": "A320-200",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "AK",
+    "aircraft_type": "A330-300",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "AK",
+    "aircraft_type": "A330-300",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "TR",
+    "aircraft_type": "B787-8",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "TR",
+    "aircraft_type": "A320neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "VJ",
+    "aircraft_type": "A321neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "5J",
+    "aircraft_type": "A320-200",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "5J",
+    "aircraft_type": "A330-300",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QF",
+    "aircraft_type": "A380-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QF",
+    "aircraft_type": "A380-800",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 19.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QF",
+    "aircraft_type": "A380-800",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 80,
+    "seat_width_inches": 22.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QF",
+    "aircraft_type": "A380-800",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 84,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QF",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "QF",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AC",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AC",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AC",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 73,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AC",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AC",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 73,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AS",
+    "aircraft_type": "B737-MAX-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "AS",
+    "aircraft_type": "B737-MAX-9",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 38,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "ET",
+    "aircraft_type": "B787-8",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "ET",
+    "aircraft_type": "B787-8",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "ET",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "ET",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LA",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LA",
+    "aircraft_type": "B787-9",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 37,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "LA",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "TG",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "TG",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "TG",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 81,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "TG",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "TG",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "MH",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "MH",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "VN",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "VN",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "VN",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "VN",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AI",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AI",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 72,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AI",
+    "aircraft_type": "B787-8",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AI",
+    "aircraft_type": "B787-8",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "6E",
+    "aircraft_type": "A320neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.7,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "6E",
+    "aircraft_type": "A321neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.7,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "CA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 72,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CA",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CA",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 72,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "MU",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "MU",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 72,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CZ",
+    "aircraft_type": "A380-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CZ",
+    "aircraft_type": "A380-800",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 72,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CZ",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "CZ",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 72,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "9C",
+    "aircraft_type": "A320-200",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 28,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "KL",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KL",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 76,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KL",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "KL",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 76,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "IB",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "IB",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 73,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AY",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AY",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 73,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "NZ",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "NZ",
+    "aircraft_type": "B787-9",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 41,
+    "seat_width_inches": 19.3,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "NZ",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "FZ",
+    "aircraft_type": "B737-MAX-8",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": false,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "FZ",
+    "aircraft_type": "B737-MAX-8",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 40,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SV",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SV",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AM",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AM",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AV",
+    "aircraft_type": "B787-8",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AV",
+    "aircraft_type": "B787-8",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SK",
+    "aircraft_type": "A350-900",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 18.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "SK",
+    "aircraft_type": "A350-900",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "DY",
+    "aircraft_type": "B737-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": false,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "DY",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "DY",
+    "aircraft_type": "B787-9",
+    "cabin_class": "PREMIUM_ECONOMY",
+    "seat_pitch_inches": 46,
+    "seat_width_inches": 18.5,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "EW",
+    "aircraft_type": "A320neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "VY",
+    "aircraft_type": "A320neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 29,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "G4",
+    "aircraft_type": "A320-200",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": false,
+    "has_ife": false
+  },
+  {
+    "airline_code": "MX",
+    "aircraft_type": "A220-300",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 18.6,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "MX",
+    "aircraft_type": "E195",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 18.3,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "G3",
+    "aircraft_type": "B737-800",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": false,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "AD",
+    "aircraft_type": "A320neo",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 30,
+    "seat_width_inches": 17.5,
+    "has_power_outlet": false,
+    "has_usb": true,
+    "has_ife": false
+  },
+  {
+    "airline_code": "AD",
+    "aircraft_type": "E195-E2",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 31,
+    "seat_width_inches": 18.3,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "MS",
+    "aircraft_type": "B787-9",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "MS",
+    "aircraft_type": "B787-9",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 60,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AT",
+    "aircraft_type": "B787-8",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.2,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "AT",
+    "aircraft_type": "B787-8",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 59,
+    "seat_width_inches": 20.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "GA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "ECONOMY",
+    "seat_pitch_inches": 32,
+    "seat_width_inches": 17.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "GA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "BUSINESS",
+    "seat_pitch_inches": 74,
+    "seat_width_inches": 21.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  },
+  {
+    "airline_code": "GA",
+    "aircraft_type": "B777-300ER",
+    "cabin_class": "FIRST",
+    "seat_pitch_inches": 82,
+    "seat_width_inches": 22.0,
+    "has_power_outlet": true,
+    "has_usb": true,
+    "has_ife": true
+  }
+]

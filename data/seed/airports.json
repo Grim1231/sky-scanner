@@ -1,0 +1,1865 @@
+[
+  {
+    "code": "ICN",
+    "name": "Incheon International Airport",
+    "city": "Seoul",
+    "country": "KR",
+    "timezone": "Asia/Seoul",
+    "latitude": 37.4602,
+    "longitude": 126.4407
+  },
+  {
+    "code": "GMP",
+    "name": "Gimpo International Airport",
+    "city": "Seoul",
+    "country": "KR",
+    "timezone": "Asia/Seoul",
+    "latitude": 37.5583,
+    "longitude": 126.7906
+  },
+  {
+    "code": "PUS",
+    "name": "Gimhae International Airport",
+    "city": "Busan",
+    "country": "KR",
+    "timezone": "Asia/Seoul",
+    "latitude": 35.1796,
+    "longitude": 128.9382
+  },
+  {
+    "code": "CJU",
+    "name": "Jeju International Airport",
+    "city": "Jeju",
+    "country": "KR",
+    "timezone": "Asia/Seoul",
+    "latitude": 33.5113,
+    "longitude": 126.4929
+  },
+  {
+    "code": "TAE",
+    "name": "Daegu International Airport",
+    "city": "Daegu",
+    "country": "KR",
+    "timezone": "Asia/Seoul",
+    "latitude": 35.8941,
+    "longitude": 128.6559
+  },
+  {
+    "code": "CJJ",
+    "name": "Cheongju International Airport",
+    "city": "Cheongju",
+    "country": "KR",
+    "timezone": "Asia/Seoul",
+    "latitude": 36.7166,
+    "longitude": 127.4991
+  },
+  {
+    "code": "MWX",
+    "name": "Muan International Airport",
+    "city": "Muan",
+    "country": "KR",
+    "timezone": "Asia/Seoul",
+    "latitude": 34.9914,
+    "longitude": 126.3828
+  },
+  {
+    "code": "NRT",
+    "name": "Narita International Airport",
+    "city": "Tokyo",
+    "country": "JP",
+    "timezone": "Asia/Tokyo",
+    "latitude": 35.7647,
+    "longitude": 140.3864
+  },
+  {
+    "code": "HND",
+    "name": "Tokyo Haneda Airport",
+    "city": "Tokyo",
+    "country": "JP",
+    "timezone": "Asia/Tokyo",
+    "latitude": 35.5494,
+    "longitude": 139.7798
+  },
+  {
+    "code": "KIX",
+    "name": "Kansai International Airport",
+    "city": "Osaka",
+    "country": "JP",
+    "timezone": "Asia/Tokyo",
+    "latitude": 34.4347,
+    "longitude": 135.2440
+  },
+  {
+    "code": "ITM",
+    "name": "Osaka Itami Airport",
+    "city": "Osaka",
+    "country": "JP",
+    "timezone": "Asia/Tokyo",
+    "latitude": 34.7855,
+    "longitude": 135.4380
+  },
+  {
+    "code": "NGO",
+    "name": "Chubu Centrair International Airport",
+    "city": "Nagoya",
+    "country": "JP",
+    "timezone": "Asia/Tokyo",
+    "latitude": 34.8584,
+    "longitude": 136.8125
+  },
+  {
+    "code": "FUK",
+    "name": "Fukuoka Airport",
+    "city": "Fukuoka",
+    "country": "JP",
+    "timezone": "Asia/Tokyo",
+    "latitude": 33.5859,
+    "longitude": 130.4511
+  },
+  {
+    "code": "CTS",
+    "name": "New Chitose Airport",
+    "city": "Sapporo",
+    "country": "JP",
+    "timezone": "Asia/Tokyo",
+    "latitude": 42.7752,
+    "longitude": 141.6924
+  },
+  {
+    "code": "OKA",
+    "name": "Naha Airport",
+    "city": "Okinawa",
+    "country": "JP",
+    "timezone": "Asia/Tokyo",
+    "latitude": 26.1958,
+    "longitude": 127.6459
+  },
+  {
+    "code": "PEK",
+    "name": "Beijing Capital International Airport",
+    "city": "Beijing",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 40.0799,
+    "longitude": 116.6031
+  },
+  {
+    "code": "PKX",
+    "name": "Beijing Daxing International Airport",
+    "city": "Beijing",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 39.5098,
+    "longitude": 116.4105
+  },
+  {
+    "code": "PVG",
+    "name": "Shanghai Pudong International Airport",
+    "city": "Shanghai",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 31.1443,
+    "longitude": 121.8083
+  },
+  {
+    "code": "SHA",
+    "name": "Shanghai Hongqiao International Airport",
+    "city": "Shanghai",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 31.1979,
+    "longitude": 121.3363
+  },
+  {
+    "code": "CAN",
+    "name": "Guangzhou Baiyun International Airport",
+    "city": "Guangzhou",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 23.3924,
+    "longitude": 113.2988
+  },
+  {
+    "code": "SZX",
+    "name": "Shenzhen Bao'an International Airport",
+    "city": "Shenzhen",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 22.6393,
+    "longitude": 113.8107
+  },
+  {
+    "code": "CTU",
+    "name": "Chengdu Tianfu International Airport",
+    "city": "Chengdu",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 30.3195,
+    "longitude": 104.4412
+  },
+  {
+    "code": "CKG",
+    "name": "Chongqing Jiangbei International Airport",
+    "city": "Chongqing",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 29.7192,
+    "longitude": 106.6417
+  },
+  {
+    "code": "XIY",
+    "name": "Xi'an Xianyang International Airport",
+    "city": "Xi'an",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 34.4371,
+    "longitude": 108.7516
+  },
+  {
+    "code": "KMG",
+    "name": "Kunming Changshui International Airport",
+    "city": "Kunming",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 25.1019,
+    "longitude": 102.9291
+  },
+  {
+    "code": "HGH",
+    "name": "Hangzhou Xiaoshan International Airport",
+    "city": "Hangzhou",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 30.2295,
+    "longitude": 120.4343
+  },
+  {
+    "code": "WUH",
+    "name": "Wuhan Tianhe International Airport",
+    "city": "Wuhan",
+    "country": "CN",
+    "timezone": "Asia/Shanghai",
+    "latitude": 30.7838,
+    "longitude": 114.2081
+  },
+  {
+    "code": "HKG",
+    "name": "Hong Kong International Airport",
+    "city": "Hong Kong",
+    "country": "HK",
+    "timezone": "Asia/Hong_Kong",
+    "latitude": 22.3080,
+    "longitude": 113.9185
+  },
+  {
+    "code": "TPE",
+    "name": "Taiwan Taoyuan International Airport",
+    "city": "Taipei",
+    "country": "TW",
+    "timezone": "Asia/Taipei",
+    "latitude": 25.0777,
+    "longitude": 121.2325
+  },
+  {
+    "code": "TSA",
+    "name": "Taipei Songshan Airport",
+    "city": "Taipei",
+    "country": "TW",
+    "timezone": "Asia/Taipei",
+    "latitude": 25.0694,
+    "longitude": 121.5523
+  },
+  {
+    "code": "KHH",
+    "name": "Kaohsiung International Airport",
+    "city": "Kaohsiung",
+    "country": "TW",
+    "timezone": "Asia/Taipei",
+    "latitude": 22.5771,
+    "longitude": 120.3500
+  },
+  {
+    "code": "MNL",
+    "name": "Ninoy Aquino International Airport",
+    "city": "Manila",
+    "country": "PH",
+    "timezone": "Asia/Manila",
+    "latitude": 14.5086,
+    "longitude": 121.0197
+  },
+  {
+    "code": "CEB",
+    "name": "Mactan-Cebu International Airport",
+    "city": "Cebu",
+    "country": "PH",
+    "timezone": "Asia/Manila",
+    "latitude": 10.3075,
+    "longitude": 123.9794
+  },
+  {
+    "code": "SIN",
+    "name": "Singapore Changi Airport",
+    "city": "Singapore",
+    "country": "SG",
+    "timezone": "Asia/Singapore",
+    "latitude": 1.3502,
+    "longitude": 103.9944
+  },
+  {
+    "code": "BKK",
+    "name": "Suvarnabhumi Airport",
+    "city": "Bangkok",
+    "country": "TH",
+    "timezone": "Asia/Bangkok",
+    "latitude": 13.6900,
+    "longitude": 100.7501
+  },
+  {
+    "code": "DMK",
+    "name": "Don Mueang International Airport",
+    "city": "Bangkok",
+    "country": "TH",
+    "timezone": "Asia/Bangkok",
+    "latitude": 13.9126,
+    "longitude": 100.6070
+  },
+  {
+    "code": "CNX",
+    "name": "Chiang Mai International Airport",
+    "city": "Chiang Mai",
+    "country": "TH",
+    "timezone": "Asia/Bangkok",
+    "latitude": 18.7668,
+    "longitude": 98.9626
+  },
+  {
+    "code": "HKT",
+    "name": "Phuket International Airport",
+    "city": "Phuket",
+    "country": "TH",
+    "timezone": "Asia/Bangkok",
+    "latitude": 8.1132,
+    "longitude": 98.3169
+  },
+  {
+    "code": "KUL",
+    "name": "Kuala Lumpur International Airport",
+    "city": "Kuala Lumpur",
+    "country": "MY",
+    "timezone": "Asia/Kuala_Lumpur",
+    "latitude": 2.7456,
+    "longitude": 101.7099
+  },
+  {
+    "code": "CGK",
+    "name": "Soekarno-Hatta International Airport",
+    "city": "Jakarta",
+    "country": "ID",
+    "timezone": "Asia/Jakarta",
+    "latitude": -6.1256,
+    "longitude": 106.6558
+  },
+  {
+    "code": "DPS",
+    "name": "Ngurah Rai International Airport",
+    "city": "Bali",
+    "country": "ID",
+    "timezone": "Asia/Makassar",
+    "latitude": -8.7482,
+    "longitude": 115.1672
+  },
+  {
+    "code": "SGN",
+    "name": "Tan Son Nhat International Airport",
+    "city": "Ho Chi Minh City",
+    "country": "VN",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "latitude": 10.8188,
+    "longitude": 106.6520
+  },
+  {
+    "code": "HAN",
+    "name": "Noi Bai International Airport",
+    "city": "Hanoi",
+    "country": "VN",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "latitude": 21.2212,
+    "longitude": 105.8070
+  },
+  {
+    "code": "DAD",
+    "name": "Da Nang International Airport",
+    "city": "Da Nang",
+    "country": "VN",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "latitude": 16.0439,
+    "longitude": 108.1992
+  },
+  {
+    "code": "PNH",
+    "name": "Phnom Penh International Airport",
+    "city": "Phnom Penh",
+    "country": "KH",
+    "timezone": "Asia/Phnom_Penh",
+    "latitude": 11.5466,
+    "longitude": 104.8441
+  },
+  {
+    "code": "REP",
+    "name": "Siem Reap International Airport",
+    "city": "Siem Reap",
+    "country": "KH",
+    "timezone": "Asia/Phnom_Penh",
+    "latitude": 13.4107,
+    "longitude": 103.8133
+  },
+  {
+    "code": "RGN",
+    "name": "Yangon International Airport",
+    "city": "Yangon",
+    "country": "MM",
+    "timezone": "Asia/Yangon",
+    "latitude": 16.9073,
+    "longitude": 96.1332
+  },
+  {
+    "code": "DEL",
+    "name": "Indira Gandhi International Airport",
+    "city": "Delhi",
+    "country": "IN",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.5562,
+    "longitude": 77.1000
+  },
+  {
+    "code": "BOM",
+    "name": "Chhatrapati Shivaji Maharaj International Airport",
+    "city": "Mumbai",
+    "country": "IN",
+    "timezone": "Asia/Kolkata",
+    "latitude": 19.0896,
+    "longitude": 72.8656
+  },
+  {
+    "code": "BLR",
+    "name": "Kempegowda International Airport",
+    "city": "Bangalore",
+    "country": "IN",
+    "timezone": "Asia/Kolkata",
+    "latitude": 13.1979,
+    "longitude": 77.7063
+  },
+  {
+    "code": "MAA",
+    "name": "Chennai International Airport",
+    "city": "Chennai",
+    "country": "IN",
+    "timezone": "Asia/Kolkata",
+    "latitude": 12.9941,
+    "longitude": 80.1709
+  },
+  {
+    "code": "CCU",
+    "name": "Netaji Subhas Chandra Bose International Airport",
+    "city": "Kolkata",
+    "country": "IN",
+    "timezone": "Asia/Kolkata",
+    "latitude": 22.6547,
+    "longitude": 88.4467
+  },
+  {
+    "code": "HYD",
+    "name": "Rajiv Gandhi International Airport",
+    "city": "Hyderabad",
+    "country": "IN",
+    "timezone": "Asia/Kolkata",
+    "latitude": 17.2403,
+    "longitude": 78.4294
+  },
+  {
+    "code": "SYD",
+    "name": "Sydney Kingsford Smith Airport",
+    "city": "Sydney",
+    "country": "AU",
+    "timezone": "Australia/Sydney",
+    "latitude": -33.9461,
+    "longitude": 151.1772
+  },
+  {
+    "code": "MEL",
+    "name": "Melbourne Airport",
+    "city": "Melbourne",
+    "country": "AU",
+    "timezone": "Australia/Melbourne",
+    "latitude": -37.6733,
+    "longitude": 144.8433
+  },
+  {
+    "code": "BNE",
+    "name": "Brisbane Airport",
+    "city": "Brisbane",
+    "country": "AU",
+    "timezone": "Australia/Brisbane",
+    "latitude": -27.3842,
+    "longitude": 153.1175
+  },
+  {
+    "code": "PER",
+    "name": "Perth Airport",
+    "city": "Perth",
+    "country": "AU",
+    "timezone": "Australia/Perth",
+    "latitude": -31.9403,
+    "longitude": 115.9672
+  },
+  {
+    "code": "AKL",
+    "name": "Auckland Airport",
+    "city": "Auckland",
+    "country": "NZ",
+    "timezone": "Pacific/Auckland",
+    "latitude": -37.0082,
+    "longitude": 174.7850
+  },
+  {
+    "code": "CHC",
+    "name": "Christchurch International Airport",
+    "city": "Christchurch",
+    "country": "NZ",
+    "timezone": "Pacific/Auckland",
+    "latitude": -43.4894,
+    "longitude": 172.5322
+  },
+  {
+    "code": "LHR",
+    "name": "London Heathrow Airport",
+    "city": "London",
+    "country": "GB",
+    "timezone": "Europe/London",
+    "latitude": 51.4700,
+    "longitude": -0.4543
+  },
+  {
+    "code": "LGW",
+    "name": "London Gatwick Airport",
+    "city": "London",
+    "country": "GB",
+    "timezone": "Europe/London",
+    "latitude": 51.1537,
+    "longitude": -0.1821
+  },
+  {
+    "code": "STN",
+    "name": "London Stansted Airport",
+    "city": "London",
+    "country": "GB",
+    "timezone": "Europe/London",
+    "latitude": 51.8850,
+    "longitude": 0.2350
+  },
+  {
+    "code": "LTN",
+    "name": "London Luton Airport",
+    "city": "London",
+    "country": "GB",
+    "timezone": "Europe/London",
+    "latitude": 51.8747,
+    "longitude": -0.3684
+  },
+  {
+    "code": "MAN",
+    "name": "Manchester Airport",
+    "city": "Manchester",
+    "country": "GB",
+    "timezone": "Europe/London",
+    "latitude": 53.3537,
+    "longitude": -2.2750
+  },
+  {
+    "code": "EDI",
+    "name": "Edinburgh Airport",
+    "city": "Edinburgh",
+    "country": "GB",
+    "timezone": "Europe/London",
+    "latitude": 55.9500,
+    "longitude": -3.3725
+  },
+  {
+    "code": "CDG",
+    "name": "Paris Charles de Gaulle Airport",
+    "city": "Paris",
+    "country": "FR",
+    "timezone": "Europe/Paris",
+    "latitude": 49.0097,
+    "longitude": 2.5479
+  },
+  {
+    "code": "ORY",
+    "name": "Paris Orly Airport",
+    "city": "Paris",
+    "country": "FR",
+    "timezone": "Europe/Paris",
+    "latitude": 48.7233,
+    "longitude": 2.3794
+  },
+  {
+    "code": "NCE",
+    "name": "Nice Cote d'Azur Airport",
+    "city": "Nice",
+    "country": "FR",
+    "timezone": "Europe/Paris",
+    "latitude": 43.6584,
+    "longitude": 7.2159
+  },
+  {
+    "code": "LYS",
+    "name": "Lyon-Saint Exupery Airport",
+    "city": "Lyon",
+    "country": "FR",
+    "timezone": "Europe/Paris",
+    "latitude": 45.7256,
+    "longitude": 5.0811
+  },
+  {
+    "code": "MRS",
+    "name": "Marseille Provence Airport",
+    "city": "Marseille",
+    "country": "FR",
+    "timezone": "Europe/Paris",
+    "latitude": 43.4393,
+    "longitude": 5.2214
+  },
+  {
+    "code": "FRA",
+    "name": "Frankfurt Airport",
+    "city": "Frankfurt",
+    "country": "DE",
+    "timezone": "Europe/Berlin",
+    "latitude": 50.0333,
+    "longitude": 8.5706
+  },
+  {
+    "code": "MUC",
+    "name": "Munich Airport",
+    "city": "Munich",
+    "country": "DE",
+    "timezone": "Europe/Berlin",
+    "latitude": 48.3538,
+    "longitude": 11.7861
+  },
+  {
+    "code": "BER",
+    "name": "Berlin Brandenburg Airport",
+    "city": "Berlin",
+    "country": "DE",
+    "timezone": "Europe/Berlin",
+    "latitude": 52.3667,
+    "longitude": 13.5033
+  },
+  {
+    "code": "DUS",
+    "name": "Dusseldorf Airport",
+    "city": "Dusseldorf",
+    "country": "DE",
+    "timezone": "Europe/Berlin",
+    "latitude": 51.2895,
+    "longitude": 6.7668
+  },
+  {
+    "code": "HAM",
+    "name": "Hamburg Airport",
+    "city": "Hamburg",
+    "country": "DE",
+    "timezone": "Europe/Berlin",
+    "latitude": 53.6304,
+    "longitude": 9.9882
+  },
+  {
+    "code": "CGN",
+    "name": "Cologne Bonn Airport",
+    "city": "Cologne",
+    "country": "DE",
+    "timezone": "Europe/Berlin",
+    "latitude": 50.8659,
+    "longitude": 7.1427
+  },
+  {
+    "code": "AMS",
+    "name": "Amsterdam Schiphol Airport",
+    "city": "Amsterdam",
+    "country": "NL",
+    "timezone": "Europe/Amsterdam",
+    "latitude": 52.3086,
+    "longitude": 4.7639
+  },
+  {
+    "code": "MAD",
+    "name": "Adolfo Suarez Madrid-Barajas Airport",
+    "city": "Madrid",
+    "country": "ES",
+    "timezone": "Europe/Madrid",
+    "latitude": 40.4719,
+    "longitude": -3.5626
+  },
+  {
+    "code": "BCN",
+    "name": "Barcelona-El Prat Airport",
+    "city": "Barcelona",
+    "country": "ES",
+    "timezone": "Europe/Madrid",
+    "latitude": 41.2971,
+    "longitude": 2.0785
+  },
+  {
+    "code": "PMI",
+    "name": "Palma de Mallorca Airport",
+    "city": "Palma de Mallorca",
+    "country": "ES",
+    "timezone": "Europe/Madrid",
+    "latitude": 39.5517,
+    "longitude": 2.7388
+  },
+  {
+    "code": "AGP",
+    "name": "Malaga-Costa del Sol Airport",
+    "city": "Malaga",
+    "country": "ES",
+    "timezone": "Europe/Madrid",
+    "latitude": 36.6749,
+    "longitude": -4.4991
+  },
+  {
+    "code": "FCO",
+    "name": "Rome Fiumicino Leonardo da Vinci Airport",
+    "city": "Rome",
+    "country": "IT",
+    "timezone": "Europe/Rome",
+    "latitude": 41.8003,
+    "longitude": 12.2389
+  },
+  {
+    "code": "MXP",
+    "name": "Milan Malpensa Airport",
+    "city": "Milan",
+    "country": "IT",
+    "timezone": "Europe/Rome",
+    "latitude": 45.6306,
+    "longitude": 8.7281
+  },
+  {
+    "code": "VCE",
+    "name": "Venice Marco Polo Airport",
+    "city": "Venice",
+    "country": "IT",
+    "timezone": "Europe/Rome",
+    "latitude": 45.5053,
+    "longitude": 12.3519
+  },
+  {
+    "code": "NAP",
+    "name": "Naples International Airport",
+    "city": "Naples",
+    "country": "IT",
+    "timezone": "Europe/Rome",
+    "latitude": 40.8860,
+    "longitude": 14.2908
+  },
+  {
+    "code": "LIS",
+    "name": "Lisbon Humberto Delgado Airport",
+    "city": "Lisbon",
+    "country": "PT",
+    "timezone": "Europe/Lisbon",
+    "latitude": 38.7813,
+    "longitude": -9.1359
+  },
+  {
+    "code": "OPO",
+    "name": "Porto Airport",
+    "city": "Porto",
+    "country": "PT",
+    "timezone": "Europe/Lisbon",
+    "latitude": 41.2481,
+    "longitude": -8.6814
+  },
+  {
+    "code": "ATH",
+    "name": "Athens International Airport",
+    "city": "Athens",
+    "country": "GR",
+    "timezone": "Europe/Athens",
+    "latitude": 37.9364,
+    "longitude": 23.9445
+  },
+  {
+    "code": "IST",
+    "name": "Istanbul Airport",
+    "city": "Istanbul",
+    "country": "TR",
+    "timezone": "Europe/Istanbul",
+    "latitude": 41.2608,
+    "longitude": 28.7419
+  },
+  {
+    "code": "SAW",
+    "name": "Istanbul Sabiha Gokcen Airport",
+    "city": "Istanbul",
+    "country": "TR",
+    "timezone": "Europe/Istanbul",
+    "latitude": 40.8986,
+    "longitude": 29.3092
+  },
+  {
+    "code": "HEL",
+    "name": "Helsinki-Vantaa Airport",
+    "city": "Helsinki",
+    "country": "FI",
+    "timezone": "Europe/Helsinki",
+    "latitude": 60.3172,
+    "longitude": 24.9633
+  },
+  {
+    "code": "ARN",
+    "name": "Stockholm Arlanda Airport",
+    "city": "Stockholm",
+    "country": "SE",
+    "timezone": "Europe/Stockholm",
+    "latitude": 59.6519,
+    "longitude": 17.9186
+  },
+  {
+    "code": "CPH",
+    "name": "Copenhagen Airport",
+    "city": "Copenhagen",
+    "country": "DK",
+    "timezone": "Europe/Copenhagen",
+    "latitude": 55.6181,
+    "longitude": 12.6560
+  },
+  {
+    "code": "OSL",
+    "name": "Oslo Gardermoen Airport",
+    "city": "Oslo",
+    "country": "NO",
+    "timezone": "Europe/Oslo",
+    "latitude": 60.1939,
+    "longitude": 11.1004
+  },
+  {
+    "code": "ZRH",
+    "name": "Zurich Airport",
+    "city": "Zurich",
+    "country": "CH",
+    "timezone": "Europe/Zurich",
+    "latitude": 47.4647,
+    "longitude": 8.5492
+  },
+  {
+    "code": "GVA",
+    "name": "Geneva Airport",
+    "city": "Geneva",
+    "country": "CH",
+    "timezone": "Europe/Zurich",
+    "latitude": 46.2381,
+    "longitude": 6.1089
+  },
+  {
+    "code": "VIE",
+    "name": "Vienna International Airport",
+    "city": "Vienna",
+    "country": "AT",
+    "timezone": "Europe/Vienna",
+    "latitude": 48.1103,
+    "longitude": 16.5697
+  },
+  {
+    "code": "BRU",
+    "name": "Brussels Airport",
+    "city": "Brussels",
+    "country": "BE",
+    "timezone": "Europe/Brussels",
+    "latitude": 50.9014,
+    "longitude": 4.4844
+  },
+  {
+    "code": "DUB",
+    "name": "Dublin Airport",
+    "city": "Dublin",
+    "country": "IE",
+    "timezone": "Europe/Dublin",
+    "latitude": 53.4213,
+    "longitude": -6.2701
+  },
+  {
+    "code": "WAW",
+    "name": "Warsaw Chopin Airport",
+    "city": "Warsaw",
+    "country": "PL",
+    "timezone": "Europe/Warsaw",
+    "latitude": 52.1657,
+    "longitude": 20.9671
+  },
+  {
+    "code": "PRG",
+    "name": "Vaclav Havel Airport Prague",
+    "city": "Prague",
+    "country": "CZ",
+    "timezone": "Europe/Prague",
+    "latitude": 50.1008,
+    "longitude": 14.2600
+  },
+  {
+    "code": "BUD",
+    "name": "Budapest Ferenc Liszt International Airport",
+    "city": "Budapest",
+    "country": "HU",
+    "timezone": "Europe/Budapest",
+    "latitude": 47.4298,
+    "longitude": 19.2611
+  },
+  {
+    "code": "OTP",
+    "name": "Henri Coanda International Airport",
+    "city": "Bucharest",
+    "country": "RO",
+    "timezone": "Europe/Bucharest",
+    "latitude": 44.5711,
+    "longitude": 26.0850
+  },
+  {
+    "code": "SOF",
+    "name": "Sofia Airport",
+    "city": "Sofia",
+    "country": "BG",
+    "timezone": "Europe/Sofia",
+    "latitude": 42.6952,
+    "longitude": 23.4062
+  },
+  {
+    "code": "BEG",
+    "name": "Belgrade Nikola Tesla Airport",
+    "city": "Belgrade",
+    "country": "RS",
+    "timezone": "Europe/Belgrade",
+    "latitude": 44.8184,
+    "longitude": 20.3091
+  },
+  {
+    "code": "ZAG",
+    "name": "Zagreb Airport",
+    "city": "Zagreb",
+    "country": "HR",
+    "timezone": "Europe/Zagreb",
+    "latitude": 45.7429,
+    "longitude": 16.0688
+  },
+  {
+    "code": "JFK",
+    "name": "John F. Kennedy International Airport",
+    "city": "New York",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 40.6413,
+    "longitude": -73.7781
+  },
+  {
+    "code": "EWR",
+    "name": "Newark Liberty International Airport",
+    "city": "Newark",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 40.6895,
+    "longitude": -74.1745
+  },
+  {
+    "code": "LGA",
+    "name": "LaGuardia Airport",
+    "city": "New York",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 40.7772,
+    "longitude": -73.8726
+  },
+  {
+    "code": "LAX",
+    "name": "Los Angeles International Airport",
+    "city": "Los Angeles",
+    "country": "US",
+    "timezone": "America/Los_Angeles",
+    "latitude": 33.9425,
+    "longitude": -118.4081
+  },
+  {
+    "code": "SFO",
+    "name": "San Francisco International Airport",
+    "city": "San Francisco",
+    "country": "US",
+    "timezone": "America/Los_Angeles",
+    "latitude": 37.6213,
+    "longitude": -122.3790
+  },
+  {
+    "code": "SJC",
+    "name": "San Jose International Airport",
+    "city": "San Jose",
+    "country": "US",
+    "timezone": "America/Los_Angeles",
+    "latitude": 37.3626,
+    "longitude": -121.9291
+  },
+  {
+    "code": "OAK",
+    "name": "Oakland International Airport",
+    "city": "Oakland",
+    "country": "US",
+    "timezone": "America/Los_Angeles",
+    "latitude": 37.7213,
+    "longitude": -122.2208
+  },
+  {
+    "code": "ORD",
+    "name": "O'Hare International Airport",
+    "city": "Chicago",
+    "country": "US",
+    "timezone": "America/Chicago",
+    "latitude": 41.9742,
+    "longitude": -87.9073
+  },
+  {
+    "code": "MDW",
+    "name": "Chicago Midway International Airport",
+    "city": "Chicago",
+    "country": "US",
+    "timezone": "America/Chicago",
+    "latitude": 41.7868,
+    "longitude": -87.7522
+  },
+  {
+    "code": "ATL",
+    "name": "Hartsfield-Jackson Atlanta International Airport",
+    "city": "Atlanta",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 33.6407,
+    "longitude": -84.4277
+  },
+  {
+    "code": "DFW",
+    "name": "Dallas/Fort Worth International Airport",
+    "city": "Dallas",
+    "country": "US",
+    "timezone": "America/Chicago",
+    "latitude": 32.8998,
+    "longitude": -97.0403
+  },
+  {
+    "code": "IAH",
+    "name": "George Bush Intercontinental Airport",
+    "city": "Houston",
+    "country": "US",
+    "timezone": "America/Chicago",
+    "latitude": 29.9844,
+    "longitude": -95.3414
+  },
+  {
+    "code": "DEN",
+    "name": "Denver International Airport",
+    "city": "Denver",
+    "country": "US",
+    "timezone": "America/Denver",
+    "latitude": 39.8561,
+    "longitude": -104.6737
+  },
+  {
+    "code": "SEA",
+    "name": "Seattle-Tacoma International Airport",
+    "city": "Seattle",
+    "country": "US",
+    "timezone": "America/Los_Angeles",
+    "latitude": 47.4502,
+    "longitude": -122.3088
+  },
+  {
+    "code": "MIA",
+    "name": "Miami International Airport",
+    "city": "Miami",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 25.7959,
+    "longitude": -80.2870
+  },
+  {
+    "code": "FLL",
+    "name": "Fort Lauderdale-Hollywood International Airport",
+    "city": "Fort Lauderdale",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 26.0726,
+    "longitude": -80.1527
+  },
+  {
+    "code": "MCO",
+    "name": "Orlando International Airport",
+    "city": "Orlando",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 28.4312,
+    "longitude": -81.3081
+  },
+  {
+    "code": "BOS",
+    "name": "Boston Logan International Airport",
+    "city": "Boston",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 42.3656,
+    "longitude": -71.0096
+  },
+  {
+    "code": "PHL",
+    "name": "Philadelphia International Airport",
+    "city": "Philadelphia",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 39.8721,
+    "longitude": -75.2411
+  },
+  {
+    "code": "IAD",
+    "name": "Washington Dulles International Airport",
+    "city": "Washington",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 38.9531,
+    "longitude": -77.4565
+  },
+  {
+    "code": "DCA",
+    "name": "Ronald Reagan Washington National Airport",
+    "city": "Washington",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 38.8512,
+    "longitude": -77.0402
+  },
+  {
+    "code": "MSP",
+    "name": "Minneapolis-Saint Paul International Airport",
+    "city": "Minneapolis",
+    "country": "US",
+    "timezone": "America/Chicago",
+    "latitude": 44.8820,
+    "longitude": -93.2218
+  },
+  {
+    "code": "DTW",
+    "name": "Detroit Metropolitan Wayne County Airport",
+    "city": "Detroit",
+    "country": "US",
+    "timezone": "America/Detroit",
+    "latitude": 42.2124,
+    "longitude": -83.3534
+  },
+  {
+    "code": "CLT",
+    "name": "Charlotte Douglas International Airport",
+    "city": "Charlotte",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 35.2140,
+    "longitude": -80.9431
+  },
+  {
+    "code": "PHX",
+    "name": "Phoenix Sky Harbor International Airport",
+    "city": "Phoenix",
+    "country": "US",
+    "timezone": "America/Phoenix",
+    "latitude": 33.4373,
+    "longitude": -112.0078
+  },
+  {
+    "code": "SAN",
+    "name": "San Diego International Airport",
+    "city": "San Diego",
+    "country": "US",
+    "timezone": "America/Los_Angeles",
+    "latitude": 32.7336,
+    "longitude": -117.1897
+  },
+  {
+    "code": "LAS",
+    "name": "Harry Reid International Airport",
+    "city": "Las Vegas",
+    "country": "US",
+    "timezone": "America/Los_Angeles",
+    "latitude": 36.0840,
+    "longitude": -115.1537
+  },
+  {
+    "code": "TPA",
+    "name": "Tampa International Airport",
+    "city": "Tampa",
+    "country": "US",
+    "timezone": "America/New_York",
+    "latitude": 27.9755,
+    "longitude": -82.5332
+  },
+  {
+    "code": "PDX",
+    "name": "Portland International Airport",
+    "city": "Portland",
+    "country": "US",
+    "timezone": "America/Los_Angeles",
+    "latitude": 45.5887,
+    "longitude": -122.5975
+  },
+  {
+    "code": "SLC",
+    "name": "Salt Lake City International Airport",
+    "city": "Salt Lake City",
+    "country": "US",
+    "timezone": "America/Denver",
+    "latitude": 40.7884,
+    "longitude": -111.9778
+  },
+  {
+    "code": "HNL",
+    "name": "Daniel K. Inouye International Airport",
+    "city": "Honolulu",
+    "country": "US",
+    "timezone": "Pacific/Honolulu",
+    "latitude": 21.3187,
+    "longitude": -157.9225
+  },
+  {
+    "code": "ANC",
+    "name": "Ted Stevens Anchorage International Airport",
+    "city": "Anchorage",
+    "country": "US",
+    "timezone": "America/Anchorage",
+    "latitude": 61.1741,
+    "longitude": -149.9982
+  },
+  {
+    "code": "YYZ",
+    "name": "Toronto Pearson International Airport",
+    "city": "Toronto",
+    "country": "CA",
+    "timezone": "America/Toronto",
+    "latitude": 43.6777,
+    "longitude": -79.6248
+  },
+  {
+    "code": "YVR",
+    "name": "Vancouver International Airport",
+    "city": "Vancouver",
+    "country": "CA",
+    "timezone": "America/Vancouver",
+    "latitude": 49.1947,
+    "longitude": -123.1792
+  },
+  {
+    "code": "YUL",
+    "name": "Montreal-Pierre Elliott Trudeau International Airport",
+    "city": "Montreal",
+    "country": "CA",
+    "timezone": "America/Toronto",
+    "latitude": 45.4707,
+    "longitude": -73.7407
+  },
+  {
+    "code": "YYC",
+    "name": "Calgary International Airport",
+    "city": "Calgary",
+    "country": "CA",
+    "timezone": "America/Edmonton",
+    "latitude": 51.1225,
+    "longitude": -114.0133
+  },
+  {
+    "code": "YOW",
+    "name": "Ottawa Macdonald-Cartier International Airport",
+    "city": "Ottawa",
+    "country": "CA",
+    "timezone": "America/Toronto",
+    "latitude": 45.3225,
+    "longitude": -75.6692
+  },
+  {
+    "code": "MEX",
+    "name": "Mexico City International Airport",
+    "city": "Mexico City",
+    "country": "MX",
+    "timezone": "America/Mexico_City",
+    "latitude": 19.4363,
+    "longitude": -99.0721
+  },
+  {
+    "code": "CUN",
+    "name": "Cancun International Airport",
+    "city": "Cancun",
+    "country": "MX",
+    "timezone": "America/Cancun",
+    "latitude": 21.0365,
+    "longitude": -86.8771
+  },
+  {
+    "code": "GDL",
+    "name": "Guadalajara International Airport",
+    "city": "Guadalajara",
+    "country": "MX",
+    "timezone": "America/Mexico_City",
+    "latitude": 20.5218,
+    "longitude": -103.3113
+  },
+  {
+    "code": "GRU",
+    "name": "Sao Paulo-Guarulhos International Airport",
+    "city": "Sao Paulo",
+    "country": "BR",
+    "timezone": "America/Sao_Paulo",
+    "latitude": -23.4356,
+    "longitude": -46.4731
+  },
+  {
+    "code": "GIG",
+    "name": "Rio de Janeiro-Galeao International Airport",
+    "city": "Rio de Janeiro",
+    "country": "BR",
+    "timezone": "America/Sao_Paulo",
+    "latitude": -22.8100,
+    "longitude": -43.2505
+  },
+  {
+    "code": "BSB",
+    "name": "Brasilia International Airport",
+    "city": "Brasilia",
+    "country": "BR",
+    "timezone": "America/Sao_Paulo",
+    "latitude": -15.8711,
+    "longitude": -47.9186
+  },
+  {
+    "code": "CNF",
+    "name": "Belo Horizonte Confins International Airport",
+    "city": "Belo Horizonte",
+    "country": "BR",
+    "timezone": "America/Sao_Paulo",
+    "latitude": -19.6244,
+    "longitude": -43.9719
+  },
+  {
+    "code": "EZE",
+    "name": "Ministro Pistarini International Airport",
+    "city": "Buenos Aires",
+    "country": "AR",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "latitude": -34.8222,
+    "longitude": -58.5358
+  },
+  {
+    "code": "AEP",
+    "name": "Aeroparque Jorge Newbery",
+    "city": "Buenos Aires",
+    "country": "AR",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "latitude": -34.5592,
+    "longitude": -58.4156
+  },
+  {
+    "code": "SCL",
+    "name": "Arturo Merino Benitez International Airport",
+    "city": "Santiago",
+    "country": "CL",
+    "timezone": "America/Santiago",
+    "latitude": -33.3930,
+    "longitude": -70.7858
+  },
+  {
+    "code": "LIM",
+    "name": "Jorge Chavez International Airport",
+    "city": "Lima",
+    "country": "PE",
+    "timezone": "America/Lima",
+    "latitude": -12.0219,
+    "longitude": -77.1143
+  },
+  {
+    "code": "BOG",
+    "name": "El Dorado International Airport",
+    "city": "Bogota",
+    "country": "CO",
+    "timezone": "America/Bogota",
+    "latitude": 4.7016,
+    "longitude": -74.1469
+  },
+  {
+    "code": "PTY",
+    "name": "Tocumen International Airport",
+    "city": "Panama City",
+    "country": "PA",
+    "timezone": "America/Panama",
+    "latitude": 9.0714,
+    "longitude": -79.3835
+  },
+  {
+    "code": "UIO",
+    "name": "Mariscal Sucre International Airport",
+    "city": "Quito",
+    "country": "EC",
+    "timezone": "America/Guayaquil",
+    "latitude": -0.1292,
+    "longitude": -78.3575
+  },
+  {
+    "code": "SJO",
+    "name": "Juan Santamaria International Airport",
+    "city": "San Jose",
+    "country": "CR",
+    "timezone": "America/Costa_Rica",
+    "latitude": 9.9939,
+    "longitude": -84.2088
+  },
+  {
+    "code": "HAV",
+    "name": "Jose Marti International Airport",
+    "city": "Havana",
+    "country": "CU",
+    "timezone": "America/Havana",
+    "latitude": 22.9892,
+    "longitude": -82.4091
+  },
+  {
+    "code": "DXB",
+    "name": "Dubai International Airport",
+    "city": "Dubai",
+    "country": "AE",
+    "timezone": "Asia/Dubai",
+    "latitude": 25.2528,
+    "longitude": 55.3644
+  },
+  {
+    "code": "DWC",
+    "name": "Al Maktoum International Airport",
+    "city": "Dubai",
+    "country": "AE",
+    "timezone": "Asia/Dubai",
+    "latitude": 24.8960,
+    "longitude": 55.1614
+  },
+  {
+    "code": "AUH",
+    "name": "Abu Dhabi International Airport",
+    "city": "Abu Dhabi",
+    "country": "AE",
+    "timezone": "Asia/Dubai",
+    "latitude": 24.4430,
+    "longitude": 54.6511
+  },
+  {
+    "code": "DOH",
+    "name": "Hamad International Airport",
+    "city": "Doha",
+    "country": "QA",
+    "timezone": "Asia/Qatar",
+    "latitude": 25.2731,
+    "longitude": 51.6081
+  },
+  {
+    "code": "JED",
+    "name": "King Abdulaziz International Airport",
+    "city": "Jeddah",
+    "country": "SA",
+    "timezone": "Asia/Riyadh",
+    "latitude": 21.6796,
+    "longitude": 39.1565
+  },
+  {
+    "code": "RUH",
+    "name": "King Khalid International Airport",
+    "city": "Riyadh",
+    "country": "SA",
+    "timezone": "Asia/Riyadh",
+    "latitude": 24.9578,
+    "longitude": 46.6989
+  },
+  {
+    "code": "BAH",
+    "name": "Bahrain International Airport",
+    "city": "Manama",
+    "country": "BH",
+    "timezone": "Asia/Bahrain",
+    "latitude": 26.2708,
+    "longitude": 50.6336
+  },
+  {
+    "code": "MCT",
+    "name": "Muscat International Airport",
+    "city": "Muscat",
+    "country": "OM",
+    "timezone": "Asia/Muscat",
+    "latitude": 23.5933,
+    "longitude": 58.2844
+  },
+  {
+    "code": "KWI",
+    "name": "Kuwait International Airport",
+    "city": "Kuwait City",
+    "country": "KW",
+    "timezone": "Asia/Kuwait",
+    "latitude": 29.2266,
+    "longitude": 47.9689
+  },
+  {
+    "code": "TLV",
+    "name": "Ben Gurion Airport",
+    "city": "Tel Aviv",
+    "country": "IL",
+    "timezone": "Asia/Jerusalem",
+    "latitude": 32.0114,
+    "longitude": 34.8867
+  },
+  {
+    "code": "AMM",
+    "name": "Queen Alia International Airport",
+    "city": "Amman",
+    "country": "JO",
+    "timezone": "Asia/Amman",
+    "latitude": 31.7226,
+    "longitude": 35.9932
+  },
+  {
+    "code": "ADD",
+    "name": "Addis Ababa Bole International Airport",
+    "city": "Addis Ababa",
+    "country": "ET",
+    "timezone": "Africa/Addis_Ababa",
+    "latitude": 8.9779,
+    "longitude": 38.7993
+  },
+  {
+    "code": "JNB",
+    "name": "O.R. Tambo International Airport",
+    "city": "Johannesburg",
+    "country": "ZA",
+    "timezone": "Africa/Johannesburg",
+    "latitude": -26.1392,
+    "longitude": 28.2460
+  },
+  {
+    "code": "CPT",
+    "name": "Cape Town International Airport",
+    "city": "Cape Town",
+    "country": "ZA",
+    "timezone": "Africa/Johannesburg",
+    "latitude": -33.9649,
+    "longitude": 18.6017
+  },
+  {
+    "code": "NBO",
+    "name": "Jomo Kenyatta International Airport",
+    "city": "Nairobi",
+    "country": "KE",
+    "timezone": "Africa/Nairobi",
+    "latitude": -1.3192,
+    "longitude": 36.9278
+  },
+  {
+    "code": "CAI",
+    "name": "Cairo International Airport",
+    "city": "Cairo",
+    "country": "EG",
+    "timezone": "Africa/Cairo",
+    "latitude": 30.1219,
+    "longitude": 31.4056
+  },
+  {
+    "code": "CMN",
+    "name": "Mohammed V International Airport",
+    "city": "Casablanca",
+    "country": "MA",
+    "timezone": "Africa/Casablanca",
+    "latitude": 33.3675,
+    "longitude": -7.5898
+  },
+  {
+    "code": "RAK",
+    "name": "Marrakech Menara Airport",
+    "city": "Marrakech",
+    "country": "MA",
+    "timezone": "Africa/Casablanca",
+    "latitude": 31.6069,
+    "longitude": -8.0363
+  },
+  {
+    "code": "LOS",
+    "name": "Murtala Muhammed International Airport",
+    "city": "Lagos",
+    "country": "NG",
+    "timezone": "Africa/Lagos",
+    "latitude": 6.5774,
+    "longitude": 3.3213
+  },
+  {
+    "code": "ACC",
+    "name": "Kotoka International Airport",
+    "city": "Accra",
+    "country": "GH",
+    "timezone": "Africa/Accra",
+    "latitude": 5.6052,
+    "longitude": -0.1668
+  },
+  {
+    "code": "DSS",
+    "name": "Blaise Diagne International Airport",
+    "city": "Dakar",
+    "country": "SN",
+    "timezone": "Africa/Dakar",
+    "latitude": 14.6700,
+    "longitude": -17.0733
+  },
+  {
+    "code": "DAR",
+    "name": "Julius Nyerere International Airport",
+    "city": "Dar es Salaam",
+    "country": "TZ",
+    "timezone": "Africa/Dar_es_Salaam",
+    "latitude": -6.8781,
+    "longitude": 39.2026
+  },
+  {
+    "code": "MBA",
+    "name": "Moi International Airport",
+    "city": "Mombasa",
+    "country": "KE",
+    "timezone": "Africa/Nairobi",
+    "latitude": -4.0348,
+    "longitude": 39.5942
+  },
+  {
+    "code": "TUN",
+    "name": "Tunis-Carthage International Airport",
+    "city": "Tunis",
+    "country": "TN",
+    "timezone": "Africa/Tunis",
+    "latitude": 36.8510,
+    "longitude": 10.2272
+  },
+  {
+    "code": "ALG",
+    "name": "Houari Boumediene Airport",
+    "city": "Algiers",
+    "country": "DZ",
+    "timezone": "Africa/Algiers",
+    "latitude": 36.6910,
+    "longitude": 3.2154
+  },
+  {
+    "code": "MRU",
+    "name": "Sir Seewoosagur Ramgoolam International Airport",
+    "city": "Mauritius",
+    "country": "MU",
+    "timezone": "Indian/Mauritius",
+    "latitude": -20.4302,
+    "longitude": 57.6836
+  },
+  {
+    "code": "NAN",
+    "name": "Nadi International Airport",
+    "city": "Nadi",
+    "country": "FJ",
+    "timezone": "Pacific/Fiji",
+    "latitude": -17.7554,
+    "longitude": 177.4431
+  },
+  {
+    "code": "PPT",
+    "name": "Faaa International Airport",
+    "city": "Papeete",
+    "country": "PF",
+    "timezone": "Pacific/Tahiti",
+    "latitude": -17.5537,
+    "longitude": -149.6073
+  },
+  {
+    "code": "GUM",
+    "name": "Antonio B. Won Pat International Airport",
+    "city": "Guam",
+    "country": "GU",
+    "timezone": "Pacific/Guam",
+    "latitude": 13.4834,
+    "longitude": 144.7961
+  },
+  {
+    "code": "ULN",
+    "name": "Chinggis Khaan International Airport",
+    "city": "Ulaanbaatar",
+    "country": "MN",
+    "timezone": "Asia/Ulaanbaatar",
+    "latitude": 47.8431,
+    "longitude": 106.7666
+  },
+  {
+    "code": "VTE",
+    "name": "Wattay International Airport",
+    "city": "Vientiane",
+    "country": "LA",
+    "timezone": "Asia/Vientiane",
+    "latitude": 17.9883,
+    "longitude": 102.5633
+  },
+  {
+    "code": "KTM",
+    "name": "Tribhuvan International Airport",
+    "city": "Kathmandu",
+    "country": "NP",
+    "timezone": "Asia/Kathmandu",
+    "latitude": 27.6966,
+    "longitude": 85.3591
+  },
+  {
+    "code": "CMB",
+    "name": "Bandaranaike International Airport",
+    "city": "Colombo",
+    "country": "LK",
+    "timezone": "Asia/Colombo",
+    "latitude": 7.1808,
+    "longitude": 79.8841
+  },
+  {
+    "code": "DAC",
+    "name": "Hazrat Shahjalal International Airport",
+    "city": "Dhaka",
+    "country": "BD",
+    "timezone": "Asia/Dhaka",
+    "latitude": 23.8433,
+    "longitude": 90.3978
+  },
+  {
+    "code": "ISB",
+    "name": "Islamabad International Airport",
+    "city": "Islamabad",
+    "country": "PK",
+    "timezone": "Asia/Karachi",
+    "latitude": 33.5605,
+    "longitude": 72.8526
+  },
+  {
+    "code": "KHI",
+    "name": "Jinnah International Airport",
+    "city": "Karachi",
+    "country": "PK",
+    "timezone": "Asia/Karachi",
+    "latitude": 24.9065,
+    "longitude": 67.1610
+  },
+  {
+    "code": "IKA",
+    "name": "Imam Khomeini International Airport",
+    "city": "Tehran",
+    "country": "IR",
+    "timezone": "Asia/Tehran",
+    "latitude": 35.4161,
+    "longitude": 51.1522
+  },
+  {
+    "code": "TAS",
+    "name": "Tashkent International Airport",
+    "city": "Tashkent",
+    "country": "UZ",
+    "timezone": "Asia/Tashkent",
+    "latitude": 41.2579,
+    "longitude": 69.2812
+  },
+  {
+    "code": "ALA",
+    "name": "Almaty International Airport",
+    "city": "Almaty",
+    "country": "KZ",
+    "timezone": "Asia/Almaty",
+    "latitude": 43.3521,
+    "longitude": 77.0405
+  },
+  {
+    "code": "MLE",
+    "name": "Velana International Airport",
+    "city": "Male",
+    "country": "MV",
+    "timezone": "Indian/Maldives",
+    "latitude": 4.1918,
+    "longitude": 73.5290
+  },
+  {
+    "code": "SUB",
+    "name": "Juanda International Airport",
+    "city": "Surabaya",
+    "country": "ID",
+    "timezone": "Asia/Jakarta",
+    "latitude": -7.3798,
+    "longitude": 112.7870
+  },
+  {
+    "code": "BKI",
+    "name": "Kota Kinabalu International Airport",
+    "city": "Kota Kinabalu",
+    "country": "MY",
+    "timezone": "Asia/Kuala_Lumpur",
+    "latitude": 5.9372,
+    "longitude": 116.0513
+  },
+  {
+    "code": "PEN",
+    "name": "Penang International Airport",
+    "city": "Penang",
+    "country": "MY",
+    "timezone": "Asia/Kuala_Lumpur",
+    "latitude": 5.2971,
+    "longitude": 100.2768
+  },
+  {
+    "code": "ADL",
+    "name": "Adelaide Airport",
+    "city": "Adelaide",
+    "country": "AU",
+    "timezone": "Australia/Adelaide",
+    "latitude": -34.9450,
+    "longitude": 138.5306
+  },
+  {
+    "code": "CBR",
+    "name": "Canberra Airport",
+    "city": "Canberra",
+    "country": "AU",
+    "timezone": "Australia/Sydney",
+    "latitude": -35.3069,
+    "longitude": 149.1950
+  },
+  {
+    "code": "OOL",
+    "name": "Gold Coast Airport",
+    "city": "Gold Coast",
+    "country": "AU",
+    "timezone": "Australia/Brisbane",
+    "latitude": -28.1644,
+    "longitude": 153.5047
+  },
+  {
+    "code": "WLG",
+    "name": "Wellington International Airport",
+    "city": "Wellington",
+    "country": "NZ",
+    "timezone": "Pacific/Auckland",
+    "latitude": -41.3272,
+    "longitude": 174.8053
+  },
+  {
+    "code": "ZQN",
+    "name": "Queenstown Airport",
+    "city": "Queenstown",
+    "country": "NZ",
+    "timezone": "Pacific/Auckland",
+    "latitude": -45.0211,
+    "longitude": 168.7392
+  }
+]

@@ -1,0 +1,802 @@
+[
+  {
+    "code": "NH",
+    "name": "All Nippon Airways",
+    "name_ko": "전일본공수",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "JP",
+    "website_url": "https://www.ana.co.jp",
+    "data_sources": ["L1", "L3"]
+  },
+  {
+    "code": "JL",
+    "name": "Japan Airlines",
+    "name_ko": "일본항공",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "JP",
+    "website_url": "https://www.jal.co.jp",
+    "data_sources": ["L1", "L3"]
+  },
+  {
+    "code": "KE",
+    "name": "Korean Air",
+    "name_ko": "대한항공",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "KR",
+    "website_url": "https://www.koreanair.com",
+    "data_sources": ["L1", "L3"]
+  },
+  {
+    "code": "OZ",
+    "name": "Asiana Airlines",
+    "name_ko": "아시아나항공",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "KR",
+    "website_url": "https://www.flyasiana.com",
+    "data_sources": ["L1", "L3"]
+  },
+  {
+    "code": "CA",
+    "name": "Air China",
+    "name_ko": "중국국제항공",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "CN",
+    "website_url": "https://www.airchina.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "MU",
+    "name": "China Eastern Airlines",
+    "name_ko": "중국동방항공",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "CN",
+    "website_url": "https://www.ceair.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "CZ",
+    "name": "China Southern Airlines",
+    "name_ko": "중국남방항공",
+    "type": "FSC",
+    "alliance": null,
+    "country": "CN",
+    "website_url": "https://www.csair.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "CX",
+    "name": "Cathay Pacific",
+    "name_ko": "캐세이퍼시픽",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "HK",
+    "website_url": "https://www.cathaypacific.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "7C",
+    "name": "Jeju Air",
+    "name_ko": "제주항공",
+    "type": "LCC",
+    "alliance": null,
+    "country": "KR",
+    "website_url": "https://www.jejuair.net",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "TW",
+    "name": "T'way Air",
+    "name_ko": "티웨이항공",
+    "type": "LCC",
+    "alliance": null,
+    "country": "KR",
+    "website_url": "https://www.twayair.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "LJ",
+    "name": "Jin Air",
+    "name_ko": "진에어",
+    "type": "LCC",
+    "alliance": null,
+    "country": "KR",
+    "website_url": "https://www.jinair.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "RS",
+    "name": "Air Seoul",
+    "name_ko": "에어서울",
+    "type": "LCC",
+    "alliance": null,
+    "country": "KR",
+    "website_url": "https://www.flyairseoul.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "MM",
+    "name": "Peach Aviation",
+    "name_ko": "피치항공",
+    "type": "LCC",
+    "alliance": null,
+    "country": "JP",
+    "website_url": "https://www.flypeach.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "9C",
+    "name": "Spring Airlines",
+    "name_ko": "춘추항공",
+    "type": "LCC",
+    "alliance": null,
+    "country": "CN",
+    "website_url": "https://www.springairlines.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "SQ",
+    "name": "Singapore Airlines",
+    "name_ko": "싱가포르항공",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "SG",
+    "website_url": "https://www.singaporeair.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "TG",
+    "name": "Thai Airways",
+    "name_ko": "타이항공",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "TH",
+    "website_url": "https://www.thaiairways.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "MH",
+    "name": "Malaysia Airlines",
+    "name_ko": "말레이시아항공",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "MY",
+    "website_url": "https://www.malaysiaairlines.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "VN",
+    "name": "Vietnam Airlines",
+    "name_ko": "베트남항공",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "VN",
+    "website_url": "https://www.vietnamairlines.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "GA",
+    "name": "Garuda Indonesia",
+    "name_ko": "가루다인도네시아",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "ID",
+    "website_url": "https://www.garuda-indonesia.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "PR",
+    "name": "Philippine Airlines",
+    "name_ko": "필리핀항공",
+    "type": "FSC",
+    "alliance": null,
+    "country": "PH",
+    "website_url": "https://www.philippineairlines.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "AK",
+    "name": "AirAsia",
+    "name_ko": "에어아시아",
+    "type": "LCC",
+    "alliance": null,
+    "country": "MY",
+    "website_url": "https://www.airasia.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "TR",
+    "name": "Scoot",
+    "name_ko": "스쿠트",
+    "type": "LCC",
+    "alliance": null,
+    "country": "SG",
+    "website_url": "https://www.flyscoot.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "VJ",
+    "name": "VietJet Air",
+    "name_ko": "비엣젯",
+    "type": "LCC",
+    "alliance": null,
+    "country": "VN",
+    "website_url": "https://www.vietjetair.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "5J",
+    "name": "Cebu Pacific",
+    "name_ko": "세부퍼시픽",
+    "type": "LCC",
+    "alliance": null,
+    "country": "PH",
+    "website_url": "https://www.cebupacificair.com",
+    "data_sources": ["L2"]
+  },
+  {
+    "code": "AI",
+    "name": "Air India",
+    "name_ko": "에어인디아",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "IN",
+    "website_url": "https://www.airindia.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "6E",
+    "name": "IndiGo",
+    "name_ko": "인디고",
+    "type": "LCC",
+    "alliance": null,
+    "country": "IN",
+    "website_url": "https://www.goindigo.in",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "SG",
+    "name": "SpiceJet",
+    "name_ko": "스파이스젯",
+    "type": "LCC",
+    "alliance": null,
+    "country": "IN",
+    "website_url": "https://www.spicejet.com",
+    "data_sources": ["L2"]
+  },
+  {
+    "code": "QF",
+    "name": "Qantas",
+    "name_ko": "콴타스",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "AU",
+    "website_url": "https://www.qantas.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "VA",
+    "name": "Virgin Australia",
+    "name_ko": "버진오스트레일리아",
+    "type": "FSC",
+    "alliance": null,
+    "country": "AU",
+    "website_url": "https://www.virginaustralia.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "NZ",
+    "name": "Air New Zealand",
+    "name_ko": "에어뉴질랜드",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "NZ",
+    "website_url": "https://www.airnewzealand.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "LH",
+    "name": "Lufthansa",
+    "name_ko": "루프트한자",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "DE",
+    "website_url": "https://www.lufthansa.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "BA",
+    "name": "British Airways",
+    "name_ko": "브리티시에어웨이즈",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "GB",
+    "website_url": "https://www.britishairways.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "AF",
+    "name": "Air France",
+    "name_ko": "에어프랑스",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "FR",
+    "website_url": "https://www.airfrance.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "KL",
+    "name": "KLM Royal Dutch Airlines",
+    "name_ko": "KLM",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "NL",
+    "website_url": "https://www.klm.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "IB",
+    "name": "Iberia",
+    "name_ko": "이베리아",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "ES",
+    "website_url": "https://www.iberia.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "TK",
+    "name": "Turkish Airlines",
+    "name_ko": "터키항공",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "TR",
+    "website_url": "https://www.turkishairlines.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "TP",
+    "name": "TAP Air Portugal",
+    "name_ko": "TAP포르투갈",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "PT",
+    "website_url": "https://www.flytap.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "A3",
+    "name": "Aegean Airlines",
+    "name_ko": "에게안항공",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "GR",
+    "website_url": "https://www.aegeanair.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "AY",
+    "name": "Finnair",
+    "name_ko": "핀에어",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "FI",
+    "website_url": "https://www.finnair.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "SK",
+    "name": "Scandinavian Airlines",
+    "name_ko": "SAS",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "SE",
+    "website_url": "https://www.flysas.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "AZ",
+    "name": "ITA Airways",
+    "name_ko": "ITA항공",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "IT",
+    "website_url": "https://www.ita-airways.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "FR",
+    "name": "Ryanair",
+    "name_ko": "라이언에어",
+    "type": "LCC",
+    "alliance": null,
+    "country": "IE",
+    "website_url": "https://www.ryanair.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "U2",
+    "name": "easyJet",
+    "name_ko": "이지젯",
+    "type": "LCC",
+    "alliance": null,
+    "country": "GB",
+    "website_url": "https://www.easyjet.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "W6",
+    "name": "Wizz Air",
+    "name_ko": "위즈에어",
+    "type": "LCC",
+    "alliance": null,
+    "country": "HU",
+    "website_url": "https://www.wizzair.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "DY",
+    "name": "Norwegian Air Shuttle",
+    "name_ko": "노르웨이에어",
+    "type": "LCC",
+    "alliance": null,
+    "country": "NO",
+    "website_url": "https://www.norwegian.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "VY",
+    "name": "Vueling",
+    "name_ko": "부엘링",
+    "type": "LCC",
+    "alliance": null,
+    "country": "ES",
+    "website_url": "https://www.vueling.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "HV",
+    "name": "Transavia",
+    "name_ko": "트랜사비아",
+    "type": "LCC",
+    "alliance": null,
+    "country": "NL",
+    "website_url": "https://www.transavia.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "EW",
+    "name": "Eurowings",
+    "name_ko": "유로윙스",
+    "type": "LCC",
+    "alliance": null,
+    "country": "DE",
+    "website_url": "https://www.eurowings.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "AA",
+    "name": "American Airlines",
+    "name_ko": "아메리칸항공",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "US",
+    "website_url": "https://www.aa.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "DL",
+    "name": "Delta Air Lines",
+    "name_ko": "델타항공",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "US",
+    "website_url": "https://www.delta.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "UA",
+    "name": "United Airlines",
+    "name_ko": "유나이티드항공",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "US",
+    "website_url": "https://www.united.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "WN",
+    "name": "Southwest Airlines",
+    "name_ko": "사우스웨스트",
+    "type": "LCC",
+    "alliance": null,
+    "country": "US",
+    "website_url": "https://www.southwest.com",
+    "data_sources": ["L1", "L3"]
+  },
+  {
+    "code": "B6",
+    "name": "JetBlue Airways",
+    "name_ko": "제트블루",
+    "type": "LCC",
+    "alliance": null,
+    "country": "US",
+    "website_url": "https://www.jetblue.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "NK",
+    "name": "Spirit Airlines",
+    "name_ko": "스피릿항공",
+    "type": "ULCC",
+    "alliance": null,
+    "country": "US",
+    "website_url": "https://www.spirit.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "F9",
+    "name": "Frontier Airlines",
+    "name_ko": "프론티어항공",
+    "type": "ULCC",
+    "alliance": null,
+    "country": "US",
+    "website_url": "https://www.flyfrontier.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "AS",
+    "name": "Alaska Airlines",
+    "name_ko": "알래스카항공",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "US",
+    "website_url": "https://www.alaskaair.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "G4",
+    "name": "Allegiant Air",
+    "name_ko": "알레지언트항공",
+    "type": "ULCC",
+    "alliance": null,
+    "country": "US",
+    "website_url": "https://www.allegiantair.com",
+    "data_sources": ["L3"]
+  },
+  {
+    "code": "XP",
+    "name": "Avelo Airlines",
+    "name_ko": "아벨로항공",
+    "type": "ULCC",
+    "alliance": null,
+    "country": "US",
+    "website_url": "https://www.aveloair.com",
+    "data_sources": ["L3"]
+  },
+  {
+    "code": "MX",
+    "name": "Breeze Airways",
+    "name_ko": "브리즈항공",
+    "type": "LCC",
+    "alliance": null,
+    "country": "US",
+    "website_url": "https://www.flybreeze.com",
+    "data_sources": ["L3"]
+  },
+  {
+    "code": "AC",
+    "name": "Air Canada",
+    "name_ko": "에어캐나다",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "CA",
+    "website_url": "https://www.aircanada.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "WS",
+    "name": "WestJet",
+    "name_ko": "웨스트젯",
+    "type": "FSC",
+    "alliance": null,
+    "country": "CA",
+    "website_url": "https://www.westjet.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "LA",
+    "name": "LATAM Airlines",
+    "name_ko": "라탐항공",
+    "type": "FSC",
+    "alliance": null,
+    "country": "CL",
+    "website_url": "https://www.latamairlines.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "AV",
+    "name": "Avianca",
+    "name_ko": "아비앙카",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "CO",
+    "website_url": "https://www.avianca.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "AM",
+    "name": "Aeromexico",
+    "name_ko": "아에로멕시코",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "MX",
+    "website_url": "https://www.aeromexico.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "CM",
+    "name": "Copa Airlines",
+    "name_ko": "코파항공",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "PA",
+    "website_url": "https://www.copaair.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "Y4",
+    "name": "Volaris",
+    "name_ko": "볼라리스",
+    "type": "ULCC",
+    "alliance": null,
+    "country": "MX",
+    "website_url": "https://www.volaris.com",
+    "data_sources": ["L3"]
+  },
+  {
+    "code": "JA",
+    "name": "JetSMART",
+    "name_ko": "젯스마트",
+    "type": "ULCC",
+    "alliance": null,
+    "country": "CL",
+    "website_url": "https://www.jetsmart.com",
+    "data_sources": ["L2", "L3"]
+  },
+  {
+    "code": "G3",
+    "name": "GOL Linhas Aereas",
+    "name_ko": "골항공",
+    "type": "LCC",
+    "alliance": null,
+    "country": "BR",
+    "website_url": "https://www.voegol.com.br",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "AD",
+    "name": "Azul Brazilian Airlines",
+    "name_ko": "아줄항공",
+    "type": "LCC",
+    "alliance": null,
+    "country": "BR",
+    "website_url": "https://www.voeazul.com.br",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "EK",
+    "name": "Emirates",
+    "name_ko": "에미레이트",
+    "type": "FSC",
+    "alliance": null,
+    "country": "AE",
+    "website_url": "https://www.emirates.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "QR",
+    "name": "Qatar Airways",
+    "name_ko": "카타르항공",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "QA",
+    "website_url": "https://www.qatarairways.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "EY",
+    "name": "Etihad Airways",
+    "name_ko": "에티하드항공",
+    "type": "FSC",
+    "alliance": null,
+    "country": "AE",
+    "website_url": "https://www.etihad.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "SV",
+    "name": "Saudia",
+    "name_ko": "사우디아",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "SA",
+    "website_url": "https://www.saudia.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "FZ",
+    "name": "flydubai",
+    "name_ko": "플라이두바이",
+    "type": "LCC",
+    "alliance": null,
+    "country": "AE",
+    "website_url": "https://www.flydubai.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "G9",
+    "name": "Air Arabia",
+    "name_ko": "에어아라비아",
+    "type": "LCC",
+    "alliance": null,
+    "country": "AE",
+    "website_url": "https://www.airarabia.com",
+    "data_sources": ["L2"]
+  },
+  {
+    "code": "ET",
+    "name": "Ethiopian Airlines",
+    "name_ko": "에티오피아항공",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "ET",
+    "website_url": "https://www.ethiopianairlines.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "SA",
+    "name": "South African Airways",
+    "name_ko": "남아프리카항공",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "ZA",
+    "website_url": "https://www.flysaa.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "KQ",
+    "name": "Kenya Airways",
+    "name_ko": "케냐항공",
+    "type": "FSC",
+    "alliance": "SkyTeam",
+    "country": "KE",
+    "website_url": "https://www.kenya-airways.com",
+    "data_sources": ["L1", "L2"]
+  },
+  {
+    "code": "MS",
+    "name": "EgyptAir",
+    "name_ko": "이집트에어",
+    "type": "FSC",
+    "alliance": "Star Alliance",
+    "country": "EG",
+    "website_url": "https://www.egyptair.com",
+    "data_sources": ["L1"]
+  },
+  {
+    "code": "AT",
+    "name": "Royal Air Maroc",
+    "name_ko": "로열에어모로코",
+    "type": "FSC",
+    "alliance": "Oneworld",
+    "country": "MA",
+    "website_url": "https://www.royalairmaroc.com",
+    "data_sources": ["L1"]
+  }
+]

@@ -68,6 +68,9 @@ known-first-party = [
     "sky_scanner_scheduler",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/versions/*.py" = ["E501"]
+
 [tool.ruff.format]
 docstring-code-format = true
 
