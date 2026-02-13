@@ -36,7 +36,7 @@ def upgrade() -> None:
         sa.Column(
             "alliance",
             sa.Enum(
-                "Star", "Oneworld", "SkyTeam", "None", name="alliance", create_type=True
+                "STAR", "ONEWORLD", "SKYTEAM", "NONE", name="alliance", create_type=True
             ),
             nullable=False,
         ),
@@ -292,10 +292,10 @@ def upgrade() -> None:
         sa.Column(
             "preferred_alliance",
             sa.Enum(
-                "Star",
-                "Oneworld",
-                "SkyTeam",
-                "None",
+                "STAR",
+                "ONEWORLD",
+                "SKYTEAM",
+                "NONE",
                 name="alliance",
                 create_type=False,
             ),

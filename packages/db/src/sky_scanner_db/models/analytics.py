@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import uuid  # noqa: TC003
+from datetime import date, datetime  # noqa: TC003
 
 from sqlalchemy import (
     Boolean,
@@ -20,10 +21,6 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, UUIDPrimaryKeyMixin
-
-if TYPE_CHECKING:
-    import uuid
-    from datetime import date, datetime
 
 
 class PriceFeature(UUIDPrimaryKeyMixin, Base):

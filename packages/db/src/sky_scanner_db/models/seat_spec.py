@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid  # noqa: TC003
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Float, ForeignKey, Index, String
@@ -9,12 +10,10 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin, UUIDPrimaryKeyMixin
+from .flight import CabinClass  # noqa: TC001
 
 if TYPE_CHECKING:
-    import uuid
-
     from .airline import Airline
-    from .flight import CabinClass
 
 
 class SeatSpec(UUIDPrimaryKeyMixin, TimestampMixin, Base):

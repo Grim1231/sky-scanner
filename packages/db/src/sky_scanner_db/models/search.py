@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import uuid  # noqa: TC003
+from datetime import date, datetime  # noqa: TC003
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
@@ -22,9 +24,6 @@ from .base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 from .flight import CabinClass
 
 if TYPE_CHECKING:
-    import uuid
-    from datetime import date, datetime
-
     from .user import User
 
 

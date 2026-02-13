@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import enum
+import uuid  # noqa: TC003
+from datetime import datetime, time  # noqa: TC003
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
@@ -21,12 +23,9 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin, UUIDPrimaryKeyMixin
+from .flight import CabinClass  # noqa: TC001
 
 if TYPE_CHECKING:
-    import uuid
-    from datetime import datetime, time
-
-    from .flight import CabinClass
     from .search import PriceAlert, SearchHistory
 
 
@@ -55,6 +54,7 @@ class User(UUIDPrimaryKeyMixin, Base):
 
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    password_hash: Mapped[str | None] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
