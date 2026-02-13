@@ -65,6 +65,7 @@ class Flight(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         DateTime(timezone=True), nullable=False
     )
     source: Mapped[DataSource] = mapped_column(nullable=False)
+    stops: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
 
     # Relationships
     airline: Mapped[Airline] = relationship(back_populates="flights")

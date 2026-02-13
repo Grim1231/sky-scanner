@@ -57,6 +57,8 @@ class FlightResult(BaseModel):
     prices: list[PriceInfo]
     lowest_price: float | None = None
     source: str
+    score: float | None = None
+    score_breakdown: dict | None = None
 
 
 class FlightSearchResponse(BaseModel):

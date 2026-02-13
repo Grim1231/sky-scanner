@@ -23,6 +23,13 @@ class ApiSettings(BaseSettings):
     price_cache_ttl: int = 600  # 10 min
     reference_cache_ttl: int = 3600  # 1 hour
 
+    # Anthropic (for natural language search)
+    anthropic_api_key: str = ""
+
+    # NL search & prediction cache TTLs
+    nl_search_cache_ttl: int = 3600  # 1 hour
+    prediction_cache_ttl: int = 1800  # 30 min
+
     # Celery
     celery_broker_url: str = "redis://localhost:6379/1"
 

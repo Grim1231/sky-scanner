@@ -20,6 +20,8 @@ from sky_scanner_api.routers import (
     airlines,
     airports,
     auth,
+    natural_search,
+    prediction,
     prices,
     search,
     users,
@@ -67,6 +69,8 @@ def create_app() -> FastAPI:
     app.include_router(airlines.router, prefix=_prefix)
     app.include_router(auth.router, prefix=_prefix)
     app.include_router(users.router, prefix=_prefix)
+    app.include_router(natural_search.router, prefix=_prefix)
+    app.include_router(prediction.router, prefix=_prefix)
 
     return app
 

@@ -18,7 +18,8 @@ from sky_scanner_api.schemas.search import (
     FlightSearchResponse,
     PriceInfo,
 )
-from sky_scanner_db.models import Airport, Flight
+from sky_scanner_api.services.personalization_service import PersonalizationService
+from sky_scanner_db.models import Airline, Airport, Flight
 
 if TYPE_CHECKING:
     from uuid import UUID
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
     from sky_scanner_api.schemas.search import FlightSearchRequest
+    from sky_scanner_ml.preference_filter import SQLFilterSet
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +75,20 @@ class SearchService:
             )
 
         # --- MISS: query DB ---
-        flights = await self._query_flights(request)
+        # Load user preference filters if authenticated
+        sql_filters: SQLFilterSet | None = None
+        if user_id:
+            personalization = PersonalizationService(self._db)
+            filter_result = await personalization.get_user_filters(user_id)
+            if filter_result is not None:
+                sql_filters = filter_result[0]
+
+        flights = await self._query_flights(request, sql_filters)
+
+        # Score and sort results based on user preferences
+        if user_id:
+            personalization = PersonalizationService(self._db)
+            flights = await personalization.score_results(flights, user_id)
 
         # Dispatch crawl for fresh data
         task_id = await dispatch_crawl(request.model_dump(mode="json"))
@@ -101,6 +116,7 @@ class SearchService:
     async def _query_flights(
         self,
         request: FlightSearchRequest,
+        sql_filters: SQLFilterSet | None = None,
     ) -> list[FlightResult]:
         """Query the database for matching flights."""
         # Resolve airport codes (with optional alternatives)
@@ -129,8 +145,42 @@ class SearchService:
                 func.date(Flight.departure_time) == request.departure_date,
                 Flight.cabin_class == request.cabin_class,
             )
-            .order_by(Flight.departure_time)
         )
+
+        # Apply preference-based SQL filters
+        if sql_filters is not None:
+            if sql_filters.max_stops is not None:
+                stmt = stmt.where(Flight.stops <= sql_filters.max_stops)
+            if sql_filters.preferred_airlines:
+                stmt = stmt.join(Airline, Flight.airline_id == Airline.id).where(
+                    Airline.code.in_(sql_filters.preferred_airlines)
+                )
+            elif sql_filters.excluded_airlines:
+                stmt = stmt.join(Airline, Flight.airline_id == Airline.id).where(
+                    Airline.code.notin_(sql_filters.excluded_airlines)
+                )
+            if sql_filters.preferred_alliance:
+                # Only join if not already joined above
+                needs_join = (
+                    not sql_filters.preferred_airlines
+                    and not sql_filters.excluded_airlines
+                )
+                if needs_join:
+                    stmt = stmt.join(Airline, Flight.airline_id == Airline.id)
+                stmt = stmt.where(Airline.alliance == sql_filters.preferred_alliance)
+            if sql_filters.departure_time_start and sql_filters.departure_time_end:
+                stmt = stmt.where(
+                    func.extract("hour", Flight.departure_time) * 60
+                    + func.extract("minute", Flight.departure_time)
+                    >= sql_filters.departure_time_start.hour * 60
+                    + sql_filters.departure_time_start.minute,
+                    func.extract("hour", Flight.departure_time) * 60
+                    + func.extract("minute", Flight.departure_time)
+                    <= sql_filters.departure_time_end.hour * 60
+                    + sql_filters.departure_time_end.minute,
+                )
+
+        stmt = stmt.order_by(Flight.departure_time)
 
         result = await self._db.execute(stmt)
         db_flights = result.scalars().unique().all()
