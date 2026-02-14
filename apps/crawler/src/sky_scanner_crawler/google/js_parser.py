@@ -162,8 +162,8 @@ class FlightDecoder(Decoder):
     OPERATOR: DecoderKey[str] = DecoderKey([2])
     DEPARTURE_AIRPORT: DecoderKey[str] = DecoderKey([3])
     DEPARTURE_AIRPORT_NAME: DecoderKey[str] = DecoderKey([4])
-    ARRIVAL_AIRPORT: DecoderKey[str] = DecoderKey([5])
-    ARRIVAL_AIRPORT_NAME: DecoderKey[str] = DecoderKey([6])
+    ARRIVAL_AIRPORT: DecoderKey[str] = DecoderKey([6])
+    ARRIVAL_AIRPORT_NAME: DecoderKey[str] = DecoderKey([5])
     DEPARTURE_TIME: DecoderKey[tuple[int, int]] = DecoderKey([8])
     ARRIVAL_TIME: DecoderKey[tuple[int, int]] = DecoderKey([10])
     TRAVEL_TIME: DecoderKey[int] = DecoderKey([11])
@@ -233,12 +233,26 @@ class ResultDecoder(Decoder):
 
 
 def _date_time_to_datetime(
-    date_tuple: tuple[int, int, int],
-    time_tuple: tuple[int, int],
+    date_tuple: tuple[int | None, ...] | list[int | None],
+    time_tuple: tuple[int | None, ...] | list[int | None],
 ) -> datetime:
-    """Convert (year, month, day) + (hour, minute) tuples to datetime."""
-    year, month, day = date_tuple
-    hour, minute = time_tuple
+    """Convert (year, month, day) + (hour, minute) tuples to datetime.
+
+    Google protobuf sometimes omits trailing zero fields, so time_tuple
+    may have only 1 element (hour) when minutes == 0.  Elements may also
+    be ``None``.
+    """
+    year = int(date_tuple[0] or 0)
+    month = (
+        int(date_tuple[1]) if len(date_tuple) > 1 and date_tuple[1] is not None else 1
+    )
+    day = int(date_tuple[2]) if len(date_tuple) > 2 and date_tuple[2] is not None else 1
+    hour = (
+        int(time_tuple[0]) if len(time_tuple) >= 1 and time_tuple[0] is not None else 0
+    )
+    minute = (
+        int(time_tuple[1]) if len(time_tuple) >= 2 and time_tuple[1] is not None else 0
+    )
     return datetime(year, month, day, hour, minute)
 
 

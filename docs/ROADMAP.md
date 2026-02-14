@@ -232,91 +232,158 @@ M6 (ongoing) L4(GDS) + 고도화 + 스케일링
 
 ---
 
-## M4: 프론트엔드 MVP (Week 10-11)
+## M4: 프론트엔드 MVP (Week 10-11) ✅ 완료
 
-### Week 10: 핵심 UI
+### 기술 스택
+- Next.js 16 (App Router) + TypeScript + Tailwind CSS 4 + shadcn/ui
+- Zustand (인증 상태) + recharts (차트) + nuqs (URL 상태)
+- 58개 파일 (48 TSX + 10 TS), ~5,300 LoC
 
-- [ ] Next.js 프로젝트 셋업 (App Router, TypeScript)
-- [ ] 검색 페이지
-  - 출발지/도착지 자동완성 (공항 코드 + 도시명)
-  - 날짜 선택기 (편도/왕복/다구간)
+### Week 10: 핵심 UI ✅
+
+- [x] Next.js 프로젝트 셋업 (App Router, TypeScript, Tailwind, shadcn/ui 18개 컴포넌트)
+- [x] 검색 페이지
+  - 출발지/도착지 자동완성 (공항 코드 + 도시명, debounced)
+  - 날짜 선택기 (편도/왕복)
   - 인원 선택 (성인/아동/유아)
-  - 좌석 클래스 선택
-- [ ] 검색 결과 페이지
-  - 항공편 카드 (가격, 시간, 항공사, 경유)
-  - 필터 사이드바 (시간대, 경유, 항공사, 가격 범위)
+  - 좌석 클래스 선택 (Economy/Premium Economy/Business/First)
+  - 자연어 검색 바 (`POST /search/natural`)
+- [x] 검색 결과 페이지
+  - 항공편 카드 (가격, 시간, 항공사, 경유, 예약 링크)
+  - 필터 사이드바 (항공사 체크박스, 가격 범위)
   - 정렬 옵션 (추천순, 가격순, 시간순)
-  - 추천 점수 표시
-- [ ] 반응형 디자인 (모바일 대응)
+  - 추천 점수 뱃지 (M3 ML 스코어링)
+  - 가격 분석 페이지 링크
+- [x] 반응형 디자인 (모바일 햄버거 메뉴, 수직 폼 배치)
 
-### Week 11: 부가 기능 UI
+### Week 11: 부가 기능 UI ✅
 
-- [ ] 사용자 프로필 / 개인화 설정 페이지
-- [ ] 가격 추이 차트 (노선별)
-- [ ] 가격 예측 표시 ("지금 사세요" / "기다리세요")
-- [ ] 가격 알림 설정 UI
-- [ ] 검색 히스토리
-- [ ] 로그인/회원가입
+- [x] 사용자 프로필 / 개인화 설정 페이지 (선호도: 좌석, 경유, 동맹, 우선순위)
+- [x] 가격 추이 차트 (recharts AreaChart — min/max/avg 가격)
+- [x] 가격 예측 표시 (BUY_NOW/WAIT/NEUTRAL + 신뢰도)
+- [x] 최적 구매 시점 카드 (타이밍 인디케이터)
+- [x] 검색 히스토리 (페이지네이션, 클릭 시 재검색)
+- [x] 로그인/회원가입 (JWT 자동 갱신, localStorage persist)
 
-### 완료 기준
+### 완료 기준 ✅
 
-- 검색 → 결과 → 개인화 필터 전체 플로우 동작
-- 모바일/데스크톱 반응형
-- Lighthouse 성능 점수 > 80
+- [x] 검색 → 결과 → 개인화 필터 전체 플로우 동작
+- [x] 모바일/데스크톱 반응형
+- [x] `next build` + ESLint + TypeScript 모두 통과
+- [x] Auth guard: 미인증 시 /login 리다이렉트
 
 ---
 
-## M5: L3(직접 크롤링) 확장 + 안정화 (Week 12-13)
+## M5: L2 확장(항공사 API 리버스 엔지니어링) + L3(Playwright) + 안정화 (Week 12-14)
 
-> **핵심:** M1-M4는 L1+L2로 100+ 항공사 커버. M5에서 L3(직접 크롤링)을 추가하여
-> L1+L2에 없는 항공사 + 직접 프로모션 가격을 포착한다.
+> **핵심:** M1-M4는 L1(Google)+L2(Kiwi)로 100+ 항공사 커버. M5에서:
+> 1. **L2 확장** — Google에 없는 한국/아시아 LCC 항공사 API를 리버스 엔지니어링하여 직접 크롤링
+> 2. **L3(Playwright)** — API가 없는 항공사는 브라우저 자동화로 크롤링
+> 3. **가격 알림 + 운영 안정화**
+>
+> **이미 완료:** 제주항공(7C) L2 크롤러 — `sec.jejuair.net` lowest-fare calendar API 리버스 엔지니어링 성공
 
-### Week 12: L3 직접 크롤링 구축
+### Week 12: L2 확장 — 한국/아시아 LCC API 리버스 엔지니어링
 
-**L3 Tier 1: 어디에도 없는 항공사 (필수)**
-- [ ] Allegiant, Avelo, Breeze (미국 ULCC) 크롤러
-- [ ] 볼라리스 (멕시코), JetSMART (칠레) 크롤러
-- [ ] 항공사별 파서 모듈화 (팩토리 패턴)
+> **방법론:** Chrome DevTools로 항공사 웹사이트의 내부 JSON API를 발견하고,
+> 인증 없이 호출 가능한 엔드포인트를 찾아 Python httpx 클라이언트로 구현.
+> 제주항공에서 검증된 패턴(`sec.xxx.net` + `Channel-Code` 헤더)을 다른 항공사에 적용.
+
+**L2-A: Navitaire PSS 기반 항공사 (제주항공과 동일 패턴 예상)**
+- [x] 제주항공 (7C) — ✅ 완료 (`searchlowestFareCalendar.json`, 52개 취항지)
+- [ ] 이스타항공 (ZE) — Navitaire 사용 확인됨, 동일 API 패턴 예상
+- [ ] 에어프레미아 (YP) — Navitaire 사용 확인됨
+
+**L2-B: 기타 한국 LCC (Chrome DevTools로 API 탐색 필요)**
+- [ ] 티웨이항공 (TW) — React SPA, Network 탭으로 XHR 엔드포인트 탐색
+- [ ] 진에어 (LJ) — 대한항공 자회사, 예약 API 탐색
+- [ ] 에어부산 (BX) — 아시아나 자회사, 예약 API 탐색
+- [ ] 에어서울 (RS) — 아시아나 자회사, 예약 API 탐색
+
+**L2-C: 아시아 LCC (Google Flights 미커버 또는 부분 커버)**
+- [ ] Peach Aviation (MM) — 일본, ANA 자회사
+- [ ] VietJet Air (VJ) — 베트남
+- [ ] Cebu Pacific (5J) — 필리핀
+- [ ] Spring Airlines (9C) — 중국
+
+**구현 패턴 (제주항공 기준 표준화):**
+```
+apps/crawler/src/sky_scanner_crawler/{airline_name}/
+├── __init__.py
+├── client.py            # httpx AsyncClient (해당 항공사 API 엔드포인트)
+├── response_parser.py   # API 응답 → NormalizedFlight 변환
+└── crawler.py           # {Airline}Crawler(BaseCrawler)
+```
+
+**각 항공사 리버스 엔지니어링 절차:**
+1. Chrome DevTools로 예약 페이지 접속 → Network 탭에서 XHR/fetch 요청 캡처
+2. 최저가 캘린더 / 운임 조회 JSON API 엔드포인트 식별
+3. 필수 헤더 확인 (Channel-Code, Origin, Referer 등)
+4. 인증 필요 여부 테스트 (쿠키 없이 호출)
+5. Python httpx 클라이언트 구현 + retry 로직
+6. CLI 명령어 추가 (`crawl-{airline}`)
+7. 헬스체크 등록
+
+### Week 13: L3 Playwright 직접 크롤링 (API 없는 항공사용)
+
+> **L2 리버스 엔지니어링이 불가능한 경우** (Akamai/CloudFlare WAF 차단, 세션 필수 등)
+> Playwright 브라우저 자동화로 폴백.
+
+**L3 Tier 1: L2 리버스 엔지니어링 실패한 한국 LCC**
+- [ ] L2-B/C에서 API 발견 실패한 항공사 → Playwright 크롤러로 전환
+- [ ] Playwright 기반 BaseBrowserCrawler 구현
+  - 검색 폼 자동 입력 → 결과 HTML 파싱
+  - Anti-bot 우회 (stealth mode, fingerprint randomization)
 
 **L3 Tier 2: 직접 프로모션 포착용 (한국/일본 FSC)**
 - [ ] 대한항공, 아시아나 직접 크롤링 (L1과 가격 비교)
 - [ ] ANA, JAL 직접 크롤링
 - [ ] L1 vs L3 가격 차이 분석 → 직접 사이트가 더 싼 케이스 확인
 
-**L3 Tier 3: Google 누락 + API 불완전 항공사**
-- [ ] 위즈에어, 부엘링, 트랜사비아 (L2 커버 부족 시)
-- [ ] 에어아시아, 비엣젯 (L2 커버 부족 시)
+**L3 Tier 3: 글로벌 ULCC (Google/Kiwi 완전 누락)**
+- [ ] Allegiant, Avelo, Breeze (미국 ULCC)
+- [ ] 볼라리스 (멕시코), JetSMART (칠레)
 
 **공통**
+- [ ] 항공사별 파서 모듈화 (팩토리 패턴)
 - [ ] Residential Proxy 풀 본격 운영
-- [ ] 안티봇 대응 강화 (항공사별 안티봇 시스템 매핑)
-- [ ] L3 결과 → Data Merger 통합 (L1+L2+L3 3-way 머지)
+- [ ] 안티봇 대응 매핑 (항공사별: Akamai, CloudFlare, PerimeterX 등)
+- [ ] L2+L3 결과 → Data Merger 통합 (L1+L2+L3 머지)
 
-### Week 13: 가격 알림 + 운영
+### Week 14: 가격 알림 + 운영 + 가격 예측 고도화
 
-- [ ] 가격 알림 시스템
-  - 목표 가격 이하 시 이메일/푸시 알림
-  - Celery Beat 기반 주기적 확인
-  - **L3 전용 항공사 포함** (Allegiant 등 알림 가능)
-- [ ] 운영 대시보드
-  - **소스별(L1/L2/L3)** 크롤러 상태 모니터링
-  - 항공사별 성공률 + 소스별 커버리지
-  - 가격 데이터 품질 메트릭
-  - L1 vs L2 vs L3 가격 차이 통계
+**가격 알림 시스템**
+- [ ] 목표 가격 이하 시 이메일/푸시 알림
+- [ ] Celery Beat 기반 주기적 확인
+- [ ] L2/L3 전용 항공사 포함 (제주항공 최저가 알림 등)
+
+**가격 예측 고도화 (다중 소스 데이터 활용)**
+- [ ] 제주항공 등 직접 크롤링 데이터로 heuristic 예측 정확도 향상
+- [ ] L1(Google) vs L2(항공사 직접) 가격 차이 패턴 분석
+- [ ] 항공사별 가격 변동 주기 분석 (LCC vs FSC)
+- [ ] "언제 사야 저렴한가" 추천 로직 개선
+  - 현재: 7일/30일 이동평균 기반 heuristic
+  - 개선: 항공사별 가격 곡선 학습 + 출발일까지 남은 기간별 가격 패턴
+
+**운영 대시보드**
+- [ ] 소스별(L1/L2/L3) 크롤러 상태 모니터링
+- [ ] 항공사별 성공률 + 소스별 커버리지
+- [ ] 가격 데이터 품질 메트릭
 - [ ] 부하 테스트 + 성능 최적화
 
 ### DA (병렬 진행)
 
-- [ ] LSTM/GRU 시계열 모델 개발
-- [ ] 3-소스 데이터 통합 분석 (L1 vs L2 vs L3 가격 패턴)
+- [ ] LSTM/GRU 시계열 모델 개발 (다중 소스 가격 데이터)
+- [ ] 3-소스 데이터 통합 분석 (L1 vs L2-direct vs L3 가격 패턴)
+- [ ] 항공사별 가격 변동 모델링 (LCC는 출발일 가까워질수록 급등하는 패턴)
 - [ ] 이상 탐지 (가격 오류, 플래시 세일 감지)
 - [ ] A/B 테스트 프레임워크 설계
 
 ### 완료 기준
 
+- L2 리버스 엔지니어링으로 **한국 LCC 5개+** 직접 가격 수집
 - L1+L2+L3 합산 **150+ 항공사** 커버
-- L3 전용 항공사(Allegiant, 볼라리스 등) 가격 수집 확인
-- L1 vs L3 직접 가격 비교 → 직접 사이트가 더 싼 비율 측정
+- 제주항공/티웨이 등 Google에 없는 항공사 가격 비교 가능
 - 가격 알림 이메일 발송 확인
 - 크롤러 성공률 > 85% (소스별 독립 측정)
 - 전체 시스템 24시간 무중단 운영 테스트

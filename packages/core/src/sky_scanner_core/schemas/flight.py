@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import datetime  # noqa: TC003
 
 from pydantic import BaseModel, Field, computed_field
 
-if TYPE_CHECKING:
-    from datetime import datetime
-
-    from .enums import CabinClass, DataSource
+from .enums import CabinClass, DataSource  # noqa: TC001
 
 
 class NormalizedPrice(BaseModel):

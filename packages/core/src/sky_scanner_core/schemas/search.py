@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import date  # noqa: TC003
 
 from pydantic import BaseModel, Field, model_validator
 
 from .enums import CabinClass, TripType
-
-if TYPE_CHECKING:
-    from datetime import date
 
 
 class PassengerCount(BaseModel):

@@ -7,10 +7,20 @@ import json
 import logging
 import sys
 from datetime import date
+from pathlib import Path
 
 import click
+from dotenv import load_dotenv
 
-from sky_scanner_core.schemas import (
+# Load .env before any module reads os.getenv (e.g. sky_scanner_db.database).
+# Walk up from CWD to find the project-root .env file.
+_env_path = Path.cwd() / ".env"
+if not _env_path.exists():
+    # Fallback: resolve relative to this source file (../../../../../../.env)
+    _env_path = Path(__file__).resolve().parents[4] / ".env"
+load_dotenv(_env_path, override=False)
+
+from sky_scanner_core.schemas import (  # noqa: E402
     CabinClass,
     CrawlTask,
     DataSource,
@@ -30,6 +40,22 @@ def _build_search_request(
         departure_date=date.fromisoformat(departure_date),
         cabin_class=CabinClass(cabin.upper()),
     )
+
+
+def _store_to_db(flights: list) -> None:  # type: ignore[type-arg]
+    """Persist crawled flights to the database."""
+    from .pipeline.store import FlightStore
+
+    async def _run() -> int:
+        from sky_scanner_db.database import async_session_factory
+
+        store = FlightStore()
+        async with async_session_factory() as session:
+            count = await store.store_flights(flights, session)
+            return count
+
+    count = asyncio.run(_run())
+    click.echo(f"Stored {count} flights to database.")
 
 
 def _print_results(flights: list) -> None:  # type: ignore[type-arg]
@@ -60,8 +86,14 @@ def cli() -> None:
 @click.argument("departure_date")
 @click.option("--cabin", default="ECONOMY", help="Cabin class")
 @click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
 def crawl_l1(
-    origin: str, destination: str, departure_date: str, cabin: str, json_output: bool
+    origin: str,
+    destination: str,
+    departure_date: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
 ) -> None:
     """L1: Google Flights Protobuf crawl."""
     from .google.crawler import GoogleFlightsCrawler
@@ -84,6 +116,9 @@ def crawl_l1(
         if result.error:
             click.echo(f"Error: {result.error}", err=True)
         _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
 
 
 @cli.command("crawl-l2")
@@ -116,6 +151,47 @@ def crawl_l2(
         if result.error:
             click.echo(f"Error: {result.error}", err=True)
         _print_results(result.flights)
+
+
+@cli.command("crawl-jeju")
+@click.argument("origin")
+@click.argument("destination")
+@click.argument("departure_date")
+@click.option("--cabin", default="ECONOMY", help="Cabin class")
+@click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
+def crawl_jeju(
+    origin: str,
+    destination: str,
+    departure_date: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
+) -> None:
+    """L2: Jeju Air lowest-fare calendar crawl."""
+    from .jeju_air.crawler import JejuAirCrawler
+
+    search_req = _build_search_request(origin, destination, departure_date, cabin)
+    task = CrawlTask(search_request=search_req, source=DataSource.DIRECT_CRAWL)
+
+    async def _run():  # type: ignore[return]
+        crawler = JejuAirCrawler()
+        try:
+            return await crawler.crawl(task)
+        finally:
+            await crawler.close()
+
+    result = asyncio.run(_run())
+    if json_output:
+        click.echo(json.dumps(result.model_dump(mode="json"), indent=2))
+    else:
+        click.echo(f"Source: {result.source.value} | Duration: {result.duration_ms}ms")
+        if result.error:
+            click.echo(f"Error: {result.error}", err=True)
+        _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
 
 
 @cli.command("crawl")
@@ -173,25 +249,30 @@ def crawl_all(
 def health_check() -> None:
     """Check health of all crawl sources."""
     from .google.crawler import GoogleFlightsCrawler
+    from .jeju_air.crawler import JejuAirCrawler
     from .kiwi.crawler import KiwiCrawler
 
     async def _run() -> dict[str, bool]:
         google = GoogleFlightsCrawler()
         kiwi = KiwiCrawler()
+        jeju = JejuAirCrawler()
         try:
             results = await asyncio.gather(
                 google.health_check(),
                 kiwi.health_check(),
+                jeju.health_check(),
                 return_exceptions=True,
             )
         finally:
             await google.close()
             await kiwi.close()
+            await jeju.close()
 
         return {
             "L1 (Google Protobuf)": not isinstance(results[0], Exception)
             and results[0],
             "L2 (Kiwi API)": not isinstance(results[1], Exception) and results[1],
+            "L2 (Jeju Air)": not isinstance(results[2], Exception) and results[2],
         }
 
     statuses = asyncio.run(_run())

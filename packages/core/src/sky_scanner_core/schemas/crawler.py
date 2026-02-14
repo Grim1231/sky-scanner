@@ -2,16 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import datetime  # noqa: TC003
 
 from pydantic import BaseModel, Field
 
-if TYPE_CHECKING:
-    from datetime import datetime
-
-    from .enums import DataSource
-    from .flight import NormalizedFlight
-    from .search import SearchRequest
+from .enums import DataSource  # noqa: TC001
+from .flight import NormalizedFlight  # noqa: TC001
+from .search import SearchRequest  # noqa: TC001
 
 
 class SourceConfig(BaseModel):

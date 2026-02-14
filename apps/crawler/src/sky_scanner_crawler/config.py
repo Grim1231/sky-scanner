@@ -1,12 +1,14 @@
 """Crawler configuration via environment variables."""
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class CrawlerSettings(BaseSettings):
     """Settings loaded from environment variables."""
 
-    model_config = {"env_prefix": "CRAWLER_"}
+    model_config = SettingsConfigDict(
+        env_prefix="CRAWLER_", env_file=".env", extra="ignore"
+    )
 
     # Kiwi Tequila API
     kiwi_api_key: str = ""
