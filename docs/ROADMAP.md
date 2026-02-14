@@ -291,14 +291,14 @@ M6 (ongoing) L4(GDS) + 고도화 + 스케일링
 
 **L2-A: Navitaire PSS 기반 항공사 (제주항공과 동일 패턴 예상)**
 - [x] 제주항공 (7C) — ✅ 완료 (`searchlowestFareCalendar.json`, 52개 취항지)
-- [ ] 이스타항공 (ZE) — Navitaire 사용 확인됨, 동일 API 패턴 예상
-- [ ] 에어프레미아 (YP) — Navitaire 사용 확인됨
+- [x] 이스타항공 (ZE) — ✅ 완료 (`kraken.eastarjet.com` dotRez API, 28개 취항지, 세션 필요→자동 생성)
+- [ ] 에어프레미아 (YP) — ⚠️ Cloudflare JS Challenge가 `/api/v1/low-fares`, `/api/v1/fares` 차단. 노선 API(`/api/v1/airports`, `/api/v1/airport-regions`)는 오픈. ICN→9개 노선(NRT,HKG,DAD,BKK,IAD,HNL,SFO,LAX,EWR). **→ L3 전환 필요**
 
-**L2-B: 기타 한국 LCC (Chrome DevTools로 API 탐색 필요)**
-- [ ] 티웨이항공 (TW) — React SPA, Network 탭으로 XHR 엔드포인트 탐색
-- [ ] 진에어 (LJ) — 대한항공 자회사, 예약 API 탐색
-- [ ] 에어부산 (BX) — 아시아나 자회사, 예약 API 탐색
-- [ ] 에어서울 (RS) — 아시아나 자회사, 예약 API 탐색
+**L2-B: 기타 한국 LCC — ⚠️ 전부 L3 전환 필요 (Cloudflare/Akamai 차단)**
+- [ ] 티웨이항공 (TW) — Akamai Bot Detection, Spring Boot 403 (CSRF), 서버 렌더링. **→ L3**
+- [ ] 진에어 (LJ) — Cloudflare Turnstile CAPTCHA (가장 공격적 차단). **→ L3**
+- [ ] 에어부산 (BX) — Cloudflare challenge loop, `/web/bookingApi/` 존재하나 403. **→ L3**
+- [ ] 에어서울 (RS) — Cloudflare 403 (홈페이지 자체가 차단). **→ L3**
 
 **L2-C: 아시아 LCC (Google Flights 미커버 또는 부분 커버)**
 - [ ] Peach Aviation (MM) — 일본, ANA 자회사

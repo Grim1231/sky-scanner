@@ -194,6 +194,47 @@ def crawl_jeju(
         _store_to_db(result.flights)
 
 
+@cli.command("crawl-eastar")
+@click.argument("origin")
+@click.argument("destination")
+@click.argument("departure_date")
+@click.option("--cabin", default="ECONOMY", help="Cabin class")
+@click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
+def crawl_eastar(
+    origin: str,
+    destination: str,
+    departure_date: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
+) -> None:
+    """L2: Eastar Jet daily lowest-fare crawl."""
+    from .eastar_jet.crawler import EastarJetCrawler
+
+    search_req = _build_search_request(origin, destination, departure_date, cabin)
+    task = CrawlTask(search_request=search_req, source=DataSource.DIRECT_CRAWL)
+
+    async def _run():  # type: ignore[return]
+        crawler = EastarJetCrawler()
+        try:
+            return await crawler.crawl(task)
+        finally:
+            await crawler.close()
+
+    result = asyncio.run(_run())
+    if json_output:
+        click.echo(json.dumps(result.model_dump(mode="json"), indent=2))
+    else:
+        click.echo(f"Source: {result.source.value} | Duration: {result.duration_ms}ms")
+        if result.error:
+            click.echo(f"Error: {result.error}", err=True)
+        _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
+
+
 @cli.command("crawl")
 @click.argument("origin")
 @click.argument("destination")
@@ -248,6 +289,7 @@ def crawl_all(
 @cli.command("health")
 def health_check() -> None:
     """Check health of all crawl sources."""
+    from .eastar_jet.crawler import EastarJetCrawler
     from .google.crawler import GoogleFlightsCrawler
     from .jeju_air.crawler import JejuAirCrawler
     from .kiwi.crawler import KiwiCrawler
@@ -256,23 +298,27 @@ def health_check() -> None:
         google = GoogleFlightsCrawler()
         kiwi = KiwiCrawler()
         jeju = JejuAirCrawler()
+        eastar = EastarJetCrawler()
         try:
             results = await asyncio.gather(
                 google.health_check(),
                 kiwi.health_check(),
                 jeju.health_check(),
+                eastar.health_check(),
                 return_exceptions=True,
             )
         finally:
             await google.close()
             await kiwi.close()
             await jeju.close()
+            await eastar.close()
 
         return {
             "L1 (Google Protobuf)": not isinstance(results[0], Exception)
             and results[0],
             "L2 (Kiwi API)": not isinstance(results[1], Exception) and results[1],
             "L2 (Jeju Air)": not isinstance(results[2], Exception) and results[2],
+            "L2 (Eastar Jet)": not isinstance(results[3], Exception) and results[3],
         }
 
     statuses = asyncio.run(_run())
