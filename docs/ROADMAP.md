@@ -294,11 +294,22 @@ M6 (ongoing) L4(GDS) + 고도화 + 스케일링
 - [x] 이스타항공 (ZE) — ✅ 완료 (`kraken.eastarjet.com` dotRez API, 28개 취항지, 세션 필요→자동 생성)
 - [x] 에어프레미아 (YP) — ✅ 완료 (L3 Playwright CF bypass → `/api/v1/low-fares` API, 9개 노선, EY/PE 캐빈클래스별 운임)
 
-**L2-B: 기타 한국 LCC — ⚠️ 전부 L3 전환 필요 (Cloudflare/Akamai 차단)**
-- [ ] 티웨이항공 (TW) — Akamai Bot Detection, Spring Boot 403 (CSRF), 서버 렌더링. **→ L3**
-- [ ] 진에어 (LJ) — Cloudflare Turnstile CAPTCHA (가장 공격적 차단). **→ L3**
-- [ ] 에어부산 (BX) — Cloudflare challenge loop, `/web/bookingApi/` 존재하나 403. **→ L3**
-- [ ] 에어서울 (RS) — Cloudflare 403 (홈페이지 자체가 차단). **→ L3**
+**L2-B: 기타 한국 LCC — ❌ Headless Playwright로도 차단 (channel='chrome' 테스트 완료)**
+- [x] 티웨이항공 (TW) — ❌ Akamai 완전 차단 (headless Chrome도 403 Access Denied)
+- [x] 진에어 (LJ) — ❌ CF Turnstile 20초 이상 stuck, 홈페이지 자체 미로딩
+- [x] 에어부산 (BX) — ❌ 메인페이지는 로딩되나 운임API(`bookingApi/flightsAlert`) 별도 CF 403
+- [x] 에어서울 (RS) — ❌ CF challenge stuck, 홈페이지 미로딩
+> **결론:** 4개 LCC 모두 Headless Playwright `channel='chrome'`으로도 운임 데이터 접근 불가.
+> 향후 대안: CAPTCHA 솔빙 서비스, Residential Proxy + 브라우저 팜, 또는 Non-headless 자동화.
+
+**L2-D: Amadeus GDS Self-Service API — ✅ 구현 완료**
+- [x] Amadeus GDS L2 크롤러 (`amadeus_gds/` 모듈)
+  - `amadeus` Python SDK 사용 (OAuth2 자동 갱신)
+  - ~400개 항공사 커버 (SQ, NH, CX, TG, VN 등 주요 FSC 포함)
+  - 실시간 운임 검색: 가격, 캐빈클래스, 수하물, 항공기종, 경유 정보
+  - CLI: `crawl-amadeus ICN SIN 2026-03-15`
+  - **필요:** developers.amadeus.com 가입 → API Key/Secret 발급 → `.env`에 설정
+  - 무료 월간 1,000~10,000 호출 (테스트 환경은 US/ES/UK/DE/IN 한정)
 
 **L2-C: 아시아 LCC (Google Flights 미커버 또는 부분 커버)**
 - [ ] Peach Aviation (MM) — 일본, ANA 자회사

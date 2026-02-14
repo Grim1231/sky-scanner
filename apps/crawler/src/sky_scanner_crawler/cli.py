@@ -276,6 +276,47 @@ def crawl_premia(
         _store_to_db(result.flights)
 
 
+@cli.command("crawl-amadeus")
+@click.argument("origin")
+@click.argument("destination")
+@click.argument("departure_date")
+@click.option("--cabin", default="ECONOMY", help="Cabin class")
+@click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
+def crawl_amadeus(
+    origin: str,
+    destination: str,
+    departure_date: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
+) -> None:
+    """L2: Amadeus GDS flight offers search (~400 airlines)."""
+    from .amadeus_gds.crawler import AmadeusCrawler
+
+    search_req = _build_search_request(origin, destination, departure_date, cabin)
+    task = CrawlTask(search_request=search_req, source=DataSource.GDS)
+
+    async def _run():  # type: ignore[return]
+        crawler = AmadeusCrawler()
+        try:
+            return await crawler.crawl(task)
+        finally:
+            await crawler.close()
+
+    result = asyncio.run(_run())
+    if json_output:
+        click.echo(json.dumps(result.model_dump(mode="json"), indent=2))
+    else:
+        click.echo(f"Source: {result.source.value} | Duration: {result.duration_ms}ms")
+        if result.error:
+            click.echo(f"Error: {result.error}", err=True)
+        _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
+
+
 @cli.command("crawl")
 @click.argument("origin")
 @click.argument("destination")
@@ -331,6 +372,7 @@ def crawl_all(
 def health_check() -> None:
     """Check health of all crawl sources."""
     from .air_premia.crawler import AirPremiaCrawler
+    from .amadeus_gds.crawler import AmadeusCrawler
     from .eastar_jet.crawler import EastarJetCrawler
     from .google.crawler import GoogleFlightsCrawler
     from .jeju_air.crawler import JejuAirCrawler
@@ -342,6 +384,7 @@ def health_check() -> None:
         jeju = JejuAirCrawler()
         eastar = EastarJetCrawler()
         premia = AirPremiaCrawler()
+        amadeus = AmadeusCrawler()
         try:
             results = await asyncio.gather(
                 google.health_check(),
@@ -349,6 +392,7 @@ def health_check() -> None:
                 jeju.health_check(),
                 eastar.health_check(),
                 premia.health_check(),
+                amadeus.health_check(),
                 return_exceptions=True,
             )
         finally:
@@ -357,6 +401,7 @@ def health_check() -> None:
             await jeju.close()
             await eastar.close()
             await premia.close()
+            await amadeus.close()
 
         return {
             "L1 (Google Protobuf)": not isinstance(results[0], Exception)
@@ -365,6 +410,7 @@ def health_check() -> None:
             "L2 (Jeju Air)": not isinstance(results[2], Exception) and results[2],
             "L2 (Eastar Jet)": not isinstance(results[3], Exception) and results[3],
             "L3 (Air Premia)": not isinstance(results[4], Exception) and results[4],
+            "L2 (Amadeus GDS)": not isinstance(results[5], Exception) and results[5],
         }
 
     statuses = asyncio.run(_run())

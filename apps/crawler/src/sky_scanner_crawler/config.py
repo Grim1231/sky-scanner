@@ -31,6 +31,11 @@ class CrawlerSettings(BaseSettings):
     celery_broker_url: str = "redis://localhost:6379/1"
     celery_result_backend: str = "redis://localhost:6379/2"
 
+    # Amadeus GDS API
+    amadeus_client_id: str = ""
+    amadeus_client_secret: str = ""
+    amadeus_hostname: str = "test"  # "test" or "production"
+
     # Currency
     default_currency: str = "KRW"
 
