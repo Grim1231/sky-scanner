@@ -292,7 +292,7 @@ M6 (ongoing) L4(GDS) + 고도화 + 스케일링
 **L2-A: Navitaire PSS 기반 항공사 (제주항공과 동일 패턴 예상)**
 - [x] 제주항공 (7C) — ✅ 완료 (`searchlowestFareCalendar.json`, 52개 취항지)
 - [x] 이스타항공 (ZE) — ✅ 완료 (`kraken.eastarjet.com` dotRez API, 28개 취항지, 세션 필요→자동 생성)
-- [ ] 에어프레미아 (YP) — ⚠️ Cloudflare JS Challenge가 `/api/v1/low-fares`, `/api/v1/fares` 차단. 노선 API(`/api/v1/airports`, `/api/v1/airport-regions`)는 오픈. ICN→9개 노선(NRT,HKG,DAD,BKK,IAD,HNL,SFO,LAX,EWR). **→ L3 전환 필요**
+- [x] 에어프레미아 (YP) — ✅ 완료 (L3 Playwright CF bypass → `/api/v1/low-fares` API, 9개 노선, EY/PE 캐빈클래스별 운임)
 
 **L2-B: 기타 한국 LCC — ⚠️ 전부 L3 전환 필요 (Cloudflare/Akamai 차단)**
 - [ ] 티웨이항공 (TW) — Akamai Bot Detection, Spring Boot 403 (CSRF), 서버 렌더링. **→ L3**
