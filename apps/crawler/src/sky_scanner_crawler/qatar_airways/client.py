@@ -1,22 +1,27 @@
 """Playwright-based client for Qatar Airways flight search.
 
-Qatar Airways (QR) uses an Angular SPA backed by the ``qoreservices``
-API (``qoreservices.qatarairways.com``).  The search flow is:
+Qatar Airways (QR) uses an Angular 14 SPA with a Shadow DOM booking
+widget (``app-nbx-explore``) on ``qatarairways.com/en/book.html``.
 
-1. Navigate to ``qatarairways.com/en/booking.html``
-2. Fill the search form (from, to, date, passengers)
-3. Submit the form
-4. Intercept JSON responses from ``qoreservices.qatarairways.com``
-   which contain flight offers, pricing, and availability data
+The booking widget renders inside a Shadow Root, so standard CSS
+selectors cannot pierce it.  All form interaction must go through
+JavaScript ``evaluate()`` calls that access the shadow root, or via
+ARIA-based selectors which Playwright resolves through accessibility
+tree traversal (which *does* pierce shadow DOM).
 
-The site is protected by Akamai Bot Manager.  Using a real Chromium
-browser (via Playwright) with stealth settings solves the challenge.
+The search flow:
 
-Key ``qoreservices`` endpoints observed:
+1. Navigate to ``qatarairways.com/en/book.html``
+2. Block cross-domain navigation (partner ad scripts redirect the tab)
+3. Wait for the Angular widget to render inside Shadow DOM
+4. Fill the search form via ARIA selectors (they pierce shadow DOM)
+5. Submit and intercept JSON responses from ``booking.qatarairways.com``
 
-- ``/api/offer/search`` -- main flight search results
-- ``/api/offer/calendar`` -- lowest fare calendar
-- ``/api/offer/price`` -- pricing for a specific offer
+Key API domains observed:
+
+- ``booking.qatarairways.com`` -- main booking backend (JSF/xhtml)
+- ``qoreservices.qatarairways.com`` -- flight offer API (may not fire
+  on all routes)
 """
 
 from __future__ import annotations
@@ -33,15 +38,12 @@ from sky_scanner_crawler.retry import async_retry
 if TYPE_CHECKING:
     from datetime import date
 
-    from playwright.async_api import Response
+    from playwright.async_api import Page, Response
 
 logger = logging.getLogger(__name__)
 
 _BASE_URL = "https://www.qatarairways.com"
-_BOOKING_PAGE = f"{_BASE_URL}/en/booking.html"
-
-# The qoreservices API domain.
-_QORE_DOMAIN = "qoreservices.qatarairways.com"
+_BOOKING_PAGE = f"{_BASE_URL}/en/book.html"
 
 # User-Agent string mimicking a real Chrome browser.
 _USER_AGENT = (
@@ -52,31 +54,527 @@ _USER_AGENT = (
 
 # URL substrings that indicate a flight search result response.
 _INTERCEPT_PATTERNS = (
-    _QORE_DOMAIN,
+    "qoreservices.qatarairways.com",
     "qoreservices",
+    "booking.qatarairways.com",
     "/api/offer/",
     "/api/flight/",
     "/api/search/",
     "/api/calendar/",
+    "/nsp/",
     "flightoffers",
     "FlightOffers",
     "availability",
     "offer/search",
     "offer/calendar",
     "offer/price",
+    "fareSelection",
+    "searchLoading",
 )
+
+# JavaScript injected before every navigation to prevent partner ad
+# scripts from hijacking the tab by navigating to external domains.
+_ANTI_REDIRECT_SCRIPT = """
+(() => {
+  const _blocked = (url) => {
+    if (!url) return false;
+    const s = String(url);
+    return s.length > 0
+      && !s.includes('qatarairways.com')
+      && !s.startsWith('about:')
+      && !s.startsWith('javascript:')
+      && !s.startsWith('blob:');
+  };
+  // Block location.href = ...
+  try {
+    const origHref = Object.getOwnPropertyDescriptor(
+      Location.prototype, 'href'
+    );
+    if (origHref && origHref.set) {
+      Object.defineProperty(Location.prototype, 'href', {
+        get: origHref.get,
+        set(val) {
+          if (_blocked(val)) return;
+          origHref.set.call(this, val);
+        },
+      });
+    }
+  } catch {}
+  // Block location.assign / replace
+  for (const method of ['assign', 'replace']) {
+    try {
+      const orig = Location.prototype[method];
+      Location.prototype[method] = function(url) {
+        if (_blocked(url)) return;
+        return orig.call(this, url);
+      };
+    } catch {}
+  }
+  // Block window.open
+  try {
+    const origOpen = window.open;
+    window.open = function(url) {
+      if (_blocked(url)) return null;
+      return origOpen.apply(this, arguments);
+    };
+  } catch {}
+  // Remove webdriver flag (stealth)
+  try {
+    Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+  } catch {}
+})();
+"""
 
 
 class QatarAirwaysClient:
     """Async Playwright client for Qatar Airways flight search.
 
-    Navigates to the QR booking page, fills the search form, submits
-    it, and intercepts API responses from ``qoreservices.qatarairways.com``
-    containing flight offer data.
+    Navigates to the QR booking page, fills the search form via ARIA
+    selectors (which pierce Shadow DOM), submits it, and intercepts API
+    responses containing flight offer data.
     """
 
-    def __init__(self, *, timeout: int = 30) -> None:
+    def __init__(self, *, timeout: int = 45) -> None:
         self._timeout = timeout
+
+    # ------------------------------------------------------------------
+    # Browser / context helpers
+    # ------------------------------------------------------------------
+
+    async def _launch_context(
+        self,
+        pw: Any,
+    ) -> tuple[Any, Any, Any]:
+        """Launch a stealth browser and return (browser, context, page)."""
+        browser = await pw.chromium.launch(
+            headless=True,
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+                "--disable-popup-blocking",
+            ],
+        )
+        context = await browser.new_context(
+            user_agent=_USER_AGENT,
+            locale="en-US",
+            viewport={"width": 1920, "height": 1080},
+        )
+        page = await context.new_page()
+        await page.add_init_script(_ANTI_REDIRECT_SCRIPT)
+        return browser, context, page
+
+    # ------------------------------------------------------------------
+    # Form interaction helpers (ARIA selectors pierce Shadow DOM)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    async def _dismiss_cookie_banner(page: Page) -> None:
+        """Dismiss the cookie consent dialog if visible."""
+        selectors = [
+            'button:has-text("Accept all")',
+            'button:has-text("Accept")',
+            'button:has-text("OK")',
+            'button:has-text("Got it")',
+            "#onetrust-accept-btn-handler",
+        ]
+        for sel in selectors:
+            try:
+                el = page.locator(sel).first
+                if await el.is_visible(timeout=2000):
+                    await el.click(timeout=3000)
+                    logger.debug("QR: dismissed consent via %s", sel)
+                    await page.wait_for_timeout(500)
+                    return
+            except Exception:
+                continue
+
+    @staticmethod
+    async def _click_one_way(page: Page) -> None:
+        """Select one-way trip type via ARIA radio role."""
+        # The a11y tree exposes: radio "One way"
+        try:
+            ow = page.get_by_role("radio", name="One way")
+            if await ow.is_visible(timeout=5000):
+                await ow.click(timeout=3000)
+                logger.debug("QR: selected one-way trip type")
+                await page.wait_for_timeout(300)
+                return
+        except Exception:
+            logger.debug("QR: get_by_role('radio', 'One way') failed")
+
+        # Fallback: try text-based selectors.
+        for sel in [
+            'label:has-text("One way")',
+            'label:has-text("One Way")',
+            '[data-trip-type="OW"]',
+        ]:
+            try:
+                el = page.locator(sel).first
+                if await el.is_visible(timeout=2000):
+                    await el.click(timeout=3000)
+                    logger.debug("QR: selected one-way via %s", sel)
+                    await page.wait_for_timeout(300)
+                    return
+            except Exception:
+                continue
+
+        logger.debug("QR: could not find one-way selector (may already be selected)")
+
+    @staticmethod
+    async def _fill_airport_field(
+        page: Page,
+        code: str,
+        field_name: str,
+        *,
+        field_index: int = 0,
+    ) -> bool:
+        """Fill an airport autocomplete combobox via ARIA selectors.
+
+        The QR Angular widget exposes two comboboxes with
+        ``aria-label="Airport autocomplete"`` (From and To).
+        Clicking one opens a listbox with option elements whose text
+        contains city, country, airport name, and IATA code, e.g.
+        ``"Seoul, South Korea Incheon International Airport ICN"``.
+
+        Parameters
+        ----------
+        page:
+            Playwright page.
+        code:
+            IATA airport code to search for.
+        field_name:
+            Human-readable name for logging (``"origin"`` or
+            ``"destination"``).
+        field_index:
+            0 for origin (first combobox), 1 for destination (second).
+
+        Returns
+        -------
+        bool
+            True if the field was filled successfully.
+        """
+        # Locate the combobox by ARIA label.
+        comboboxes = page.get_by_role("combobox", name="Airport autocomplete")
+        try:
+            count = await comboboxes.count()
+            if count <= field_index:
+                logger.warning(
+                    "QR: found %d comboboxes, need index %d for %s",
+                    count,
+                    field_index,
+                    field_name,
+                )
+                return False
+        except Exception:
+            logger.warning("QR: could not count comboboxes for %s", field_name)
+            return False
+
+        combobox = comboboxes.nth(field_index)
+
+        try:
+            # Click to open the dropdown.
+            await combobox.click(timeout=5000)
+            await page.wait_for_timeout(500)
+
+            # Clear any existing text and type the IATA code to filter.
+            await combobox.fill("")
+            await combobox.press_sequentially(code, delay=80)
+            logger.debug("QR: typed '%s' into %s combobox", code, field_name)
+
+            # Wait for autocomplete to filter results.
+            await page.wait_for_timeout(1500)
+
+            # Find and click the matching option in the listbox.
+            # Options contain the IATA code at the end, e.g. "... ICN".
+            listbox = page.get_by_role("listbox")
+            try:
+                options = listbox.get_by_role("option")
+                option_count = await options.count()
+                logger.debug(
+                    "QR: %d options visible for %s after typing '%s'",
+                    option_count,
+                    field_name,
+                    code,
+                )
+
+                # Look for an option whose text ends with the IATA code.
+                for i in range(min(option_count, 20)):
+                    opt = options.nth(i)
+                    try:
+                        text = await opt.inner_text(timeout=1000)
+                        # The IATA code appears at the end of the option
+                        # text, e.g. "Seoul, South Korea Incheon ... ICN"
+                        if text.rstrip().endswith(code):
+                            await opt.click(timeout=3000)
+                            logger.debug(
+                                "QR: selected %s option: %s",
+                                field_name,
+                                text.strip()[:80],
+                            )
+                            await page.wait_for_timeout(500)
+                            return True
+                    except Exception:
+                        continue
+
+                # Fallback: click the first option if any exist.
+                if option_count > 0:
+                    first_opt = options.first
+                    await first_opt.click(timeout=3000)
+                    try:
+                        text = await first_opt.inner_text(timeout=1000)
+                    except Exception:
+                        text = "(unknown)"
+                    logger.debug(
+                        "QR: selected first %s option (fallback): %s",
+                        field_name,
+                        text.strip()[:80],
+                    )
+                    await page.wait_for_timeout(500)
+                    return True
+
+            except Exception:
+                logger.debug("QR: listbox/option interaction failed for %s", field_name)
+
+            # Last resort: press Enter to confirm whatever is typed.
+            await page.keyboard.press("Enter")
+            await page.wait_for_timeout(500)
+            return True
+
+        except Exception:
+            logger.warning(
+                "QR: could not fill %s field with code %s",
+                field_name,
+                code,
+                exc_info=True,
+            )
+            return False
+
+    @staticmethod
+    async def _fill_departure_date(page: Page, date_str: str) -> bool:
+        """Fill the departure date textbox.
+
+        The date field has placeholder text:
+        ``"Please enter depart date in the format dd space mmm space yyyy"``
+        and the value format is ``"15 Feb 2026"``.
+        """
+        # Use the ARIA-exposed textbox by its placeholder.
+        placeholder = "Please enter depart date"
+        try:
+            # Locate via placeholder substring.
+            date_input = page.get_by_placeholder(placeholder, exact=False)
+            if await date_input.is_visible(timeout=3000):
+                await date_input.click(timeout=3000)
+                await page.wait_for_timeout(300)
+                # Triple-click to select all existing text.
+                await date_input.click(click_count=3, timeout=2000)
+                await page.wait_for_timeout(200)
+                await date_input.press_sequentially(date_str, delay=50)
+                logger.debug("QR: filled departure date: %s", date_str)
+                # Press Escape to close any date picker overlay, then Tab
+                # to move to the next field.
+                await page.keyboard.press("Escape")
+                await page.wait_for_timeout(500)
+                return True
+        except Exception:
+            logger.debug("QR: placeholder-based date fill failed")
+
+        # Fallback: try by aria-label or role.
+        for sel in [
+            'input[aria-label*="depart"]',
+            'input[placeholder*="depart"]',
+            'input[placeholder*="Depart"]',
+        ]:
+            try:
+                el = page.locator(sel).first
+                if await el.is_visible(timeout=2000):
+                    await el.click(timeout=3000)
+                    await el.click(click_count=3, timeout=2000)
+                    await el.press_sequentially(date_str, delay=50)
+                    await page.keyboard.press("Escape")
+                    await page.wait_for_timeout(500)
+                    logger.debug("QR: filled departure date via %s", sel)
+                    return True
+            except Exception:
+                continue
+
+        logger.warning("QR: could not fill departure date with %s", date_str)
+        return False
+
+    @staticmethod
+    async def _click_search(page: Page) -> bool:
+        """Click the 'Search flights' button."""
+        # Primary: ARIA button role with exact name.
+        try:
+            btn = page.get_by_role("button", name="Search flights")
+            if await btn.is_visible(timeout=5000):
+                await btn.click(timeout=5000)
+                logger.debug("QR: clicked 'Search flights' button")
+                return True
+        except Exception:
+            logger.debug("QR: get_by_role('button', 'Search flights') failed")
+
+        # Fallback selectors.
+        for sel in [
+            'button:has-text("Search flights")',
+            'button:has-text("Search Flights")',
+            'button:has-text("Search")',
+            'button[type="submit"]',
+        ]:
+            try:
+                el = page.locator(sel).first
+                if await el.is_visible(timeout=2000):
+                    await el.click(timeout=5000)
+                    logger.debug("QR: clicked search via %s", sel)
+                    return True
+            except Exception:
+                continue
+
+        # Last resort.
+        await page.keyboard.press("Enter")
+        logger.debug("QR: pressed Enter as search fallback")
+        return False
+
+    @staticmethod
+    async def _set_cabin_class(page: Page, cabin_class: str) -> None:
+        """Attempt to set cabin class via the passengers/class picker.
+
+        The passengers/class field is a readonly textbox that defaults to
+        ``"1 Passenger Economy"``.  Clicking it opens a dropdown.
+        """
+        if cabin_class == "ECONOMY":
+            return  # Already the default.
+
+        cabin_label_map = {
+            "PREMIUM_ECONOMY": "Premium Economy",
+            "BUSINESS": "Business",
+            "FIRST": "First",
+        }
+        label = cabin_label_map.get(cabin_class)
+        if not label:
+            return
+
+        try:
+            pax_field = page.get_by_role("textbox", name="Passengers / Class")
+            if await pax_field.is_visible(timeout=3000):
+                await pax_field.click(timeout=3000)
+                await page.wait_for_timeout(1000)
+                # Look for the cabin class option in the opened dropdown.
+                cabin_opt = page.get_by_text(label, exact=False).first
+                if await cabin_opt.is_visible(timeout=3000):
+                    await cabin_opt.click(timeout=3000)
+                    logger.debug("QR: selected cabin class: %s", label)
+                    await page.wait_for_timeout(500)
+        except Exception:
+            logger.debug("QR: could not set cabin class to %s", cabin_class)
+
+    # ------------------------------------------------------------------
+    # Response interception
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _make_response_handler(
+        intercepted: list[dict[str, Any]],
+    ) -> Any:
+        """Return an async callback that captures JSON API responses."""
+
+        async def _on_response(response: Response) -> None:
+            url = response.url.lower()
+            if not any(p.lower() in url for p in _INTERCEPT_PATTERNS):
+                return
+            content_type = response.headers.get("content-type", "")
+            if "json" not in content_type and "javascript" not in content_type:
+                return
+            try:
+                body = await response.json()
+                if isinstance(body, dict) and body:
+                    intercepted.append(body)
+                    logger.debug(
+                        "QR intercepted response from %s (%d bytes)",
+                        response.url[:120],
+                        len(json.dumps(body)),
+                    )
+            except Exception:
+                pass
+
+        return _on_response
+
+    # ------------------------------------------------------------------
+    # Wait for search results
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    async def _wait_for_results(
+        page: Page,
+        intercepted: list[dict[str, Any]],
+        *,
+        timeout_ms: int = 60000,
+    ) -> None:
+        """Poll for intercepted API responses or DOM result indicators."""
+        poll_interval = 2000
+        elapsed = 0
+
+        while elapsed < timeout_ms:
+            # Check for meaningful intercepted responses.
+            qore_responses = [
+                r
+                for r in intercepted
+                if any(
+                    k in str(r).lower()
+                    for k in ("offer", "flight", "fare", "segment", "price")
+                )
+            ]
+            if qore_responses:
+                await page.wait_for_timeout(3000)
+                return
+
+            # Check if the URL changed to booking.qatarairways.com (search
+            # results page).
+            if "booking.qatarairways.com" in page.url:
+                logger.debug("QR: navigated to booking domain: %s", page.url)
+                await page.wait_for_timeout(5000)
+                return
+
+            # Check DOM for result indicators.
+            indicators = [
+                ".flight-result",
+                ".flight-list",
+                ".search-results",
+                ".itinerary",
+                ".fare-card",
+                ".flight-card",
+                ".offer-card",
+                ".no-flights",
+                ".no-results",
+                'text="No flights"',
+                'text="No results"',
+                "app-flight-list",
+                "app-flight-card",
+                ".flight-details",
+                ".fare-selection",
+                # booking.qatarairways.com selectors
+                ".fareSelComp",
+                "#resultInfoArea",
+                ".flightSearchArea",
+            ]
+            for indicator in indicators:
+                try:
+                    el = page.locator(indicator).first
+                    if await el.is_visible(timeout=500):
+                        await page.wait_for_timeout(2000)
+                        return
+                except Exception:
+                    continue
+
+            await page.wait_for_timeout(poll_interval)
+            elapsed += poll_interval
+
+        logger.warning(
+            "QR: timed out waiting for search results after %dms", timeout_ms
+        )
+
+    # ------------------------------------------------------------------
+    # Public search methods
+    # ------------------------------------------------------------------
 
     @async_retry(
         max_retries=2,
@@ -95,6 +593,9 @@ class QatarAirwaysClient:
     ) -> list[dict[str, Any]]:
         """Search flights on qatarairways.com and return intercepted API responses.
 
+        Uses ARIA-based selectors which pierce the Shadow DOM of the
+        Angular booking widget.
+
         Parameters
         ----------
         origin:
@@ -111,55 +612,14 @@ class QatarAirwaysClient:
         Returns
         -------
         list[dict]
-            List of raw JSON response dicts intercepted from qoreservices.
+            List of raw JSON response dicts intercepted from the QR API.
         """
         intercepted: list[dict[str, Any]] = []
-        date_str = departure_date.strftime("%d %b %Y")  # QR format.
-
-        async def _on_response(response: Response) -> None:
-            """Capture JSON responses from qoreservices endpoints."""
-            url = response.url.lower()
-            if not any(p.lower() in url for p in _INTERCEPT_PATTERNS):
-                return
-
-            content_type = response.headers.get("content-type", "")
-            if "json" not in content_type and "javascript" not in content_type:
-                return
-
-            try:
-                body = await response.json()
-                if isinstance(body, dict) and body:
-                    intercepted.append(body)
-                    logger.debug(
-                        "QR intercepted response from %s (%d bytes)",
-                        response.url[:120],
-                        len(json.dumps(body)),
-                    )
-            except Exception:
-                pass
+        date_str = departure_date.strftime("%d %b %Y")
 
         async with async_playwright() as pw:
-            browser = await pw.chromium.launch(
-                headless=True,
-                args=[
-                    "--disable-blink-features=AutomationControlled",
-                    "--no-sandbox",
-                ],
-            )
-            context = await browser.new_context(
-                user_agent=_USER_AGENT,
-                locale="en-US",
-                viewport={"width": 1920, "height": 1080},
-            )
-            page = await context.new_page()
-
-            # Stealth: remove webdriver flag.
-            await page.add_init_script(
-                "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-            )
-
-            # Register response interceptor before navigation.
-            page.on("response", _on_response)
+            browser, _ctx, page = await self._launch_context(pw)
+            page.on("response", self._make_response_handler(intercepted))
 
             try:
                 # Navigate to the booking page.
@@ -169,194 +629,59 @@ class QatarAirwaysClient:
                     timeout=self._timeout * 1000,
                 )
 
-                # Wait for page to stabilise (Akamai challenge may run).
+                # Wait for the Angular widget to render.  The "Search
+                # flights" button appears once the widget is ready.
                 try:
-                    await page.wait_for_load_state("networkidle", timeout=20000)
+                    await page.get_by_role("button", name="Search flights").wait_for(
+                        state="visible", timeout=20000
+                    )
                 except Exception:
-                    logger.debug("QR page did not reach networkidle; using fixed delay")
+                    logger.debug(
+                        "QR: 'Search flights' button not visible after 20s; "
+                        "trying fixed delay"
+                    )
                     await page.wait_for_timeout(8000)
 
-                # Handle cookie consent banner if present.
-                consent_selectors = [
-                    'button:has-text("Accept")',
-                    'button:has-text("OK")',
-                    'button:has-text("Got it")',
-                    "#onetrust-accept-btn-handler",
-                    ".cookie-accept",
-                ]
-                for sel in consent_selectors:
-                    try:
-                        el = page.locator(sel).first
-                        if await el.is_visible(timeout=2000):
-                            await el.click(timeout=3000)
-                            logger.debug("QR: dismissed consent via %s", sel)
-                            break
-                    except Exception:
-                        continue
-
-                # Verify we are on the right domain.
+                # Verify we are on the right domain (not redirected).
                 if "qatarairways.com" not in page.url:
                     msg = f"QR navigation failed: landed on {page.url}"
                     raise RuntimeError(msg)
 
                 # === Fill the search form ===
-                # Qatar Airways uses an Angular SPA for booking.
 
-                # Select one-way trip.
-                ow_selectors = [
-                    'input[value="oneWay"]',
-                    'label:has-text("One Way")',
-                    'label:has-text("One way")',
-                    '[data-trip-type="OW"]',
-                    'input[name="tripType"][value="O"]',
-                    "#oneWay",
-                    'label[for="oneWay"]',
-                    'button:has-text("One way")',
-                    '[data-testid="one-way"]',
-                ]
-                for sel in ow_selectors:
-                    try:
-                        el = page.locator(sel).first
-                        if await el.is_visible(timeout=2000):
-                            await el.click(timeout=3000)
-                            logger.debug("QR: clicked one-way selector %s", sel)
-                            break
-                    except Exception:
-                        continue
+                await self._dismiss_cookie_banner(page)
+                await self._click_one_way(page)
 
-                # Fill origin field.
-                origin_selectors = [
-                    'input[placeholder*="From"]',
-                    'input[placeholder*="from"]',
-                    'input[aria-label*="From"]',
-                    'input[aria-label*="Origin"]',
-                    'input[aria-label*="Departing from"]',
-                    'input[name="origin"]',
-                    'input[id*="origin"]',
-                    'input[data-testid*="origin"]',
-                    'input[formcontrolname="from"]',
-                    "#fromCity",
-                    ".origin-input input",
-                ]
-                await self._fill_airport_field(page, origin_selectors, origin, "origin")
+                # Fill origin airport.
+                origin_ok = await self._fill_airport_field(
+                    page, origin, "origin", field_index=0
+                )
+                if not origin_ok:
+                    logger.warning("QR: could not fill origin field with %s", origin)
 
                 await page.wait_for_timeout(500)
 
-                # Fill destination field.
-                dest_selectors = [
-                    'input[placeholder*="To"]',
-                    'input[placeholder*="to"]',
-                    'input[aria-label*="To"]',
-                    'input[aria-label*="Destination"]',
-                    'input[aria-label*="Flying to"]',
-                    'input[name="destination"]',
-                    'input[id*="destination"]',
-                    'input[data-testid*="destination"]',
-                    'input[formcontrolname="to"]',
-                    "#toCity",
-                    ".destination-input input",
-                ]
-                await self._fill_airport_field(
-                    page, dest_selectors, destination, "destination"
+                # Fill destination airport.
+                dest_ok = await self._fill_airport_field(
+                    page, destination, "destination", field_index=1
                 )
+                if not dest_ok:
+                    logger.warning(
+                        "QR: could not fill destination field with %s", destination
+                    )
 
                 await page.wait_for_timeout(500)
 
                 # Fill departure date.
-                date_selectors = [
-                    'input[placeholder*="Depart"]',
-                    'input[placeholder*="depart"]',
-                    'input[aria-label*="Depart"]',
-                    'input[aria-label*="Departure"]',
-                    'input[name="departureDate"]',
-                    'input[formcontrolname="departureDate"]',
-                    'input[id*="depart"]',
-                    'input[data-testid*="depart"]',
-                    "#departDate",
-                    ".departure-date input",
-                ]
-                for sel in date_selectors:
-                    try:
-                        el = page.locator(sel).first
-                        if await el.is_visible(timeout=2000):
-                            await el.click(timeout=3000)
-                            # Clear existing value.
-                            await el.fill("", timeout=1000)
-                            await el.type(date_str, delay=50, timeout=5000)
-                            logger.debug("QR: filled departure date via %s", sel)
-                            # Press Enter or click away to confirm.
-                            await page.keyboard.press("Enter")
-                            await page.wait_for_timeout(1000)
-                            break
-                    except Exception:
-                        continue
+                await self._fill_departure_date(page, date_str)
 
-                # Try to set cabin class if UI allows.
-                cabin_selectors = [
-                    'select[name="cabinClass"]',
-                    'select[formcontrolname="cabinClass"]',
-                    "#cabinClass",
-                    'select[aria-label*="class"]',
-                    'button:has-text("Economy")',
-                ]
-                cabin_val_map = {
-                    "ECONOMY": "economy",
-                    "PREMIUM_ECONOMY": "premium",
-                    "BUSINESS": "business",
-                    "FIRST": "first",
-                }
-                cabin_val = cabin_val_map.get(cabin_class, "economy")
-                for sel in cabin_selectors:
-                    try:
-                        el = page.locator(sel).first
-                        if await el.is_visible(timeout=2000):
-                            tag = await el.evaluate("el => el.tagName")
-                            if tag == "SELECT":
-                                await el.select_option(value=cabin_val, timeout=3000)
-                            else:
-                                await el.click(timeout=3000)
-                                # Look for cabin option in dropdown.
-                                cabin_option = page.locator(
-                                    f'li:has-text("{cabin_class.title()}")'
-                                ).first
-                                if await cabin_option.is_visible(timeout=2000):
-                                    await cabin_option.click(timeout=3000)
-                            logger.debug("QR: selected cabin via %s", sel)
-                            break
-                    except Exception:
-                        continue
+                # Set cabin class (if non-Economy).
+                await self._set_cabin_class(page, cabin_class)
 
-                # Click search button.
-                search_selectors = [
-                    'button[type="submit"]',
-                    'button:has-text("Search")',
-                    'button:has-text("search")',
-                    'button:has-text("Search flights")',
-                    'button:has-text("Search Flights")',
-                    "#searchFlight",
-                    'button[data-testid*="search"]',
-                    ".search-button",
-                    'input[type="submit"]',
-                    'a:has-text("Search")',
-                ]
-                clicked = False
-                for sel in search_selectors:
-                    try:
-                        el = page.locator(sel).first
-                        if await el.is_visible(timeout=2000):
-                            await el.click(timeout=5000)
-                            logger.debug("QR: clicked search via %s", sel)
-                            clicked = True
-                            break
-                    except Exception:
-                        continue
+                # Click the search button.
+                await self._click_search(page)
 
-                if not clicked:
-                    # Fallback: press Enter on the page.
-                    await page.keyboard.press("Enter")
-                    logger.debug("QR: pressed Enter as search fallback")
-
-                # Wait for search results (intercepted responses from qoreservices).
+                # Wait for results (intercepted API responses or DOM).
                 await self._wait_for_results(page, intercepted, timeout_ms=60000)
 
             finally:
@@ -379,121 +704,6 @@ class QatarAirwaysClient:
         )
         return intercepted
 
-    async def _fill_airport_field(
-        self,
-        page: Any,
-        selectors: list[str],
-        code: str,
-        field_name: str,
-    ) -> None:
-        """Fill an airport autocomplete field by trying multiple selectors."""
-        for sel in selectors:
-            try:
-                el = page.locator(sel).first
-                if await el.is_visible(timeout=2000):
-                    await el.click(timeout=3000)
-                    await el.fill("", timeout=1000)
-                    await el.type(code, delay=100, timeout=5000)
-                    # Wait for autocomplete dropdown.
-                    await page.wait_for_timeout(2000)
-                    # Try to click the first suggestion.
-                    suggestion_selectors = [
-                        f'li:has-text("{code}")',
-                        f'[data-value="{code}"]',
-                        f'span:has-text("{code}")',
-                        ".autocomplete-item:first-child",
-                        ".suggestion-item:first-child",
-                        "ul.dropdown li:first-child",
-                        ".search-results li:first-child",
-                        ".airport-list li:first-child",
-                        f'option[value="{code}"]',
-                        # QR Angular SPA often uses mat-option.
-                        "mat-option:first-child",
-                        ".cdk-overlay-pane li:first-child",
-                    ]
-                    for sug_sel in suggestion_selectors:
-                        try:
-                            sug = page.locator(sug_sel).first
-                            if await sug.is_visible(timeout=2000):
-                                await sug.click(timeout=3000)
-                                break
-                        except Exception:
-                            continue
-                    logger.debug("QR: filled %s via %s", field_name, sel)
-                    return
-            except Exception:
-                continue
-
-        logger.warning("QR: could not fill %s field with code %s", field_name, code)
-
-    async def _wait_for_results(
-        self,
-        page: Any,
-        intercepted: list[dict[str, Any]],
-        *,
-        timeout_ms: int = 60000,
-    ) -> None:
-        """Wait for flight search results to appear.
-
-        Polls for intercepted responses from qoreservices or DOM changes
-        indicating search results have loaded.
-        """
-        poll_interval = 2000
-        elapsed = 0
-
-        while elapsed < timeout_ms:
-            # Check if we have intercepted meaningful qoreservices responses.
-            qore_responses = [
-                r
-                for r in intercepted
-                if any(
-                    k in str(r).lower()
-                    for k in ("offer", "flight", "fare", "segment", "price")
-                )
-            ]
-            if qore_responses:
-                # Wait a bit more for additional responses.
-                await page.wait_for_timeout(3000)
-                return
-
-            # Check DOM for results indicators.
-            result_indicators = [
-                ".flight-result",
-                ".flight-list",
-                ".search-results",
-                "[data-flight]",
-                ".itinerary",
-                ".fare-card",
-                ".flight-card",
-                ".offer-card",
-                ".no-flights",
-                ".no-results",
-                'text="No flights"',
-                'text="no flights"',
-                'text="No results"',
-                # QR-specific selectors.
-                "app-flight-list",
-                "app-flight-card",
-                ".flight-details",
-                ".fare-selection",
-            ]
-            for indicator in result_indicators:
-                try:
-                    el = page.locator(indicator).first
-                    if await el.is_visible(timeout=500):
-                        # Results loaded in DOM.
-                        await page.wait_for_timeout(2000)
-                        return
-                except Exception:
-                    continue
-
-            await page.wait_for_timeout(poll_interval)
-            elapsed += poll_interval
-
-        logger.warning(
-            "QR: timed out waiting for search results after %dms", timeout_ms
-        )
-
     async def search_via_direct_url(
         self,
         origin: str,
@@ -503,18 +713,13 @@ class QatarAirwaysClient:
         cabin_class: str = "ECONOMY",
         adults: int = 1,
     ) -> list[dict[str, Any]]:
-        """Alternative: navigate directly to the search results URL.
+        """Alternative: navigate directly to the booking search URL.
 
-        Qatar Airways supports deep-linking to search results via URL
-        parameters.  This bypasses the form-filling step.
-
-        URL format::
-
-            https://www.qatarairways.com/en/booking/flights.html
-            ?widget=QR&searchType=F&addTax498=1&flexibleDate=Off
-            &bookingClass=E&tripType=O&from=ICN&to=DOH
-            &departing=2026-04-15&adults=1&children=0&infants=0
-            &teenager=0&ofw=0&promoCode=&currency=KRW
+        Qatar Airways booking uses ``booking.qatarairways.com`` with
+        the ``/nsp/views/search.xhtml`` endpoint.  The form on
+        ``/en/book.html`` submits to this backend.  We can also
+        construct a URL that pre-fills the search parameters on the
+        main site and let Angular handle the rest.
         """
         intercepted: list[dict[str, Any]] = []
         date_iso = departure_date.isoformat()
@@ -527,8 +732,10 @@ class QatarAirwaysClient:
         }
         booking_class = cabin_code_map.get(cabin_class, "E")
 
+        # The main site booking page accepts URL parameters that
+        # pre-fill the Angular widget's form fields.
         search_url = (
-            f"{_BASE_URL}/en/booking/flights.html"
+            f"{_BASE_URL}/en/book.html"
             f"?widget=QR&searchType=F&addTax498=1&flexibleDate=Off"
             f"&bookingClass={booking_class}&tripType=O"
             f"&from={origin}&to={destination}"
@@ -537,46 +744,9 @@ class QatarAirwaysClient:
             f"&teenager=0&ofw=0&promoCode=&currency=KRW"
         )
 
-        async def _on_response(response: Response) -> None:
-            url = response.url.lower()
-            if not any(p.lower() in url for p in _INTERCEPT_PATTERNS):
-                return
-
-            content_type = response.headers.get("content-type", "")
-            if "json" not in content_type:
-                return
-
-            try:
-                body = await response.json()
-                if isinstance(body, dict) and body:
-                    intercepted.append(body)
-                    logger.debug(
-                        "QR intercepted (direct URL) from %s",
-                        response.url[:120],
-                    )
-            except Exception:
-                pass
-
         async with async_playwright() as pw:
-            browser = await pw.chromium.launch(
-                headless=True,
-                args=[
-                    "--disable-blink-features=AutomationControlled",
-                    "--no-sandbox",
-                ],
-            )
-            context = await browser.new_context(
-                user_agent=_USER_AGENT,
-                locale="en-US",
-                viewport={"width": 1920, "height": 1080},
-            )
-            page = await context.new_page()
-
-            await page.add_init_script(
-                "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-            )
-
-            page.on("response", _on_response)
+            browser, _ctx, page = await self._launch_context(pw)
+            page.on("response", self._make_response_handler(intercepted))
 
             try:
                 await page.goto(
@@ -585,7 +755,25 @@ class QatarAirwaysClient:
                     timeout=self._timeout * 1000,
                 )
 
-                # Wait for qoreservices API responses.
+                # Wait for the widget to render and possibly auto-submit.
+                try:
+                    await page.get_by_role("button", name="Search flights").wait_for(
+                        state="visible", timeout=15000
+                    )
+                except Exception:
+                    await page.wait_for_timeout(8000)
+
+                if "qatarairways.com" not in page.url:
+                    msg = f"QR direct URL: landed on {page.url}"
+                    raise RuntimeError(msg)
+
+                await self._dismiss_cookie_banner(page)
+
+                # If the widget auto-filled from URL params, try clicking
+                # search directly.
+                await self._click_search(page)
+
+                # Wait for API responses.
                 await self._wait_for_results(page, intercepted, timeout_ms=60000)
 
             finally:

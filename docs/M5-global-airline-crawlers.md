@@ -49,17 +49,20 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | 23 | Turkish Airlines | TK | IST | L2 primp + 공식 API 대기 | L2 가격+스케줄, 공식 API 듀얼모드 | 4ac5490 |
 | 24 | JAL 일본항공 | JL | NRT/HND | L2 primp Sputnik | 최저가 (NZ/ET와 동일 패턴) | ✅ |
 
-### M5 L3 Playwright — 완료 (4개)
-| # | 항공사 | 코드 | 허브 | L2 실패 이유 | L3 전략 | 상태 |
-|---|--------|------|------|-------------|---------|------|
-| 25 | Air France-KLM | AF/KL | CDG/AMS | GraphQL POST Akamai 차단 | Playwright 폼 자동화 → GraphQL response intercept | ✅ 완료 |
-| 26 | Thai Airways | TG | BKK | SSR HTML, API 없음 | Playwright 검색 폼 → OSCI response intercept | ✅ 완료 |
-| 27 | ANA 전일본공수 | NH | NRT/HND | api.ana.co.jp 401 인증 | Playwright 검색 → API intercept + DOM scraping | ✅ 완료 |
-| 28 | Qatar Airways | QR | DOH | qoreservices 401 인증 | Playwright 폼 + 딥링크 URL fallback | ✅ 완료 |
+### M5 L3 Playwright (4개 — TG만 부분 작동)
+| # | 항공사 | 코드 | 허브 | L3 전략 | 실제 테스트 결과 |
+|---|--------|------|------|---------|-----------------|
+| 25 | Air France-KLM | AF/KL | CDG/AMS | Playwright 폼 → GraphQL intercept | ❌ ERR_HTTP2_PROTOCOL_ERROR (Akamai HTTP/2 차단) → Amadeus |
+| 26 | Thai Airways | TG | BKK | Playwright OSCI → response intercept | ⚠️ 부분작동: popular-fares API 가격 데이터 수신 (12 prices) |
+| 27 | ANA 전일본공수 | NH | NRT/HND | Playwright 검색 → API intercept | ❌ 폼 입력 성공, 예약엔진(aswbe) Akamai 차단 → Amadeus |
+| 28 | Qatar Airways | QR | DOH | Playwright 폼 + 딥링크 URL | ❌ 403 Access Denied (Akamai WAF) → Amadeus |
 
-### L2 탐색 실패 → Amadeus fallback
+### L2/L3 실패 → Amadeus fallback (13개)
 | 항공사 | 코드 | 실패 이유 | 대안 |
 |--------|------|-----------|------|
+| Air France-KLM | AF/KL | Akamai HTTP/2 fingerprint (L2+L3 모두 차단) | Amadeus |
+| ANA | NH | 예약엔진 Akamai 차단 (폼 입력은 성공) | Amadeus |
+| Qatar Airways | QR | Akamai WAF 403 (페이지 자체 차단) | Amadeus |
 | Garuda Indonesia | GA | 504 타임아웃 | Amadeus |
 | Saudia | SV | Imperva + CORS | Amadeus |
 | Etihad | EY | Akamai HTTP/2 차단 | Amadeus |
@@ -170,9 +173,10 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 
 ## 커버리지 요약
 
-- **총 크롤러**: 28개 (L1 2 + Korean LCC 7 + GDS 1 + Global L2 15 + Global L3 4) — **전체 완료**
-- **L2 완료**: 25개 (10개 기존 + 15개 M5 신규, JAL 포함)
-- **L3 완료**: 4개 (AF/KL, TG, NH, QR)
-- **Amadeus fallback**: GA, SV, EY, MU, CZ, DL, AA, UA, QF, AC (10개)
+- **총 크롤러**: 28개 (L1 2 + Korean LCC 7 + GDS 1 + Global L2 15 + Global L3 4)
+- **L2 작동 확인**: 25개 (10개 기존 + 15개 M5 신규, JAL 포함)
+- **L3 부분 작동**: TG(popular-fares API 가격 데이터)
+- **L3 차단**: AF/KL(HTTP/2), NH(예약엔진), QR(WAF 403) → Amadeus fallback
+- **Amadeus fallback**: AF/KL, NH, QR + GA, SV, EY, MU, CZ, DL, AA, UA, QF, AC (13개)
 - **한국 출발 주요 허브 커버리지**:
-  IST ✅ DOH ✅ SIN ✅ HKG ✅ NRT ✅ FRA ✅ CDG ✅ AMS ✅ BKK ✅ TPE ✅ WAW ✅ KUL ✅ ADD ✅ DXB ✅
+  IST ✅ DOH(Amadeus) SIN ✅ HKG ✅ NRT(Amadeus) FRA ✅ CDG(Amadeus) AMS(Amadeus) BKK ⚠️ TPE ✅ WAW ✅ KUL ✅ ADD ✅ DXB ✅

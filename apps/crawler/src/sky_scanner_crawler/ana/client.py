@@ -6,7 +6,7 @@ and the site is protected by Akamai Bot Manager.
 
 Strategy (L3 -- full browser automation):
 1. Launch Playwright Chromium (headless, with anti-detection tweaks).
-2. Navigate to ``https://www.ana.co.jp/en/jp/international/``.
+2. Navigate to ``https://www.ana.co.jp/en/jp/search/international/flight/``.
 3. Fill the booking search form via button clicks + airport/date selectors.
 4. Click "Search" and intercept the JSON responses from the booking engine
    (``aswbe.ana.co.jp/webapps/...``).
@@ -16,13 +16,29 @@ Alternative fallback: navigate directly to the booking engine URL with
 query parameters and scrape the results DOM.
 
 Note: ANA's SPA uses custom React-like components, not standard <select>/<input>.
-Airport selectors are button-triggered popups.  Selectors documented below are
-best-effort; they may need updating when ANA redesigns the site.
+The booking widget is rendered by ``BookingManager`` JS class loaded from
+``booking-asw.bundle.js``.
+
+Key selectors (as of 2026-02):
+- Airport buttons: ``.be-overseas-reserve-ticket-{departure,arrival}-airport__button``
+- Airport search input: ``input.be-list-with-search__searchbox-input``
+- Airport result items: ``li.be-list__item``
+- Date button: opens ``be-dialog`` calendar popup
+- Calendar day buttons: ``button.be-calendar-month__cell-button`` with
+  ``aria-label="YYYY/M/D(DAY)"``
+- Calendar confirm: ``button.be-dialog__button--positive``
+- Calendar nav: ``button.be-calendar__button--next`` / ``--prev``
+- Search submit: ``button.be-overseas-reserve-ticket-submit__button``
+
+The site has ``localselect`` scripts that redirect users to other regional
+airline sites based on geolocation.  These must be blocked via route
+interception to keep the browser on ``ana.co.jp``.
 """
 
 from __future__ import annotations
 
 import asyncio
+import calendar
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -34,12 +50,12 @@ from sky_scanner_crawler.retry import async_retry
 if TYPE_CHECKING:
     from datetime import date
 
-    from playwright.async_api import Page, Response
+    from playwright.async_api import BrowserContext, Page, Response
 
 logger = logging.getLogger(__name__)
 
 _BASE_URL = "https://www.ana.co.jp"
-_INTL_PAGE = f"{_BASE_URL}/en/jp/international/"
+_SEARCH_PAGE = f"{_BASE_URL}/en/jp/search/international/flight/"
 
 # Booking engine domain -- API responses come from here.
 _BOOKING_DOMAIN = "aswbe.ana.co.jp"
@@ -60,6 +76,26 @@ _USER_AGENT = (
 # Timeout for page navigation and network waits (ms).
 _NAV_TIMEOUT_MS = 45_000
 _SEARCH_TIMEOUT_MS = 60_000
+
+# Day-of-week abbreviations matching ANA's calendar aria-label format.
+_DOW_ABBR = ("MO", "TU", "WE", "TH", "FR", "SA", "SU")
+
+
+def _calendar_aria_label(d: date) -> str:
+    """Build the aria-label string ANA uses for calendar day buttons.
+
+    Format: ``YYYY/M/D(DAY)`` -- e.g. ``2026/3/1(SU)``.
+    """
+    dow = _DOW_ABBR[d.weekday()]
+    return f"{d.year}/{d.month}/{d.day}({dow})"
+
+
+def _calendar_month_heading(d: date) -> str:
+    """Build the calendar month heading string.
+
+    Format: ``MonthName YYYY`` -- e.g. ``March 2026``.
+    """
+    return f"{calendar.month_name[d.month]} {d.year}"
 
 
 class AnaPlaywrightClient:
@@ -88,6 +124,18 @@ class AnaPlaywrightClient:
             """
         )
 
+    async def _block_redirect_scripts(self, context: BrowserContext) -> None:
+        """Placeholder for redirect blocking (currently disabled).
+
+        ANA's ``localselect`` module can redirect to partner airline
+        sites (e.g. thaiairways.com), but testing shows the page loads
+        normally without explicit blocking.  The ``navigator.webdriver``
+        removal in ``_setup_page`` appears sufficient.
+
+        This method is kept as a no-op for future use if redirects
+        become an issue.
+        """
+
     async def _fill_airport(
         self,
         page: Page,
@@ -106,99 +154,149 @@ class AnaPlaywrightClient:
         code:
             3-letter IATA airport code (e.g. ``NRT``).
         """
-        # The booking widget uses h5 headings "From Required Input" /
-        # "To Required Input" followed by a button displaying the current
-        # selection.  Click the button to open the airport picker.
-        # Selector: find the heading, then click the next sibling button.
-        heading_text = f"{field} Required Input"
-        heading = page.get_by_role("heading", name=heading_text, exact=False)
+        heading = page.get_by_role(
+            "heading", name=f"{field} Required Input", exact=False
+        )
+        # The button sits inside the container div next to the heading.
+        airport_btn = heading.locator("..").locator("button").first
 
-        # The button is inside the next sibling <div>.
-        container = heading.locator("..").locator("~ div").first
-        button = container.get_by_role("button").first
-        # Fallback: if the above doesn't match, try the sibling of the
-        # heading's parent.
         try:
-            await button.wait_for(state="visible", timeout=3000)
+            await airport_btn.click(timeout=5000)
         except PlaywrightError:
-            button = heading.locator("..").get_by_role("button").first
+            # Broader fallback: find by BEM class.
+            slug = "departure" if field == "From" else "arrival"
+            css = f"button.be-overseas-reserve-ticket-{slug}-airport__button"
+            airport_btn = page.locator(css).first
+            await airport_btn.click(timeout=5000)
 
-        await button.click(timeout=5000)
         await page.wait_for_timeout(500)
 
-        # The airport picker popup should now be visible.
-        # Try typing the airport code into any visible search input.
+        # The airport picker popup with a search input should now be visible.
         search_input = page.locator(
-            'input[type="text"]:visible, input[type="search"]:visible'
+            "input.be-list-with-search__searchbox-input:visible"
         ).first
         try:
             await search_input.wait_for(state="visible", timeout=5000)
             await search_input.fill(code)
-            await page.wait_for_timeout(1000)
+            await page.wait_for_timeout(1500)
 
-            # Click the first matching result that contains the IATA code.
-            result_item = page.locator(f"text=/{code}/ >> visible=true").first
+            # Click the first matching result item.
+            result_item = page.locator("li.be-list__item:visible").first
             await result_item.click(timeout=5000)
         except PlaywrightError:
-            # Fallback: try clicking a list item that contains the code.
-            logger.debug(
-                "ANA airport search input not found for %s=%s, trying list scan",
-                field,
+            logger.warning(
+                "ANA: could not select airport %s for %s field",
                 code,
+                field,
             )
-            item = page.locator(f'[class*="airport"] >> text=/{code}/').first
-            try:
-                await item.click(timeout=5000)
-            except PlaywrightError:
-                logger.warning(
-                    "ANA: could not select airport %s for %s field",
-                    code,
-                    field,
-                )
 
-        await page.wait_for_timeout(300)
+        await page.wait_for_timeout(500)
 
     async def _set_departure_date(self, page: Page, dep_date: date) -> None:
-        """Open the date picker and select the departure date."""
-        # Click the departure date button.
-        date_heading = page.get_by_role(
+        """Open the date picker and select the departure date.
+
+        ANA's calendar is a ``be-dialog`` popup showing two months at a
+        time.  Each day button has an ``aria-label`` like
+        ``2026/3/15(SU)``.  After clicking a day we must confirm with
+        the "Confirm Selection" button.
+        """
+        # The departure date button shows the currently selected date
+        # (e.g. "2026/2/15") and sits under the "Departure Date ..." heading.
+        heading = page.get_by_role(
             "heading",
-            name="Departure Date",
+            name="Departure Date and Time Slot",
             exact=False,
         )
-        date_button = (
-            date_heading.locator("..").locator("..").get_by_role("button").first
-        )
+        date_button = heading.locator("..").locator("button").first
 
         try:
             await date_button.click(timeout=5000)
         except PlaywrightError:
-            # Fallback: click any button that contains a date-like pattern.
+            # Fallback: click any visible button whose text matches YYYY/M/D.
             date_button = page.locator('button:has-text("/")').first
             await date_button.click(timeout=5000)
 
         await page.wait_for_timeout(500)
 
-        # The calendar widget should now be visible.
-        # Navigate to the correct month, then click the day.
-        formatted = dep_date.strftime("%Y/%-m/%-d")
-        # Try clicking a calendar cell with the date.
-        day_cell = page.locator(
-            f'button:has-text("{dep_date.day}"), '
-            f'td:has-text("{dep_date.day}"), '
-            f'[data-date="{formatted}"], '
-            f'[data-date="{dep_date.isoformat()}"]'
-        ).first
+        # The calendar dialog should now be visible.
+        # Navigate to the correct month if needed.
+        target_heading = _calendar_month_heading(dep_date)
+        for _ in range(12):
+            # Check if the target month heading is visible.
+            month_h = page.locator(f'h5:has-text("{target_heading}")')
+            if await month_h.count() > 0 and await month_h.first.is_visible():
+                break
+            # Click "Next" to advance the calendar.
+            next_btn = page.locator("button.be-calendar__button--next:visible").last
+            try:
+                await next_btn.click(timeout=3000)
+                await page.wait_for_timeout(300)
+            except PlaywrightError:
+                logger.debug("ANA: calendar Next button not clickable")
+                break
+
+        # Click the specific day button by its aria-label.
+        aria = _calendar_aria_label(dep_date)
+        day_btn = page.locator(f'button[aria-label="{aria}"]')
 
         try:
-            await day_cell.click(timeout=5000)
+            await day_btn.click(timeout=5000)
         except PlaywrightError:
             logger.warning(
-                "ANA: could not click date %s in calendar, trying JS injection",
+                "ANA: could not click date %s (aria-label=%s) in calendar",
                 dep_date,
+                aria,
+            )
+            # Close the dialog to avoid blocking further interaction.
+            close_btn = page.locator("button.be-dialog__button--positive:visible")
+            if await close_btn.count() > 0:
+                await close_btn.click(timeout=3000)
+            return
+
+        await page.wait_for_timeout(300)
+
+        # Confirm the selection.
+        confirm_btn = page.locator("button.be-dialog__button--positive:visible")
+        try:
+            await confirm_btn.click(timeout=5000)
+        except PlaywrightError:
+            # Sometimes the dialog auto-closes on selection.
+            logger.debug(
+                "ANA: Confirm Selection button not found, may have auto-closed"
             )
 
         await page.wait_for_timeout(300)
+
+    async def _click_search(self, page: Page) -> None:
+        """Click the Search/submit button.
+
+        The button is disabled until both From and To airports are filled.
+        """
+        # Primary: use the BEM class.
+        search_btn = page.locator(
+            "button.be-overseas-reserve-ticket-submit__button"
+        ).first
+        try:
+            await search_btn.wait_for(state="visible", timeout=5000)
+            # Verify the button is not disabled.
+            is_disabled = await search_btn.is_disabled()
+            if is_disabled:
+                logger.warning("ANA: Search button is disabled (form incomplete)")
+                return
+            await search_btn.click(timeout=10000)
+            return
+        except PlaywrightError:
+            pass
+
+        # Fallback: find the Search button by accessible name.  There may be
+        # multiple buttons named "Search" on the page (e.g. site-wide search),
+        # so prefer the one inside the booking widget.
+        search_btn = page.get_by_role("button", name="Search").first
+        try:
+            await search_btn.click(timeout=10000)
+        except PlaywrightError:
+            logger.warning("ANA: Search button click failed")
+            await page.keyboard.press("Enter")
 
     async def _intercept_search_responses(
         self,
@@ -349,77 +447,71 @@ class AnaPlaywrightClient:
                 locale="en-US",
                 timezone_id="Asia/Tokyo",
             )
+
+            # Block scripts that redirect the page away from ana.co.jp.
+            await self._block_redirect_scripts(context)
+
             page = await context.new_page()
             await self._setup_page(page)
 
             try:
-                # Step 1: Navigate to international flights page.
+                # Step 1: Navigate to the international flight search page.
                 logger.info(
                     "ANA: navigating to %s for %s->%s on %s",
-                    _INTL_PAGE,
+                    _SEARCH_PAGE,
                     origin,
                     destination,
                     departure_date,
                 )
                 await page.goto(
-                    _INTL_PAGE,
+                    _SEARCH_PAGE,
                     wait_until="domcontentloaded",
                     timeout=_NAV_TIMEOUT_MS,
                 )
 
-                # Wait for the booking widget to render.
+                # Wait for the BookingManager widget to render.
                 try:
-                    await page.wait_for_load_state("networkidle", timeout=15000)
+                    await page.wait_for_selector(
+                        "button.be-overseas-reserve-ticket-submit__button",
+                        state="attached",
+                        timeout=15000,
+                    )
                 except PlaywrightError:
-                    await page.wait_for_timeout(5000)
+                    # Fall back to a timed wait.
+                    await page.wait_for_timeout(8000)
 
-                # Verify we are on ana.co.jp.
+                # Verify we are still on ana.co.jp (redirect scripts may
+                # have fired before route blocking took effect).
                 if "ana.co.jp" not in page.url:
                     msg = f"ANA: landed on unexpected URL: {page.url}"
                     raise RuntimeError(msg)
 
-                # Step 2: Ensure the "International" tab is selected in the
-                # booking widget.
-                intl_tab = page.get_by_role("tab", name="International")
-                try:
-                    await intl_tab.click(timeout=5000)
-                    await page.wait_for_timeout(500)
-                except PlaywrightError:
-                    logger.debug(
-                        "ANA: International tab click failed or already selected"
-                    )
-
-                # Step 3: Switch to "One Way".
+                # Step 2: Switch to "One Way".
                 one_way_btn = page.get_by_role("button", name="One Way")
                 try:
                     await one_way_btn.click(timeout=5000)
                     await page.wait_for_timeout(300)
                 except PlaywrightError:
-                    logger.debug("ANA: One Way button not found, continuing with RT")
+                    logger.debug(
+                        "ANA: One Way button not found, continuing with Round Trip"
+                    )
 
-                # Step 4: Fill origin airport.
+                # Step 3: Fill origin airport.
                 await self._fill_airport(page, field="From", code=origin)
 
-                # Step 5: Fill destination airport.
+                # Step 4: Fill destination airport.
                 await self._fill_airport(page, field="To", code=destination)
 
-                # Step 6: Set departure date.
+                # Step 5: Set departure date.
                 await self._set_departure_date(page, departure_date)
 
-                # Step 7: Start intercepting API responses.
+                # Step 6: Start intercepting API responses.
                 api_task = asyncio.create_task(self._intercept_search_responses(page))
 
-                # Step 8: Click the Search button.
-                search_btn = page.get_by_role("button", name="Search").first
-                try:
-                    await search_btn.click(timeout=10000)
-                except PlaywrightError:
-                    # The Search button might be disabled if form is incomplete.
-                    logger.warning("ANA: Search button click failed")
-                    # Try submitting via keyboard.
-                    await page.keyboard.press("Enter")
+                # Step 7: Click the Search button.
+                await self._click_search(page)
 
-                # Step 9: Wait for navigation / results.
+                # Step 8: Wait for navigation / results.
                 try:
                     await page.wait_for_load_state(
                         "networkidle", timeout=_SEARCH_TIMEOUT_MS
@@ -430,7 +522,7 @@ class AnaPlaywrightClient:
                 # Collect API responses.
                 api_responses = await api_task
 
-                # Step 10: Scrape DOM as fallback.
+                # Step 9: Scrape DOM as fallback.
                 dom_flights = await self._scrape_results_dom(page)
 
                 result: dict[str, Any] = {

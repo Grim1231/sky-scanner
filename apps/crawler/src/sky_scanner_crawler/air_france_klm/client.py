@@ -1,24 +1,22 @@
 """Air France-KLM L3 Playwright client with response interception.
 
 Covers flight offers for AF (Air France) and KL (KLM) via the Aviato
-GraphQL API at ``POST /gql/v1`` on ``www.klm.com``.
+GraphQL API at ``POST /gql/v1`` on ``www.klm.us``.
+
+Uses the US domain (``klm.us``) instead of ``klm.com`` to avoid
+geo-redirect from Korean IPs to ``thaiairways.com``.
 
 The API uses **persisted queries** identified by ``sha256Hash`` values.
 No API key is needed.  Akamai Bot Manager protects the search endpoint
 and binds the ``_abck`` cookie to the TLS fingerprint.
 
 L3 Strategy (response interception):
-1. Use Playwright to navigate to ``klm.com/search/advanced``
-2. Dismiss the cookie consent banner
+1. Use Playwright to navigate to ``klm.us/search/advanced``
+2. Block geo-redirect scripts + remove cookie consent banner via JS
 3. Fill the search form (origin, destination, date, cabin, trip type)
 4. Click "Search flights" to trigger the SPA's own GraphQL call
 5. Intercept the ``/gql/v1`` response containing flight offers
 6. Return the raw JSON data
-
-This approach is more robust than the previous L2 ``fetch()`` injection
-because the GraphQL request originates entirely from KLM's Angular SPA,
-inheriting all Akamai session cookies, headers, and HTTP/2 settings
-that the bot manager expects.
 """
 
 from __future__ import annotations
@@ -53,17 +51,70 @@ _CABIN_FORM_MAP: dict[str, str] = {
     "FIRST": "Business",  # KLM has no first class option; map to Business
 }
 
-_BASE_URL = "https://www.klm.com"
+_BASE_URL = "https://www.klm.us"
 _SEARCH_URL = f"{_BASE_URL}/search/advanced"
 
 # GraphQL operation names that carry flight offer data.
 _OFFERS_OPERATION = "SearchResultAvailableOffersQuery"
 
 # Timeouts (milliseconds).
-_PAGE_LOAD_TIMEOUT_MS = 30_000
-_FORM_WAIT_TIMEOUT_MS = 15_000
+_PAGE_LOAD_TIMEOUT_MS = 45_000
+_FORM_WAIT_TIMEOUT_MS = 20_000
 _SEARCH_RESULT_TIMEOUT_MS = 60_000
 _AUTOCOMPLETE_DELAY_MS = 1500
+
+# JavaScript to block redirects to non-KLM domains and remove cookie banner.
+_ANTI_REDIRECT_SCRIPT = """
+(() => {
+  // Block location redirects to non-KLM domains.
+  const _blocked = (url) => {
+    if (!url) return false;
+    const s = String(url);
+    return s.length > 0
+      && !s.includes('klm.')
+      && !s.includes('airfrance.')
+      && !s.startsWith('about:')
+      && !s.startsWith('javascript:')
+      && !s.startsWith('blob:');
+  };
+  try {
+    const origHref = Object.getOwnPropertyDescriptor(Location.prototype, 'href');
+    if (origHref && origHref.set) {
+      Object.defineProperty(Location.prototype, 'href', {
+        get: origHref.get,
+        set(val) { if (!_blocked(val)) origHref.set.call(this, val); },
+      });
+    }
+  } catch {}
+  for (const m of ['assign', 'replace']) {
+    try {
+      const orig = Location.prototype[m];
+      Location.prototype[m] = function(url) {
+        if (_blocked(url)) return;
+        return orig.call(this, url);
+      };
+    } catch {}
+  }
+  try {
+    const origOpen = window.open;
+    window.open = function(url) {
+      if (_blocked(url)) return null;
+      return origOpen.apply(this, arguments);
+    };
+  } catch {}
+  // Remove webdriver flag.
+  try {
+    Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+  } catch {}
+})();
+"""
+
+# URL patterns for geo-redirect scripts to block.
+_REDIRECT_PATTERNS = (
+    "**/geo-redirect*",
+    "**/country-selector*",
+    "**/locale-redirect*",
+)
 
 
 class AirFranceKlmPlaywrightClient:
@@ -81,30 +132,58 @@ class AirFranceKlmPlaywrightClient:
         self._timeout = timeout
 
     async def _dismiss_cookie_banner(self, page: Any) -> None:
-        """Dismiss the KLM cookie consent banner if present."""
-        try:
-            reject_btn = page.locator(
-                'dialog:has-text("cookies") >> button:has-text("Reject")'
-            )
-            if await reject_btn.is_visible(timeout=3000):
-                await reject_btn.click()
-                logger.debug("AF-KLM cookie banner dismissed (rejected)")
-                await page.wait_for_timeout(500)
-                return
-        except Exception:
-            pass
+        """Remove the KLM cookie consent banner if present.
 
-        # Fallback: try Accept button.
+        The banner element (``div.bw-cookie-banner-kl``) uses
+        ``pointer-events: all`` and covers the entire page, blocking
+        all click interactions.  We remove it entirely via JS rather
+        than trying to find and click a dismiss button.
+        """
         try:
-            accept_btn = page.locator(
-                'dialog:has-text("cookies") >> button:has-text("Accept")'
+            await page.evaluate(
+                """
+                () => {
+                    // Remove the cookie banner overlay that blocks clicks.
+                    for (const sel of [
+                        '.bw-cookie-banner-kl',
+                        '#bw-cookie-banner',
+                        '[class*="cookie-banner"]',
+                        '[class*="cookie-wall"]',
+                        '[id*="cookie-banner"]',
+                    ]) {
+                        const el = document.querySelector(sel);
+                        if (el) { el.remove(); }
+                    }
+                    // Also remove any overlay/backdrop elements.
+                    for (const el of document.querySelectorAll('[class*="overlay"]')) {
+                        const style = getComputedStyle(el);
+                        if (style.position === 'fixed' && style.zIndex > 999) {
+                            el.remove();
+                        }
+                    }
+                }
+                """
             )
-            if await accept_btn.is_visible(timeout=1000):
-                await accept_btn.click()
-                logger.debug("AF-KLM cookie banner dismissed (accepted)")
-                await page.wait_for_timeout(500)
+            logger.debug("AF-KLM cookie banner removed via JS")
         except Exception:
-            logger.debug("AF-KLM no cookie banner found")
+            logger.debug("AF-KLM cookie banner removal failed (may not exist)")
+
+        # Also try clicking standard consent buttons as fallback.
+        for sel in (
+            "#onetrust-accept-btn-handler",
+            'button:has-text("Accept all cookies")',
+            'button:has-text("Accept")',
+            'button:has-text("Reject")',
+        ):
+            try:
+                btn = page.locator(sel).first
+                if await btn.is_visible(timeout=1000):
+                    await btn.click(timeout=2000)
+                    logger.debug("AF-KLM cookie consent clicked via %s", sel)
+                    await page.wait_for_timeout(500)
+                    return
+            except Exception:
+                continue
 
     async def _wait_for_search_form(self, page: Any) -> None:
         """Wait for the KLM search form to load."""
@@ -310,10 +389,9 @@ class AirFranceKlmPlaywrightClient:
         async with async_playwright() as pw:
             browser = await pw.chromium.launch(
                 headless=True,
-                channel="chrome",
                 args=[
                     "--disable-blink-features=AutomationControlled",
-                    "--headless=new",
+                    "--no-sandbox",
                 ],
             )
             context = await browser.new_context(
@@ -324,13 +402,17 @@ class AirFranceKlmPlaywrightClient:
                     "Chrome/131.0.0.0 Safari/537.36"
                 ),
                 viewport={"width": 1440, "height": 900},
+                locale="en-US",
             )
+
+            # Block geo-redirect scripts.
+            for pattern in _REDIRECT_PATTERNS:
+                await context.route(pattern, lambda route: route.abort())
+
             page = await context.new_page()
 
-            # Remove webdriver detection flag.
-            await page.add_init_script(
-                "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-            )
+            # Inject anti-redirect + stealth script.
+            await page.add_init_script(_ANTI_REDIRECT_SCRIPT)
 
             try:
                 # 1. Navigate to the KLM search page.
@@ -341,20 +423,25 @@ class AirFranceKlmPlaywrightClient:
                     timeout=_PAGE_LOAD_TIMEOUT_MS,
                 )
 
-                # 2. Dismiss cookie consent banner.
+                # 2. Verify we stayed on a KLM domain.
+                if "klm." not in page.url and "airfrance." not in page.url:
+                    msg = f"AF-KLM: geo-redirected to {page.url}"
+                    raise RuntimeError(msg)
+
+                # 3. Dismiss cookie consent banner.
                 await self._dismiss_cookie_banner(page)
 
-                # 3. Wait for the search form to render.
+                # 4. Wait for the search form to render.
                 await self._wait_for_search_form(page)
 
-                # 4. Fill the search form.
+                # 5. Fill the search form.
                 await self._select_trip_type(page, one_way=True)
                 await self._fill_airport(page, "Departing from", origin)
                 await self._fill_airport(page, "Arriving at", destination)
                 await self._select_date(page, departure_date)
                 await self._select_cabin_class(page, cabin_class)
 
-                # 5. Intercept the GraphQL response and click search.
+                # 6. Intercept the GraphQL response and click search.
                 result = await self._intercept_offers_response(page)
 
             finally:
@@ -387,8 +474,7 @@ class AirFranceKlmPlaywrightClient:
             async with async_playwright() as pw:
                 browser = await pw.chromium.launch(
                     headless=True,
-                    channel="chrome",
-                    args=["--headless=new"],
+                    args=["--no-sandbox"],
                 )
                 page = await browser.new_page()
                 resp = await page.goto(

@@ -1,8 +1,9 @@
-"""Qatar Airways (QR) L3 crawler -- Playwright search with qoreservices interception.
+"""Qatar Airways (QR) L3 crawler -- Playwright search with API interception.
 
-Navigates to the Qatar Airways booking page, fills the search form, and
-intercepts JSON responses from ``qoreservices.qatarairways.com`` to extract
-flight offers and pricing data.
+Navigates to ``qatarairways.com/en/book.html``, fills the Angular SPA
+search form (inside Shadow DOM) via ARIA selectors, and intercepts JSON
+responses from ``booking.qatarairways.com`` /
+``qoreservices.qatarairways.com`` to extract flight offers and pricing.
 """
 
 from __future__ import annotations
@@ -23,16 +24,17 @@ logger = logging.getLogger(__name__)
 class QatarAirwaysCrawler(BaseCrawler):
     """L3 crawler: Qatar Airways flight search via Playwright.
 
-    Uses Playwright to navigate the QR Angular SPA booking page,
-    intercepts API responses from ``qoreservices.qatarairways.com``,
-    and parses them into ``NormalizedFlight`` objects.
+    Uses Playwright to navigate the QR Angular SPA booking page
+    (``/en/book.html``), fills the form via ARIA selectors that pierce
+    the Shadow DOM, intercepts API responses, and parses them into
+    ``NormalizedFlight`` objects.
 
     Falls back to the direct URL method if form-filling produces no
     intercepted responses.
     """
 
     def __init__(self) -> None:
-        self._client = QatarAirwaysClient(timeout=30)
+        self._client = QatarAirwaysClient(timeout=45)
 
     async def crawl(self, task: CrawlTask) -> CrawlResult:
         """Search flights on qatarairways.com and return normalised results."""

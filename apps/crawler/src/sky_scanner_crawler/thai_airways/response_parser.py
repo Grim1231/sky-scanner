@@ -1,44 +1,37 @@
 """Parse Thai Airways intercepted API responses into NormalizedFlight objects.
 
-Thai Airways uses Amadeus OSCI (Open Shopping for Certified Intermediaries)
-as its booking backend.  The intercepted responses may contain:
+Thai Airways uses an OSCI React booking widget with multiple API backends:
 
-1. **AirShopping/OfferPrice responses** (Amadeus NDC-style):
+1. **Popular-fares API** (``/common/calendarPricing/popular-fares``):
+   Returns the cheapest fare per route from EveryMundo/airTRFX data.
+   Response structure::
+
+       {
+           "prices": [
+               {
+                   "date": "2026-05-05",
+                   "journeyType": "ONE_WAY",
+                   "departureAirportIataCode": "ICN",
+                   "arrivalAirportIataCode": "BKK",
+                   "departureCityName": "Seoul",
+                   "arrivalCityName": "Bangkok",
+                   "fare": {
+                       "totalPrice": "317,300",
+                       "currencyCode": "KRW",
+                       "fareClass": "ECONOMY",
+                   },
+               }
+           ]
+       }
+
+2. **NDC-style offers** (if the OSCI form search succeeds):
    Flight offers with segments, fares, and pricing.
 
-2. **Legacy availability responses**:
-   Flight schedules with fare classes and prices.
+3. **Airport list** (``/common/airport/list``):
+   Wrapped in ``{"items": [...]}`` by the interceptor.
 
-3. **Calendar/low-fare responses**:
-   Daily lowest fares for a date range.
-
-The parser attempts to normalise all three response types into
+The parser attempts to normalise all response types into
 ``NormalizedFlight`` objects.
-
-Response structure (Amadeus NDC-style, simplified)::
-
-    {
-        "data": {
-            "offers": [
-                {
-                    "offerId": "...",
-                    "price": {"total": 450000, "currency": "KRW"},
-                    "segments": [
-                        {
-                            "flightNumber": "TG658",
-                            "origin": "ICN",
-                            "destination": "BKK",
-                            "departureTime": "2026-04-15T10:30:00",
-                            "arrivalTime": "2026-04-15T14:30:00",
-                            "duration": "PT4H0M",
-                            "aircraft": "B777",
-                            "cabinClass": "Y",
-                        }
-                    ],
-                }
-            ]
-        }
-    }
 """
 
 from __future__ import annotations
@@ -60,7 +53,7 @@ logger = logging.getLogger(__name__)
 _TG_CODE = "TG"
 _TG_NAME = "Thai Airways"
 
-# Cabin class mapping for Thai Airways / Amadeus OSCI.
+# Cabin class mapping for Thai Airways.
 _CABIN_MAP: dict[str, CabinClass] = {
     "Y": CabinClass.ECONOMY,
     "W": CabinClass.PREMIUM_ECONOMY,
@@ -106,6 +99,12 @@ def _parse_duration(duration_str: str) -> int:
         return 0
 
 
+def _parse_price_string(price_str: str) -> float:
+    """Parse a formatted price string like ``"317,300"`` to float."""
+    cleaned = price_str.replace(",", "").replace(" ", "").strip()
+    return float(cleaned)
+
+
 def parse_intercepted_responses(
     responses: list[dict[str, Any]],
     origin: str,
@@ -119,10 +118,13 @@ def parse_intercepted_responses(
     flights: list[NormalizedFlight] = []
 
     for resp in responses:
+        # Strategy 0: Popular-fares API response (EveryMundo).
+        flights.extend(_parse_popular_fares(resp, origin, destination, cabin_class))
+
         # Strategy 1: NDC-style offers (data.offers or data.flightOffers).
         flights.extend(_parse_ndc_offers(resp, origin, destination, cabin_class))
 
-        # Strategy 2: Amadeus OSCI availability (flightAvailability).
+        # Strategy 2: OSCI availability (flightAvailability).
         flights.extend(_parse_osci_availability(resp, origin, destination, cabin_class))
 
         # Strategy 3: Low-fare calendar (dailyFares or lowFares).
@@ -148,6 +150,111 @@ def parse_intercepted_responses(
         len(responses),
     )
     return unique
+
+
+# ------------------------------------------------------------------
+# Strategy 0: Popular-fares API (EveryMundo / airTRFX)
+# ------------------------------------------------------------------
+
+
+def _parse_popular_fares(
+    data: dict[str, Any],
+    origin: str,
+    destination: str,
+    cabin_class: CabinClass,
+) -> list[NormalizedFlight]:
+    """Parse the ``/common/calendarPricing/popular-fares`` response.
+
+    Each entry in ``prices`` represents the cheapest fare for a route
+    on a specific date.  We filter to entries matching the requested
+    origin and destination.
+    """
+    now = datetime.now(tz=UTC)
+    flights: list[NormalizedFlight] = []
+
+    prices = data.get("prices")
+    if not isinstance(prices, list) or not prices:
+        return flights
+
+    for entry in prices:
+        if not isinstance(entry, dict):
+            continue
+
+        dep_iata = entry.get("departureAirportIataCode", "")
+        arr_iata = entry.get("arrivalAirportIataCode", "")
+
+        # Filter: only include entries matching the requested route.
+        if dep_iata.upper() != origin.upper():
+            continue
+        if arr_iata.upper() != destination.upper():
+            continue
+
+        date_str = entry.get("date", "")
+        dep_time = _parse_dt(date_str)
+        if not dep_time:
+            continue
+
+        fare = entry.get("fare")
+        if not isinstance(fare, dict):
+            continue
+
+        total_price_str = fare.get("totalPrice", "")
+        if not total_price_str:
+            continue
+
+        try:
+            amount = _parse_price_string(str(total_price_str))
+        except (ValueError, TypeError):
+            continue
+
+        if amount <= 0:
+            continue
+
+        currency = fare.get("currencyCode", "KRW")
+        fare_class_str = fare.get("fareClass", "")
+        parsed_cabin = _CABIN_MAP.get(fare_class_str.upper(), cabin_class)
+
+        flights.append(
+            NormalizedFlight(
+                flight_number=f"{_TG_CODE}-{dep_iata}{arr_iata}",
+                airline_code=_TG_CODE,
+                airline_name=_TG_NAME,
+                operator=_TG_CODE,
+                origin=dep_iata,
+                destination=arr_iata,
+                departure_time=dep_time,
+                arrival_time=dep_time,
+                duration_minutes=0,
+                cabin_class=parsed_cabin,
+                stops=0,
+                prices=[
+                    NormalizedPrice(
+                        amount=amount,
+                        currency=currency,
+                        source=DataSource.DIRECT_CRAWL,
+                        fare_class=fare_class_str or None,
+                        crawled_at=now,
+                    )
+                ],
+                source=DataSource.DIRECT_CRAWL,
+                crawled_at=now,
+            )
+        )
+
+    if flights:
+        logger.debug(
+            "TG: parsed %d popular-fares entries for %s->%s",
+            len(flights),
+            origin,
+            destination,
+        )
+
+    return flights
+
+
+# ------------------------------------------------------------------
+# Strategy 1: NDC-style offers
+# ------------------------------------------------------------------
 
 
 def _parse_ndc_offers(
@@ -286,6 +393,11 @@ def _parse_ndc_offers(
     return flights
 
 
+# ------------------------------------------------------------------
+# Strategy 2: OSCI availability
+# ------------------------------------------------------------------
+
+
 def _parse_osci_availability(
     data: dict[str, Any],
     origin: str,
@@ -350,7 +462,7 @@ def _parse_osci_availability(
                                 amount=amount_f,
                                 currency=fare.get("currency", "KRW"),
                                 source=DataSource.DIRECT_CRAWL,
-                                fare_class=fare.get("code") or fare.get("fareClass"),
+                                fare_class=(fare.get("code") or fare.get("fareClass")),
                                 crawled_at=now,
                             )
                         )
@@ -378,6 +490,11 @@ def _parse_osci_availability(
         )
 
     return flights
+
+
+# ------------------------------------------------------------------
+# Strategy 3: Low-fare calendar
+# ------------------------------------------------------------------
 
 
 def _parse_low_fare_calendar(
@@ -459,6 +576,11 @@ def _parse_low_fare_calendar(
     return flights
 
 
+# ------------------------------------------------------------------
+# Strategy 4: Generic fallback
+# ------------------------------------------------------------------
+
+
 def _parse_generic_flight_data(
     data: dict[str, Any],
     origin: str,
@@ -492,9 +614,11 @@ def _parse_generic_flight_data(
         dep_str = (
             item.get("departureTime")
             or item.get("departureDateTime")
-            or item.get("departure", {}).get("time", "")
-            if isinstance(item.get("departure"), dict)
-            else item.get("departureTime", "")
+            or (
+                item.get("departure", {}).get("time", "")
+                if isinstance(item.get("departure"), dict)
+                else item.get("departureTime", "")
+            )
         )
         dep_time = _parse_dt(dep_str) if isinstance(dep_str, str) else None
         if not dep_time:
@@ -503,9 +627,11 @@ def _parse_generic_flight_data(
         arr_str = (
             item.get("arrivalTime")
             or item.get("arrivalDateTime")
-            or item.get("arrival", {}).get("time", "")
-            if isinstance(item.get("arrival"), dict)
-            else item.get("arrivalTime", "")
+            or (
+                item.get("arrival", {}).get("time", "")
+                if isinstance(item.get("arrival"), dict)
+                else item.get("arrivalTime", "")
+            )
         )
         arr_time = _parse_dt(arr_str) if isinstance(arr_str, str) else dep_time
 
