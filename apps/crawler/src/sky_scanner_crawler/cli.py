@@ -494,6 +494,47 @@ def crawl_lufthansa(
         _store_to_db(result.flights)
 
 
+@cli.command("crawl-singapore")
+@click.argument("origin")
+@click.argument("destination")
+@click.argument("departure_date")
+@click.option("--cabin", default="ECONOMY", help="Cabin class")
+@click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
+def crawl_singapore(
+    origin: str,
+    destination: str,
+    departure_date: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
+) -> None:
+    """L2: Singapore Airlines flight availability via NDC API (SQ)."""
+    from .singapore_airlines.crawler import SingaporeAirlinesCrawler
+
+    search_req = _build_search_request(origin, destination, departure_date, cabin)
+    task = CrawlTask(search_request=search_req, source=DataSource.DIRECT_CRAWL)
+
+    async def _run():  # type: ignore[return]
+        crawler = SingaporeAirlinesCrawler()
+        try:
+            return await crawler.crawl(task)
+        finally:
+            await crawler.close()
+
+    result = asyncio.run(_run())
+    if json_output:
+        click.echo(json.dumps(result.model_dump(mode="json"), indent=2))
+    else:
+        click.echo(f"Source: {result.source.value} | Duration: {result.duration_ms}ms")
+        if result.error:
+            click.echo(f"Error: {result.error}", err=True)
+        _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
+
+
 @cli.command("crawl-afklm")
 @click.argument("origin")
 @click.argument("destination")
@@ -664,6 +705,50 @@ def crawl_lot(
         _store_to_db(result.flights)
 
 
+@cli.command("crawl-air-nz")
+@click.argument("origin")
+@click.argument("destination")
+@click.option("--cabin", default="ECONOMY", help="Cabin class")
+@click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
+def crawl_air_nz(
+    origin: str,
+    destination: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
+) -> None:
+    """L2: Air New Zealand daily lowest fares via Sputnik (~300 days)."""
+    from .air_nz.crawler import AirNzCrawler
+
+    search_req = _build_search_request(
+        origin,
+        destination,
+        "2026-03-01",
+        cabin,
+    )
+    task = CrawlTask(search_request=search_req, source=DataSource.DIRECT_CRAWL)
+
+    async def _run():  # type: ignore[return]
+        crawler = AirNzCrawler()
+        try:
+            return await crawler.crawl(task)
+        finally:
+            await crawler.close()
+
+    result = asyncio.run(_run())
+    if json_output:
+        click.echo(json.dumps(result.model_dump(mode="json"), indent=2))
+    else:
+        click.echo(f"Source: {result.source.value} | Duration: {result.duration_ms}ms")
+        if result.error:
+            click.echo(f"Error: {result.error}", err=True)
+        _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
+
+
 @cli.command("crawl-amadeus")
 @click.argument("origin")
 @click.argument("destination")
@@ -761,6 +846,7 @@ def health_check() -> None:
     """Check health of all crawl sources."""
     from .air_busan.crawler import AirBusanCrawler
     from .air_france_klm.crawler import AirFranceKlmCrawler
+    from .air_nz.crawler import AirNzCrawler
     from .air_premia.crawler import AirPremiaCrawler
     from .air_seoul.crawler import AirSeoulCrawler
     from .amadeus_gds.crawler import AmadeusCrawler
@@ -772,6 +858,7 @@ def health_check() -> None:
     from .kiwi.crawler import KiwiCrawler
     from .lot_polish.crawler import LotPolishCrawler
     from .lufthansa_group.crawler import LufthansaCrawler
+    from .singapore_airlines.crawler import SingaporeAirlinesCrawler
     from .turkish_airlines.crawler import TurkishAirlinesCrawler
     from .tway_air.crawler import TwayAirCrawler
 
@@ -787,10 +874,12 @@ def health_check() -> None:
         tway = TwayAirCrawler()
         air_busan = AirBusanCrawler()
         lufthansa = LufthansaCrawler()
+        singapore = SingaporeAirlinesCrawler()
         afklm = AirFranceKlmCrawler()
         turkish = TurkishAirlinesCrawler()
         eva_air = EvaAirCrawler()
         lot_polish = LotPolishCrawler()
+        air_nz = AirNzCrawler()
         try:
             results = await asyncio.gather(
                 google.health_check(),
@@ -804,10 +893,12 @@ def health_check() -> None:
                 tway.health_check(),
                 air_busan.health_check(),
                 lufthansa.health_check(),
+                singapore.health_check(),
                 afklm.health_check(),
                 turkish.health_check(),
                 eva_air.health_check(),
                 lot_polish.health_check(),
+                air_nz.health_check(),
                 return_exceptions=True,
             )
         finally:
@@ -822,10 +913,12 @@ def health_check() -> None:
             await tway.close()
             await air_busan.close()
             await lufthansa.close()
+            await singapore.close()
             await afklm.close()
             await turkish.close()
             await eva_air.close()
             await lot_polish.close()
+            await air_nz.close()
 
         return {
             "L1 (Google Protobuf)": not isinstance(results[0], Exception)
@@ -841,12 +934,16 @@ def health_check() -> None:
             "L2 (Air Busan)": not isinstance(results[9], Exception) and results[9],
             "L2 (Lufthansa Group)": not isinstance(results[10], Exception)
             and results[10],
-            "L3 (Air France-KLM)": not isinstance(results[11], Exception)
+            "L2 (Singapore Airlines)": not isinstance(results[11], Exception)
             and results[11],
-            "L2 (Turkish Airlines)": not isinstance(results[12], Exception)
+            "L3 (Air France-KLM)": not isinstance(results[12], Exception)
             and results[12],
-            "L2 (EVA Air)": not isinstance(results[13], Exception) and results[13],
-            "L2 (LOT Polish)": not isinstance(results[14], Exception) and results[14],
+            "L2 (Turkish Airlines)": not isinstance(results[13], Exception)
+            and results[13],
+            "L2 (EVA Air)": not isinstance(results[14], Exception) and results[14],
+            "L2 (LOT Polish)": not isinstance(results[15], Exception) and results[15],
+            "L2 (Air New Zealand)": not isinstance(results[16], Exception)
+            and results[16],
         }
 
     statuses = asyncio.run(_run())

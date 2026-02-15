@@ -41,6 +41,9 @@ class CrawlerSettings(BaseSettings):
     lufthansa_client_secret: str = ""
     lufthansa_hostname: str = "api.lufthansa.com"  # or "api-test.lufthansa.com"
 
+    # Singapore Airlines NDC API (developer.singaporeair.com)
+    singapore_api_key: str = ""
+
     # Air France-KLM: no config needed (L2 GraphQL via primp, no API key)
 
     # Turkish Airlines: no config needed (L2 website API via primp, no API key)
