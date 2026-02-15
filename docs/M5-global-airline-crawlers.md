@@ -33,20 +33,31 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 
 ---
 
-## 이번 세션 신규 크롤러 (미커밋)
+## M5 신규 크롤러 (커밋 완료)
 
 ### L2 직접 크롤링 성공
-| # | 항공사 | 코드 | 허브 | 방식 | 테스트 결과 |
-|---|--------|------|------|------|-------------|
-| 11 | LOT 폴란드항공 | LO | WAW | L2 primp — `watchlistPriceBoxesSearch.json` | Economy+Business 가격 (395ms) |
-| 12 | EVA 에바항공 | BR | TPE | L2 primp — `getBestPrices.ashx` 세션 | ~300일 일별 최저가 (259ms) |
+| # | 항공사 | 코드 | 허브 | 방식 | 테스트 결과 | 커밋 |
+|---|--------|------|------|------|-------------|------|
+| 11 | LOT 폴란드항공 | LO | WAW | L2 primp — `watchlistPriceBoxesSearch.json` | Economy 1,011,900 KRW | 5f74566 |
+| 12 | EVA 에바항공 | BR | TPE | L2 primp — `getBestPrices.ashx` 세션 | ~300일 최저가, 9,141 TWD | 5f74566 |
+| 13 | Singapore Airlines | SQ | SIN | L2 httpx — NDC API (API key 인증) | recommendations 파싱 성공 | 7ff9416 |
+| 14 | Air New Zealand | NZ | AKL | L2 primp — EveryMundo airTrfx Sputnik | AKL→NRT 5편, 604 NZD | 7ff9416 |
+| 15 | Vietnam Airlines | VN | SGN/HAN | L2 primp — middleware API (schedule+fare) | SGN→ICN 18편, 10,874,000 VND | — |
+| 16 | Philippine Airlines | PR | MNL | L2 httpx — flight status API (schedule only) | MNL→ICN 2편 | — |
+| 17 | Hainan Airlines | HU | PEK | L2 httpx — fare-trends HMAC-SHA1 (국내선만) | PEK→HAK 136일, 199-4190 CNY | — |
 
-### 공식 API 크롤러 (API 키 등록 필요)
-| # | 항공사 | 코드 | 허브 | 방식 | 비고 |
-|---|--------|------|------|------|------|
-| 13 | Lufthansa Group | LH/LX/OS | FRA/ZRH/VIE | 공식 API (OAuth2) | developer.lufthansa.com 등록 필요 |
-| 14 | Air France-KLM | AF/KL | CDG/AMS | 공식 API (API Key) | developer.airfranceklm.com 등록 필요 |
-| 15 | Turkish Airlines | TK | IST | 공식 API (API Key+Secret) | developer.turkishairlines.com 등록 필요 |
+### 공식 API / L3 크롤러 (API 키 등록 또는 브라우저 필요)
+| # | 항공사 | 코드 | 허브 | 방식 | 비고 | 커밋 |
+|---|--------|------|------|------|------|------|
+| 18 | Lufthansa Group | LH/LX/OS | FRA/ZRH/VIE | 공식 API (OAuth2) | developer.lufthansa.com 등록 필요 | 5f74566 |
+| 19 | Air France-KLM | AF/KL | CDG/AMS | L3 Playwright GraphQL | 한국 IP → klm.co.kr 리다이렉트 문제 | 5f74566 |
+| 20 | Turkish Airlines | TK | IST | L2 primp (GET만, POST 차단) | Akamai `_abck` 센서가 POST 차단 | 5f74566 |
+
+### 탐색 실패 (참고용)
+| 항공사 | 코드 | 이유 |
+|--------|------|------|
+| Garuda Indonesia | GA | `web-api.garuda-indonesia.com` 504 타임아웃, JS 번들에서 API 패턴 미발견 |
+| Saudia | SV | Imperva WAF + CORS 차단, dapi.saudia.com JWT 세션 필요 → L3 필요 |
 
 ---
 
@@ -82,10 +93,10 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 
 | 항공사 | 코드 | 허브 | 얼라이언스 | PSS | 안티봇 | 추천 방식 | 난이도 |
 |--------|------|------|------------|-----|--------|-----------|--------|
-| **Singapore Airlines** | SQ | SIN | Star | Amadeus Altea | 보통 | **L2 공식 NDC API (무료!)** | ★☆☆ |
-| Garuda Indonesia | GA | CGK | SkyTeam | Amadeus Altea | 낮음 | L2 탐색 (robots.txt 개방) | ★★☆ |
-| Vietnam Airlines | VN | SGN/HAN | SkyTeam | Amadeus Altea | 낮음 (Imperva) | L2 탐색 (Disallow 비어있음) | ★★★ |
-| Philippine Airlines | PR | MNL | — | Amadeus Altea | 미확인 | L2 탐색 (robots.txt 없음) | ★★★ |
+| **Singapore Airlines** | SQ | SIN | Star | Amadeus Altea | 보통 | **~~L2 NDC API~~ 완료!** | ★☆☆ ✅ |
+| ~~Garuda Indonesia~~ | GA | CGK | SkyTeam | Amadeus Altea | 낮음 | ~~L2 탐색~~ (504 타임아웃, Amadeus fallback) | ★★☆ ❌ |
+| **Vietnam Airlines** | VN | SGN/HAN | SkyTeam | Amadeus Altea | 낮음 (Imperva) | **~~L2 탐색~~ 완료!** (middleware API) | ★★☆ ✅ |
+| **Philippine Airlines** | PR | MNL | — | Amadeus Altea | 미확인 | **~~L2 탐색~~ 완료!** (flight status API, 스케줄만) | ★★☆ ✅ |
 | Malaysia Airlines | MH | KUL | oneworld | Amadeus Altea | 보통 | L2 탐색 (AEM 기반) | ★★★ |
 | Cathay Pacific | CX | HKG | oneworld | Amadeus Altea | 보통 | L2 NDC (trade partner 필요) | ★★★ |
 | Thai Airways | TG | BKK | Star | Amadeus Altea | 높음 (403) | L3 Playwright | ★★★★ |
@@ -93,7 +104,7 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | **ANA (전일본공수)** | NH | NRT/HND | Star | Amadeus Altea | **Akamai Bot Manager (확인)** | L3 Playwright | ★★★★★ |
 | China Eastern | MU | PVG | SkyTeam | **TravelSky** | Alibaba 안티봇 | L3 또는 Amadeus | ★★★★ |
 | China Southern | CZ | CAN | SkyTeam | **TravelSky** | Alibaba 안티봇 | L3 또는 Amadeus | ★★★★ |
-| Hainan Airlines | HU | PEK | — | **TravelSky** | 보통 | L2 탐색 가능 | ★★★ |
+| **Hainan Airlines** | HU | PEK | — | **TravelSky** | 보통 | **~~L2 탐색~~ 완료!** (fare-trends HMAC-SHA1, 국내선만) | ★★☆ ✅ |
 
 #### Singapore Airlines NDC API (핵심 발견!)
 - **포털**: [developer.singaporeair.com](https://developer.singaporeair.com/)
@@ -113,7 +124,7 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | 항공사 | 코드 | 허브 | PSS | 안티봇 | 추천 방식 | 난이도 |
 |--------|------|------|-----|--------|-----------|--------|
 | Turkish Airlines | TK | IST | TROYA (자체) | Akamai | **L2 (Phase A)** | ★★☆ |
-| Saudia | SV | JED/RUH | Amadeus Altea | **Imperva** (Akamai 아님) | L2 탐색 (primp 가능성) | ★★★ |
+| ~~Saudia~~ | SV | JED/RUH | Amadeus Altea | **Imperva** + CORS | ~~L2 탐색~~ (CORS 차단, L3 필요) | ★★★ ❌ |
 | Emirates | EK | DXB | 자체 (AWS) | Akamai | L2 hard (developer.emirates.group 존재) | ★★★★ |
 | Qatar Airways | QR | DOH | Amadeus Altea | Akamai (403) | L3 Playwright | ★★★★ |
 | Etihad | EY | AUH | Amadeus Altea | Akamai (HTTP/2 연결 차단) | L3 극도 어려움 | ★★★★★ |
@@ -122,7 +133,7 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 
 | 항공사 | 코드 | 허브 | PSS | 안티봇 | 추천 방식 | 난이도 |
 |--------|------|------|-----|--------|-----------|--------|
-| **Air New Zealand** | NZ | AKL | Carina (자체) | **CloudFront (Akamai 없음!)** | **L2 탐색 (curl 200 반환)** | ★★☆ |
+| **Air New Zealand** | NZ | AKL | Carina (자체) | **CloudFront (Akamai 없음!)** | **~~L2 탐색~~ 완료!** | ★★☆ ✅ |
 | Ethiopian Airlines | ET | ADD | Amadeus Altea | Akamai (허용적) | L2 탐색 (200 반환) | ★★★ |
 | Delta Air Lines | DL | ATL/DTW | Deltamatic (자체) | Akamai (444) | L2 hard (apiportal.delta.com 존재) | ★★★★ |
 | LATAM Airlines | LA | SCL | Amadeus Altea | Akamai | L3 Playwright | ★★★★ |
@@ -137,16 +148,19 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 
 ## 실행 우선순위
 
-### 즉시 실행 (이번 세션)
-1. **TK L2 전환**: Chrome DevTools body 캡처 → primp 크롤러
-2. **커밋**: LOT, EVA Air, 공식 API 크롤러 (LH/AF-KLM/TK)
+### 완료 ✅
+1. ~~TK L2 전환~~: POST는 Akamai 차단, GET만 동작 → L2 부분 완료
+2. ~~커밋~~: LOT, EVA Air, TK, LH, AF-KLM (5f74566)
+3. ~~SQ NDC API~~: 크롤러 완성 (7ff9416)
+4. ~~NZ L2 탐색~~: EveryMundo airTrfx API 발견, 크롤러 완성 (7ff9416)
+5. ~~GA, SV 탐색~~: 둘 다 L2 불가 확인 (Amadeus fallback)
 
-### 단기 (1주일)
-3. **SQ NDC API**: developer.singaporeair.com 등록 → L2 크롤러
-4. **AF/KLM GraphQL L2**: DevTools hash 캡처 → primp 크롤러
-5. **LH 공식 API**: developer.lufthansa.com 등록
-6. **NZ L2 탐색**: Air New Zealand (Akamai 없음, curl 200 반환) → flightbookings 서브도메인 탐색
-7. **Phase B 탐색**: GA, VN, PR (robots.txt 개방) L2 엔드포인트 탐색
+### 다음 실행
+6. ~~**Phase B 탐색**: VN, PR, HU~~ 완료 (VN middleware + PR flight status + HU fare-trends)
+7. **Phase B 남은 대상**: ET (Ethiopian), MH (Malaysia), CX (Cathay) L2 탐색
+7. **AF/KLM 개선**: VPN/프록시 없이 L3 Playwright 안정화
+8. **LH 공식 API**: developer.lufthansa.com 수동 등록
+9. **TK 공식 API**: developer.turkishairlines.com 수동 등록 (L2 POST 차단 fallback)
 
 ### 중기 (2-4주)
 8. **L3 프레임워크 구축**: Playwright 기반 범용 크롤러 베이스
@@ -183,6 +197,9 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | Playwright headless | Cloudflare | Air Premia (YP) |
 | GraphQL persisted query | Akamai | AF/KLM (진행 중) |
 | Next.js API 리버싱 | Akamai | Turkish Airlines (진행 중) |
+| 미들웨어 API 직접 호출 | Imperva 우회 | Vietnam Airlines (integration-middleware-website) |
+| Flight status API | 없음 | Philippine Airlines (pal/flights/v1/status) |
+| Mobile HMAC-SHA1 서명 | 없음 | Hainan Airlines (app.hnair.com fare-trends) |
 
 ---
 

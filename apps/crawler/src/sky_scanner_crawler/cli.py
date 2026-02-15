@@ -749,6 +749,129 @@ def crawl_air_nz(
         _store_to_db(result.flights)
 
 
+@cli.command("crawl-vietnam")
+@click.argument("origin")
+@click.argument("destination")
+@click.argument("departure_date")
+@click.option("--cabin", default="ECONOMY", help="Cabin class")
+@click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
+def crawl_vietnam(
+    origin: str,
+    destination: str,
+    departure_date: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
+) -> None:
+    """L2: Vietnam Airlines schedule + fare calendar via middleware API (VN)."""
+    from .vietnam_airlines.crawler import VietnamAirlinesCrawler
+
+    search_req = _build_search_request(origin, destination, departure_date, cabin)
+    task = CrawlTask(search_request=search_req, source=DataSource.DIRECT_CRAWL)
+
+    async def _run():  # type: ignore[return]
+        crawler = VietnamAirlinesCrawler()
+        try:
+            return await crawler.crawl(task)
+        finally:
+            await crawler.close()
+
+    result = asyncio.run(_run())
+    if json_output:
+        click.echo(json.dumps(result.model_dump(mode="json"), indent=2))
+    else:
+        click.echo(f"Source: {result.source.value} | Duration: {result.duration_ms}ms")
+        if result.error:
+            click.echo(f"Error: {result.error}", err=True)
+        _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
+
+
+@cli.command("crawl-philippine")
+@click.argument("origin")
+@click.argument("destination")
+@click.argument("departure_date")
+@click.option("--cabin", default="ECONOMY", help="Cabin class")
+@click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
+def crawl_philippine(
+    origin: str,
+    destination: str,
+    departure_date: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
+) -> None:
+    """L2: Philippine Airlines flight schedule via flight status API (PR)."""
+    from .philippine_airlines.crawler import PhilippineAirlinesCrawler
+
+    search_req = _build_search_request(origin, destination, departure_date, cabin)
+    task = CrawlTask(search_request=search_req, source=DataSource.DIRECT_CRAWL)
+
+    async def _run():  # type: ignore[return]
+        crawler = PhilippineAirlinesCrawler()
+        try:
+            return await crawler.crawl(task)
+        finally:
+            await crawler.close()
+
+    result = asyncio.run(_run())
+    if json_output:
+        click.echo(json.dumps(result.model_dump(mode="json"), indent=2))
+    else:
+        click.echo(f"Source: {result.source.value} | Duration: {result.duration_ms}ms")
+        if result.error:
+            click.echo(f"Error: {result.error}", err=True)
+        _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
+
+
+@cli.command("crawl-hainan")
+@click.argument("origin")
+@click.argument("destination")
+@click.argument("departure_date")
+@click.option("--cabin", default="ECONOMY", help="Cabin class")
+@click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
+def crawl_hainan(
+    origin: str,
+    destination: str,
+    departure_date: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
+) -> None:
+    """L2: Hainan Airlines fare-trends calendar (HU, domestic CN only)."""
+    from .hainan_airlines.crawler import HainanAirlinesCrawler
+
+    search_req = _build_search_request(origin, destination, departure_date, cabin)
+    task = CrawlTask(search_request=search_req, source=DataSource.DIRECT_CRAWL)
+
+    async def _run():  # type: ignore[return]
+        crawler = HainanAirlinesCrawler()
+        try:
+            return await crawler.crawl(task)
+        finally:
+            await crawler.close()
+
+    result = asyncio.run(_run())
+    if json_output:
+        click.echo(json.dumps(result.model_dump(mode="json"), indent=2))
+    else:
+        click.echo(f"Source: {result.source.value} | Duration: {result.duration_ms}ms")
+        if result.error:
+            click.echo(f"Error: {result.error}", err=True)
+        _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
+
+
 @cli.command("crawl-amadeus")
 @click.argument("origin")
 @click.argument("destination")
@@ -853,14 +976,17 @@ def health_check() -> None:
     from .eastar_jet.crawler import EastarJetCrawler
     from .eva_air.crawler import EvaAirCrawler
     from .google.crawler import GoogleFlightsCrawler
+    from .hainan_airlines.crawler import HainanAirlinesCrawler
     from .jeju_air.crawler import JejuAirCrawler
     from .jin_air.crawler import JinAirCrawler
     from .kiwi.crawler import KiwiCrawler
     from .lot_polish.crawler import LotPolishCrawler
     from .lufthansa_group.crawler import LufthansaCrawler
+    from .philippine_airlines.crawler import PhilippineAirlinesCrawler
     from .singapore_airlines.crawler import SingaporeAirlinesCrawler
     from .turkish_airlines.crawler import TurkishAirlinesCrawler
     from .tway_air.crawler import TwayAirCrawler
+    from .vietnam_airlines.crawler import VietnamAirlinesCrawler
 
     async def _run() -> dict[str, bool]:
         google = GoogleFlightsCrawler()
@@ -880,6 +1006,9 @@ def health_check() -> None:
         eva_air = EvaAirCrawler()
         lot_polish = LotPolishCrawler()
         air_nz = AirNzCrawler()
+        vietnam = VietnamAirlinesCrawler()
+        philippine = PhilippineAirlinesCrawler()
+        hainan = HainanAirlinesCrawler()
         try:
             results = await asyncio.gather(
                 google.health_check(),
@@ -899,6 +1028,9 @@ def health_check() -> None:
                 eva_air.health_check(),
                 lot_polish.health_check(),
                 air_nz.health_check(),
+                vietnam.health_check(),
+                philippine.health_check(),
+                hainan.health_check(),
                 return_exceptions=True,
             )
         finally:
@@ -919,6 +1051,9 @@ def health_check() -> None:
             await eva_air.close()
             await lot_polish.close()
             await air_nz.close()
+            await vietnam.close()
+            await philippine.close()
+            await hainan.close()
 
         return {
             "L1 (Google Protobuf)": not isinstance(results[0], Exception)
@@ -944,6 +1079,12 @@ def health_check() -> None:
             "L2 (LOT Polish)": not isinstance(results[15], Exception) and results[15],
             "L2 (Air New Zealand)": not isinstance(results[16], Exception)
             and results[16],
+            "L2 (Vietnam Airlines)": not isinstance(results[17], Exception)
+            and results[17],
+            "L2 (Philippine Airlines)": not isinstance(results[18], Exception)
+            and results[18],
+            "L2 (Hainan Airlines)": not isinstance(results[19], Exception)
+            and results[19],
         }
 
     statuses = asyncio.run(_run())
