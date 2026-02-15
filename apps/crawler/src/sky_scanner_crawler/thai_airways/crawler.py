@@ -1,14 +1,8 @@
-"""Air France-KLM L3 crawler -- flight offers via Playwright form automation.
+"""Thai Airways (TG) L3 crawler -- Playwright search with response interception.
 
-Covers AF (Air France) and KL (KLM Royal Dutch Airlines).
-
-Uses Playwright to automate the KLM search form at ``klm.com/search/advanced``
-and intercepts the ``/gql/v1`` GraphQL response that the Angular SPA fires
-when search results load.  No API key or manual GraphQL query construction
-is needed -- the SPA handles everything.
-
-This L3 approach bypasses Akamai Bot Manager because the GraphQL request
-originates entirely from the SPA's own JavaScript code.
+Navigates to the Thai Airways booking page, fills the search form, and
+intercepts XHR/fetch responses from the Amadeus OSCI backend to extract
+flight availability and pricing data.
 """
 
 from __future__ import annotations
@@ -20,38 +14,40 @@ from datetime import UTC, datetime
 from sky_scanner_core.schemas import CrawlResult, CrawlTask, DataSource
 
 from ..base import BaseCrawler
-from .client import AirFranceKlmPlaywrightClient
-from .response_parser import parse_available_offers
+from .client import ThaiAirwaysClient
+from .response_parser import parse_intercepted_responses
 
 logger = logging.getLogger(__name__)
 
 
-class AirFranceKlmCrawler(BaseCrawler):
-    """L3 crawler: Air France-KLM flight offers via Playwright form automation.
+class ThaiAirwaysCrawler(BaseCrawler):
+    """L3 crawler: Thai Airways flight search via Playwright.
 
-    Navigates to the KLM search page, fills origin/destination/date/cabin,
-    clicks search, and intercepts the GraphQL ``/gql/v1`` response containing
-    ``SearchResultAvailableOffersQuery`` data.
+    Uses Playwright to navigate the TG booking SPA, intercepts API
+    responses from the Amadeus OSCI backend, and parses them into
+    ``NormalizedFlight`` objects.
     """
 
     def __init__(self) -> None:
-        self._client = AirFranceKlmPlaywrightClient()
+        self._client = ThaiAirwaysClient(timeout=30)
 
     async def crawl(self, task: CrawlTask) -> CrawlResult:
-        """Fetch AF-KLM flight offers for the requested route/date."""
+        """Search flights on thaiairways.com and return normalised results."""
         start = time.monotonic()
         req = task.search_request
 
         try:
-            raw = await self._client.search_available_offers(
+            raw_responses = await self._client.search_flights(
                 origin=req.origin,
                 destination=req.destination,
                 departure_date=req.departure_date,
                 cabin_class=req.cabin_class.value,
             )
 
-            flights = parse_available_offers(
-                raw,
+            flights = parse_intercepted_responses(
+                raw_responses,
+                origin=req.origin,
+                destination=req.destination,
                 cabin_class=req.cabin_class,
             )
 
@@ -65,7 +61,7 @@ class AirFranceKlmCrawler(BaseCrawler):
 
         except Exception as exc:
             elapsed_ms = int((time.monotonic() - start) * 1000)
-            logger.exception("Air France-KLM crawl failed")
+            logger.exception("Thai Airways crawl failed")
             return CrawlResult(
                 source=DataSource.DIRECT_CRAWL,
                 crawled_at=datetime.now(tz=UTC),
@@ -75,9 +71,9 @@ class AirFranceKlmCrawler(BaseCrawler):
             )
 
     async def health_check(self) -> bool:
-        """Check if the KLM GraphQL API is reachable."""
+        """Check if the Thai Airways website is reachable."""
         return await self._client.health_check()
 
     async def close(self) -> None:
-        """Release the client (no-op; each search owns its browser)."""
+        """Release resources (no-op for Playwright-per-request)."""
         await self._client.close()

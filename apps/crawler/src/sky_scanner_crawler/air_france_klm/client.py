@@ -1,4 +1,4 @@
-"""Air France-KLM GraphQL L2 client using persisted queries.
+"""Air France-KLM L3 Playwright client with response interception.
 
 Covers flight offers for AF (Air France) and KL (KLM) via the Aviato
 GraphQL API at ``POST /gql/v1`` on ``www.klm.com``.
@@ -7,26 +7,28 @@ The API uses **persisted queries** identified by ``sha256Hash`` values.
 No API key is needed.  Akamai Bot Manager protects the search endpoint
 and binds the ``_abck`` cookie to the TLS fingerprint.
 
-Strategy:
-1. Use Playwright (system Chrome) to load klm.com/search/advanced
-2. From within the browser context, call ``fetch()`` to POST the
-   GraphQL persisted query (this inherits the valid Akamai session)
-3. Return the JSON response
+L3 Strategy (response interception):
+1. Use Playwright to navigate to ``klm.com/search/advanced``
+2. Dismiss the cookie consent banner
+3. Fill the search form (origin, destination, date, cabin, trip type)
+4. Click "Search flights" to trigger the SPA's own GraphQL call
+5. Intercept the ``/gql/v1`` response containing flight offers
+6. Return the raw JSON data
 
-Key operations (captured from klm.com SPA):
-  - ``SearchResultAvailableOffersQuery`` -- flight offers with fares
-  - ``SharedSearchLowestFareOffersForSearchQuery`` -- lowest fare calendar
+This approach is more robust than the previous L2 ``fetch()`` injection
+because the GraphQL request originates entirely from KLM's Angular SPA,
+inheriting all Akamai session cookies, headers, and HTTP/2 settings
+that the bot manager expects.
 """
 
 from __future__ import annotations
 
-import json
+import asyncio
 import logging
-import uuid
 from typing import TYPE_CHECKING, Any
 
 from playwright._impl._errors import Error as PlaywrightError
-from playwright.async_api import async_playwright
+from playwright.async_api import Response, async_playwright
 
 from sky_scanner_crawler.retry import async_retry
 
@@ -43,75 +45,268 @@ AIRLINE_NAMES: dict[str, str] = {
     "KL": "KLM Royal Dutch Airlines",
 }
 
-# Cabin class mapping to AF-KLM GraphQL commercial cabin values.
-_CABIN_MAP: dict[str, str] = {
-    "ECONOMY": "ECONOMY",
-    "PREMIUM_ECONOMY": "PREMIUM",
-    "BUSINESS": "BUSINESS",
-    "FIRST": "FIRST",
+# Cabin class mapping: our CabinClass enum values -> KLM form option text.
+_CABIN_FORM_MAP: dict[str, str] = {
+    "ECONOMY": "Economy",
+    "PREMIUM_ECONOMY": "Premium Comfort",
+    "BUSINESS": "Business",
+    "FIRST": "Business",  # KLM has no first class option; map to Business
 }
 
-# Persisted query hashes captured from klm.com (Aviato SPA).
-_SEARCH_OFFERS_HASH = "b56e0be21c30edf8b4a61f3909f7d31960163b5b123ae681e06d7dd7c26f4fc3"
-_LOWEST_FARES_HASH = "3129e42881c15d2897fe99c294497f2cfa8f2133109dd93ed6cad720633b0243"
-
-_GQL_PATH = "/gql/v1"
 _BASE_URL = "https://www.klm.com"
+_SEARCH_URL = f"{_BASE_URL}/search/advanced"
 
-# Headers sent with GraphQL requests (from browser capture).
-_GQL_HEADERS_JS = json.dumps(
-    {
-        "afkl-travel-host": "KL",
-        "afkl-travel-market": "US",
-        "afkl-travel-language": "en",
-        "afkl-travel-country": "US",
-        "x-aviato-host": "www.klm.com",
-        "Content-Type": "application/json",
-        "Accept": "application/json, text/plain, */*",
-    }
-)
+# GraphQL operation names that carry flight offer data.
+_OFFERS_OPERATION = "SearchResultAvailableOffersQuery"
+
+# Timeouts (milliseconds).
+_PAGE_LOAD_TIMEOUT_MS = 30_000
+_FORM_WAIT_TIMEOUT_MS = 15_000
+_SEARCH_RESULT_TIMEOUT_MS = 60_000
+_AUTOCOMPLETE_DELAY_MS = 1500
 
 
-class AirFranceKlmClient:
-    """HTTP client for the Air France-KLM Aviato GraphQL API.
+class AirFranceKlmPlaywrightClient:
+    """L3 Playwright client for Air France-KLM flight search.
 
-    Uses Playwright with system Chrome to bypass Akamai Bot Manager.
-    GraphQL queries are executed via ``page.evaluate(fetch(...))``
-    inside the browser context so they inherit the valid Akamai
-    session cookies.
+    Automates the KLM search form and intercepts the GraphQL response
+    that the Angular SPA fires when search results load.
+
+    Each ``search_available_offers`` call launches a fresh browser
+    session, fills the form, and captures the API response.  No cookies
+    or sessions are reused across calls.
     """
 
     def __init__(self, *, timeout: int = 30) -> None:
         self._timeout = timeout
 
-    async def _execute_graphql(
-        self,
-        operation_name: str,
-        query_hash: str,
-        variables: dict[str, Any],
-    ) -> dict[str, Any]:
-        """Open a browser, visit KLM, and execute a GraphQL query.
+    async def _dismiss_cookie_banner(self, page: Any) -> None:
+        """Dismiss the KLM cookie consent banner if present."""
+        try:
+            reject_btn = page.locator(
+                'dialog:has-text("cookies") >> button:has-text("Reject")'
+            )
+            if await reject_btn.is_visible(timeout=3000):
+                await reject_btn.click()
+                logger.debug("AF-KLM cookie banner dismissed (rejected)")
+                await page.wait_for_timeout(500)
+                return
+        except Exception:
+            pass
 
-        The entire flow happens inside a single Playwright session:
-        1. Launch system Chrome (new headless mode)
-        2. Navigate to klm.com main page (triggers Akamai challenge)
-        3. Wait for the page URL to stabilise on ``www.klm.com``
-        4. Use ``fetch()`` from the page context to POST the query
-        5. Return the parsed JSON response
-        """
-        body = json.dumps(
-            {
-                "operationName": operation_name,
-                "variables": variables,
-                "extensions": {
-                    "persistedQuery": {
-                        "version": 1,
-                        "sha256Hash": query_hash,
-                    },
-                },
-            }
+        # Fallback: try Accept button.
+        try:
+            accept_btn = page.locator(
+                'dialog:has-text("cookies") >> button:has-text("Accept")'
+            )
+            if await accept_btn.is_visible(timeout=1000):
+                await accept_btn.click()
+                logger.debug("AF-KLM cookie banner dismissed (accepted)")
+                await page.wait_for_timeout(500)
+        except Exception:
+            logger.debug("AF-KLM no cookie banner found")
+
+    async def _wait_for_search_form(self, page: Any) -> None:
+        """Wait for the KLM search form to load."""
+        await page.wait_for_selector(
+            '[role="search"]',
+            timeout=_FORM_WAIT_TIMEOUT_MS,
         )
+        logger.debug("AF-KLM search form loaded")
 
+    async def _select_trip_type(self, page: Any, one_way: bool = True) -> None:
+        """Set the trip type dropdown."""
+        trip_combo = page.get_by_role("combobox", name="Trip")
+        option = "One-way" if one_way else "Round trip"
+        await trip_combo.select_option(option)
+        await page.wait_for_timeout(300)
+        logger.debug("AF-KLM trip type set to %s", option)
+
+    async def _fill_airport(
+        self,
+        page: Any,
+        label: str,
+        iata_code: str,
+    ) -> None:
+        """Fill an airport combobox (origin or destination).
+
+        Types the IATA code, waits for the autocomplete dropdown, and
+        clicks the first matching option.
+        """
+        combo = page.get_by_role("combobox", name=label)
+        await combo.click()
+        await combo.fill(iata_code)
+        await page.wait_for_timeout(_AUTOCOMPLETE_DELAY_MS)
+
+        # Click the first option in the autocomplete listbox that
+        # contains the IATA code in its text.
+        selector = f'[role="listbox"] [role="option"]:has-text("{iata_code}")'
+        option = page.locator(selector)
+        first_option = option.first
+        try:
+            await first_option.click(timeout=5000)
+        except Exception:
+            # Fallback: click any option in the listbox.
+            fallback = page.locator('[role="listbox"] [role="option"]').first
+            await fallback.click(timeout=5000)
+
+        await page.wait_for_timeout(300)
+        logger.debug("AF-KLM airport %s set to %s", label, iata_code)
+
+    async def _select_date(self, page: Any, departure_date: date) -> None:
+        """Select the departure date from the calendar picker.
+
+        Clicks the date button to open the calendar, navigates forward
+        by month if needed, and clicks the target date cell.
+        """
+        # Click the date area to open the calendar.
+        date_btn = page.locator('button:has-text("choose a date")')
+        if not await date_btn.is_visible(timeout=3000):
+            # The date area might use different text after form update.
+            date_btn = page.locator('[role="search"] button').filter(
+                has=page.locator('text="Departure date"')
+            )
+        await date_btn.first.click()
+        await page.wait_for_timeout(500)
+
+        # Format the target date as KLM expects: "DD Month YYYY".
+        target_label = departure_date.strftime("%d %B %Y")
+        # Remove leading zero from day (KLM uses "1 March 2026" not "01 March 2026").
+        if target_label.startswith("0"):
+            target_label = target_label[1:]
+
+        # Try to find the date button directly. If not visible, navigate months.
+        for _attempt in range(12):
+            date_cell = page.get_by_role("button", name=target_label, exact=True)
+            if await date_cell.is_visible(timeout=1000):
+                await date_cell.click()
+                break
+            # Click "Next month" to advance the calendar.
+            next_btn = page.get_by_role("button", name="Next month")
+            if await next_btn.is_visible(timeout=1000):
+                await next_btn.click()
+                await page.wait_for_timeout(300)
+            else:
+                break
+        else:
+            msg = f"AF-KLM could not find date {target_label} in calendar"
+            raise RuntimeError(msg)
+
+        await page.wait_for_timeout(300)
+
+        # Confirm the date selection.
+        confirm_btn = page.get_by_role("button", name="Confirm dates")
+        if await confirm_btn.is_visible(timeout=2000):
+            await confirm_btn.click()
+            await page.wait_for_timeout(300)
+
+        logger.debug("AF-KLM date set to %s", departure_date)
+
+    async def _select_cabin_class(self, page: Any, cabin_class: str) -> None:
+        """Select the cabin class from the dropdown."""
+        form_value = _CABIN_FORM_MAP.get(cabin_class, "Economy")
+        cabin_combo = page.get_by_role("combobox", name="Class")
+        await cabin_combo.select_option(form_value)
+        await page.wait_for_timeout(300)
+        logger.debug("AF-KLM cabin class set to %s", form_value)
+
+    async def _intercept_offers_response(
+        self,
+        page: Any,
+    ) -> dict[str, Any]:
+        """Set up response interception, click search, and capture the result.
+
+        Registers a ``page.on("response")`` handler that captures any
+        response whose URL contains ``/gql/v1`` and whose body contains
+        the ``SearchResultAvailableOffersQuery`` operation name (or
+        contains ``availableOffers`` / ``offerItineraries`` keys).
+        """
+        captured: dict[str, Any] = {}
+        capture_event = asyncio.Event()
+
+        async def _on_response(response: Response) -> None:
+            """Callback for intercepted responses."""
+            if captured:
+                return  # Already captured.
+            url = response.url
+            if "/gql/v1" not in url:
+                return
+            if response.status != 200:
+                return
+
+            try:
+                body = await response.json()
+            except Exception:
+                return
+
+            if not isinstance(body, dict):
+                return
+
+            # Check if this is the offers response.
+            data = body.get("data", {})
+            if "availableOffers" in data:
+                captured.update(body)
+                capture_event.set()
+                logger.debug("AF-KLM intercepted offers response")
+
+        page.on("response", _on_response)
+
+        # Click the search button.
+        search_btn = page.get_by_role("button", name="Search flights")
+        await search_btn.click()
+        logger.debug("AF-KLM search button clicked, waiting for GraphQL response")
+
+        # Wait for the offers response (or timeout).
+        try:
+            await asyncio.wait_for(
+                capture_event.wait(),
+                timeout=_SEARCH_RESULT_TIMEOUT_MS / 1000,
+            )
+        except TimeoutError:
+            msg = "AF-KLM timed out waiting for GraphQL offers response"
+            raise RuntimeError(msg) from None
+
+        return captured
+
+    @async_retry(
+        max_retries=2,
+        base_delay=5.0,
+        max_delay=20.0,
+        exceptions=(RuntimeError, OSError, PlaywrightError),
+    )
+    async def search_available_offers(
+        self,
+        origin: str,
+        destination: str,
+        departure_date: date,
+        *,
+        cabin_class: str = "ECONOMY",
+        adults: int = 1,
+    ) -> dict[str, Any]:
+        """Search available flight offers via Playwright form automation.
+
+        Navigates to KLM search page, fills the form, clicks search,
+        and intercepts the GraphQL response containing flight offers.
+
+        Parameters
+        ----------
+        origin:
+            IATA airport code (e.g. ``AMS``).
+        destination:
+            IATA airport code (e.g. ``ICN``).
+        departure_date:
+            Departure date.
+        cabin_class:
+            Cabin class string (``ECONOMY``, ``PREMIUM_ECONOMY``,
+            ``BUSINESS``, ``FIRST``).
+        adults:
+            Number of adult passengers (currently always 1).
+
+        Returns
+        -------
+        dict
+            Raw GraphQL JSON response containing ``data.availableOffers``.
+        """
         async with async_playwright() as pw:
             browser = await pw.chromium.launch(
                 headless=True,
@@ -128,6 +323,7 @@ class AirFranceKlmClient:
                     "AppleWebKit/537.36 (KHTML, like Gecko) "
                     "Chrome/131.0.0.0 Safari/537.36"
                 ),
+                viewport={"width": 1440, "height": 900},
             )
             page = await context.new_page()
 
@@ -137,61 +333,34 @@ class AirFranceKlmClient:
             )
 
             try:
-                # Navigate to main page (triggers Akamai flow).
-                # Using the main page avoids
-                # ERR_HTTP2_PROTOCOL_ERROR that occurs with
-                # /search/advanced in headless mode.
+                # 1. Navigate to the KLM search page.
+                logger.debug("AF-KLM navigating to %s", _SEARCH_URL)
                 await page.goto(
-                    f"{_BASE_URL}/",
+                    _SEARCH_URL,
                     wait_until="domcontentloaded",
-                    timeout=self._timeout * 1000,
+                    timeout=_PAGE_LOAD_TIMEOUT_MS,
                 )
 
-                # Wait for page to be fully loaded and Akamai
-                # JS challenge to settle.  Poll until the URL
-                # stabilises on klm.com (Akamai may redirect).
-                await page.wait_for_load_state("networkidle", timeout=15000)
-            except Exception:
-                # If networkidle times out, fall back to a
-                # fixed delay.  The page may still be usable.
-                logger.debug(
-                    "AF-KLM page load did not reach networkidle; using fixed delay"
-                )
-                await page.wait_for_timeout(5000)
+                # 2. Dismiss cookie consent banner.
+                await self._dismiss_cookie_banner(page)
 
-            # Verify we landed on klm.com.
-            current_url = page.url
-            if "klm.com" not in current_url:
-                await browser.close()
-                msg = f"AF-KLM navigation failed: landed on {current_url}"
-                raise RuntimeError(msg)
+                # 3. Wait for the search form to render.
+                await self._wait_for_search_form(page)
 
-            # Execute GraphQL query from within the browser.
-            fetch_js = f"""
-            async () => {{
-                const resp = await fetch(
-                    '{_GQL_PATH}',
-                    {{
-                        method: 'POST',
-                        headers: {_GQL_HEADERS_JS},
-                        body: {json.dumps(body)},
-                    }}
-                );
-                if (!resp.ok) {{
-                    throw new Error(
-                        `HTTP ${{resp.status}}: ${{await resp.text()}}`
-                    );
-                }}
-                return await resp.json();
-            }}
-            """
+                # 4. Fill the search form.
+                await self._select_trip_type(page, one_way=True)
+                await self._fill_airport(page, "Departing from", origin)
+                await self._fill_airport(page, "Arriving at", destination)
+                await self._select_date(page, departure_date)
+                await self._select_cabin_class(page, cabin_class)
 
-            try:
-                result = await page.evaluate(fetch_js)
+                # 5. Intercept the GraphQL response and click search.
+                result = await self._intercept_offers_response(page)
+
             finally:
                 await browser.close()
 
-        # Check for GraphQL-level errors.
+        # Validate the response.
         if not isinstance(result, dict):
             msg = f"AF-KLM unexpected response type: {type(result)}"
             raise RuntimeError(msg)
@@ -200,63 +369,6 @@ class AirFranceKlmClient:
         if errors:
             msg = f"AF-KLM GraphQL errors: {errors}"
             raise RuntimeError(msg)
-
-        return result
-
-    @async_retry(
-        max_retries=2,
-        base_delay=3.0,
-        max_delay=15.0,
-        exceptions=(RuntimeError, OSError, PlaywrightError),
-    )
-    async def search_available_offers(
-        self,
-        origin: str,
-        destination: str,
-        departure_date: date,
-        *,
-        cabin_class: str = "ECONOMY",
-        adults: int = 1,
-    ) -> dict[str, Any]:
-        """Search available flight offers.
-
-        Uses ``SearchResultAvailableOffersQuery`` persisted query.
-        Returns the raw GraphQL response dict.
-        """
-        cabin = _CABIN_MAP.get(cabin_class, "ECONOMY")
-        search_uuid = str(uuid.uuid4())
-
-        passengers = [{"id": i + 1, "type": "ADT"} for i in range(adults)]
-
-        variables: dict[str, Any] = {
-            "activeConnectionIndex": 0,
-            "bookingFlow": "LEISURE",
-            "availableOfferRequestBody": {
-                "commercialCabins": [cabin],
-                "passengers": passengers,
-                "requestedConnections": [
-                    {
-                        "origin": {
-                            "code": origin,
-                            "type": "AIRPORT",
-                        },
-                        "destination": {
-                            "code": destination,
-                            "type": "AIRPORT",
-                        },
-                        "departureDate": (departure_date.isoformat()),
-                    },
-                ],
-                "bookingFlow": "LEISURE",
-            },
-            "searchStateUuid": search_uuid,
-        }
-
-        result = await self._execute_graphql(
-            "SearchResultAvailableOffersQuery",
-            _SEARCH_OFFERS_HASH,
-            variables,
-        )
 
         offers = result.get("data", {}).get("availableOffers", {})
         n_itins = len(offers.get("offerItineraries", []))
@@ -269,89 +381,25 @@ class AirFranceKlmClient:
         )
         return result
 
-    @async_retry(
-        max_retries=2,
-        base_delay=3.0,
-        max_delay=15.0,
-        exceptions=(RuntimeError, OSError, PlaywrightError),
-    )
-    async def search_lowest_fares(
-        self,
-        origin: str,
-        destination: str,
-        departure_date: date,
-        *,
-        cabin_class: str = "ECONOMY",
-        adults: int = 1,
-    ) -> dict[str, Any]:
-        """Search lowest fare offers.
-
-        Uses ``SharedSearchLowestFareOffersForSearchQuery``.
-        Returns the raw GraphQL response dict.
-        """
-        cabin = _CABIN_MAP.get(cabin_class, "ECONOMY")
-        search_uuid = str(uuid.uuid4())
-
-        from datetime import timedelta
-
-        dt = departure_date
-        start = (dt - timedelta(days=3)).isoformat()
-        end = (dt + timedelta(days=3)).isoformat()
-        date_interval = f"{start}/{end}"
-
-        passengers = [{"id": i + 1, "type": "ADT"} for i in range(adults)]
-
-        variables: dict[str, Any] = {
-            "lowestFareOffersRequest": {
-                "bookingFlow": "LEISURE",
-                "withUpsellCabins": True,
-                "passengers": passengers,
-                "commercialCabins": [cabin],
-                "fareOption": None,
-                "type": "DAY",
-                "requestedConnections": [
-                    {
-                        "departureDate": (departure_date.isoformat()),
-                        "dateInterval": date_interval,
-                        "origin": {
-                            "type": "AIRPORT",
-                            "code": origin,
-                        },
-                        "destination": {
-                            "type": "AIRPORT",
-                            "code": destination,
-                        },
-                    },
-                ],
-            },
-            "activeConnection": 0,
-            "searchStateUuid": search_uuid,
-            "bookingFlow": "LEISURE",
-        }
-
-        return await self._execute_graphql(
-            "SharedSearchLowestFareOffersForSearchQuery",
-            _LOWEST_FARES_HASH,
-            variables,
-        )
-
     async def health_check(self) -> bool:
-        """Check if the KLM website is reachable via primp."""
+        """Check if the KLM search page is reachable."""
         try:
-            import primp
-
-            client = primp.Client(
-                impersonate="chrome_131",
-                follow_redirects=True,
-                timeout=self._timeout,
-            )
-
-            import asyncio
-
-            resp = await asyncio.to_thread(client.get, f"{_BASE_URL}/")
-            return resp.status_code == 200
+            async with async_playwright() as pw:
+                browser = await pw.chromium.launch(
+                    headless=True,
+                    channel="chrome",
+                    args=["--headless=new"],
+                )
+                page = await browser.new_page()
+                resp = await page.goto(
+                    f"{_BASE_URL}/",
+                    wait_until="domcontentloaded",
+                    timeout=15000,
+                )
+                await browser.close()
+                return resp is not None and resp.ok
         except Exception:
             return False
 
     async def close(self) -> None:
-        """No-op -- each query opens and closes its own browser."""
+        """No-op -- each search opens and closes its own browser."""

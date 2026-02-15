@@ -31,7 +31,7 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 |---|------|------|------|
 | 10 | Amadeus | L2 SDK | ✅ 완료 (test 환경) |
 
-### M5 글로벌 항공사 — L2 완료 (14개)
+### M5 글로벌 항공사 — L2 완료 (15개)
 | # | 항공사 | 코드 | 허브 | 방식 | 데이터 종류 | 커밋 |
 |---|--------|------|------|------|-------------|------|
 | 11 | LOT 폴란드항공 | LO | WAW | L2 primp | 가격 캘린더 (KRW) | 5f74566 |
@@ -47,15 +47,15 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | 21 | Emirates | EK | DXB | L2 primp | 프로모션 운임 4 캐빈 (KRW) | 3cbb377 |
 | 22 | Lufthansa Group | LH/LX/OS | FRA/ZRH/VIE | L2 httpx 공식 API | OAuth2 스케줄 | 3cbb377 |
 | 23 | Turkish Airlines | TK | IST | L2 primp + 공식 API 대기 | L2 가격+스케줄, 공식 API 듀얼모드 | 4ac5490 |
-| 24 | JAL 일본항공 | JL | NRT/HND | L2 primp Sputnik | 최저가 (NZ/ET와 동일 패턴) | — (구현 중) |
+| 24 | JAL 일본항공 | JL | NRT/HND | L2 primp Sputnik | 최저가 (NZ/ET와 동일 패턴) | ✅ |
 
-### M5 L3 Playwright — 구현 필요
+### M5 L3 Playwright — 완료 (4개)
 | # | 항공사 | 코드 | 허브 | L2 실패 이유 | L3 전략 | 상태 |
 |---|--------|------|------|-------------|---------|------|
-| 25 | Air France-KLM | AF/KL | CDG/AMS | GraphQL POST Akamai 차단 | Playwright로 검색 → DOM 파싱 | 🔧 구현 중 |
-| 26 | Thai Airways | TG | BKK | SSR HTML, API 없음 | Playwright 검색 페이지 | 🔧 구현 중 |
-| 27 | ANA 전일본공수 | NH | NRT/HND | api.ana.co.jp 401 인증 | Playwright 검색 페이지 | 🔧 구현 중 |
-| 28 | Qatar Airways | QR | DOH | qoreservices 401 인증 | Playwright 검색 페이지 | 🔧 구현 중 |
+| 25 | Air France-KLM | AF/KL | CDG/AMS | GraphQL POST Akamai 차단 | Playwright 폼 자동화 → GraphQL response intercept | ✅ 완료 |
+| 26 | Thai Airways | TG | BKK | SSR HTML, API 없음 | Playwright 검색 폼 → OSCI response intercept | ✅ 완료 |
+| 27 | ANA 전일본공수 | NH | NRT/HND | api.ana.co.jp 401 인증 | Playwright 검색 → API intercept + DOM scraping | ✅ 완료 |
+| 28 | Qatar Airways | QR | DOH | qoreservices 401 인증 | Playwright 폼 + 딥링크 URL fallback | ✅ 완료 |
 
 ### L2 탐색 실패 → Amadeus fallback
 | 항공사 | 코드 | 실패 이유 | 대안 |
@@ -69,7 +69,7 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | American Airlines | AA | Akamai 403 | Amadeus |
 | United Airlines | UA | Akamai HTTP/2 차단 | Amadeus |
 | Qantas | QF | Akamai 봇 쿠키 5개 | Amadeus |
-| Air Canada | AC | Akamai + ⚠️ **소송 전례** | Amadeus만 |
+| Air Canada | AC | Akamai + **소송 전례** | Amadeus만 |
 
 ---
 
@@ -83,6 +83,8 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | `c721448` | 02-15 | ET Sputnik + CX 초기 + MH AEM | 12 |
 | `3cbb377` | 02-15 | LH API 수정 + CX histogram/open-search + EK L2 | 10 |
 | `4ac5490` | 02-15 | TK 공식 API 듀얼모드 + DataSource.OFFICIAL_API | 7 |
+| `e72008f` | 02-15 | 계획 문서 전면 업데이트 | 1 |
+| (미커밋) | 02-15 | JL Sputnik + AF/KL L3 + TG L3 + QR L3 + NH L3 + CLI 통합 | ~25 |
 
 ---
 
@@ -107,6 +109,15 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | LH | `api.lufthansa.com/v1/operations/schedules/{o}/{d}/{date}` | OAuth2 | Client ID/Secret |
 | TK (L2) | `turkishairlines.com/api/v1/availability/*` | 없음 | Akamai POST 차단 |
 | TK (공식) | `api.turkishairlines.com/getAvailability` | apikey+secret | 권한 요청 발송됨 |
+
+### L3 Playwright 엔드포인트 레퍼런스
+
+| 항공사 | 검색 URL | SPA 프레임워크 | 인터셉트 패턴 | 특이사항 |
+|--------|---------|----------------|---------------|----------|
+| AF/KL | `klm.com/search/advanced` | React (Aviato) | `/gql/v1` GraphQL | combobox 기반 폼 |
+| TG | `thaiairways.com/en/booking/flight-search.page` | SSR + Amadeus OSCI | `availability`, `AirShopping`, `lowfare` | 다중 API 패턴 인터셉트 |
+| NH | `ana.co.jp/en/jp/international/` | React (BookingManager) | `aswbe.ana.co.jp` | 듀얼: API intercept + DOM scraping |
+| QR | `qatarairways.com/en/booking.html` | Angular | `qoreservices.qatarairways.com` | 폼 + 딥링크 URL fallback |
 
 ### LH Group API 인증
 - Client ID: `hh5urays7eppuv6hn6tx99fvx`
@@ -136,41 +147,6 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 
 ---
 
-## L3 Playwright 전략
-
-### 공통 패턴 (Air Premia L3 참조)
-1. Playwright Chromium headless → 검색 페이지 방문 → WAF challenge 해결
-2. **전략 A (Cookie 추출)**: CF/Akamai challenge 해결 후 쿠키 추출 → httpx로 API 호출
-3. **전략 B (DOM 파싱)**: 검색 폼 자동 입력 → 검색 실행 → 결과 DOM에서 데이터 추출
-
-### 대상별 L3 전략
-
-#### AF/KL (Air France-KLM) — 전략 B
-- 검색 URL: `klm.com/search/offers` 또는 `airfrance.com/search/offers`
-- SPA: React (Aviato framework)
-- WAF: Akamai Bot Manager (POST 차단, HTTP/2 에러)
-- 접근: Playwright로 검색 페이지 로드 → 검색 폼 입력 → GraphQL 자동 실행 → response intercept
-
-#### TG (Thai Airways) — 전략 B
-- 검색 URL: `thaiairways.com/en/booking/flight-search.page`
-- SSR HTML 기반 (Amadeus OSCI)
-- WAF: Akamai (403 intermittent)
-- 접근: Playwright로 form submit → 결과 페이지 DOM 파싱
-
-#### NH (ANA) — 전략 A or B
-- 검색 URL: `ana.co.jp/ja/jp/book-plan/` or `aswbe-i.ana.co.jp`
-- WAF: Akamai Bot Manager
-- Flight status: `flics.ana.co.jp/fs/pc/search` (HTTP, no HTTPS)
-- 접근: Playwright → cookie 추출 → booking API or DOM 파싱
-
-#### QR (Qatar Airways) — 전략 B
-- 검색 URL: `qatarairways.com/en/booking.html`
-- SPA: Angular
-- WAF: Akamai (403)
-- 접근: Playwright로 검색 → response intercept (`qoreservices.qatarairways.com`)
-
----
-
 ## 안티봇 바이패스 기법 요약
 
 | 기법 | 대상 WAF | 성공 사례 |
@@ -188,14 +164,15 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | AEM Sling 서블릿 | Cloudflare | Malaysia Airlines |
 | Akamai warm-up + API | Akamai | CX histogram, EK featured-fares |
 | OAuth2 공식 API | 없음 | Lufthansa Group, TK (대기) |
+| Playwright 폼 자동화 + response intercept | Akamai | AF/KL, TG, NH, QR |
 
 ---
 
 ## 커버리지 요약
 
-- **총 크롤러**: 28개 (L1 2 + Korean LCC 7 + GDS 1 + Global L2 14 + Global L3 4)
-- **L2 완료**: 24개 (10개 기존 + 14개 M5 신규)
-- **L3 구현 중**: 4개 (AF/KL, TG, NH, QR)
+- **총 크롤러**: 28개 (L1 2 + Korean LCC 7 + GDS 1 + Global L2 15 + Global L3 4) — **전체 완료**
+- **L2 완료**: 25개 (10개 기존 + 15개 M5 신규, JAL 포함)
+- **L3 완료**: 4개 (AF/KL, TG, NH, QR)
 - **Amadeus fallback**: GA, SV, EY, MU, CZ, DL, AA, UA, QF, AC (10개)
 - **한국 출발 주요 허브 커버리지**:
-  IST ✅ DOH 🔧 SIN ✅ HKG ✅ NRT ✅ FRA ✅ CDG 🔧 AMS 🔧 BKK 🔧 TPE ✅ WAW ✅ KUL ✅ ADD ✅ DXB ✅
+  IST ✅ DOH ✅ SIN ✅ HKG ✅ NRT ✅ FRA ✅ CDG ✅ AMS ✅ BKK ✅ TPE ✅ WAW ✅ KUL ✅ ADD ✅ DXB ✅

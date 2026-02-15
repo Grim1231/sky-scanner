@@ -44,7 +44,7 @@ class CrawlerSettings(BaseSettings):
     # Singapore Airlines NDC API (developer.singaporeair.com)
     singapore_api_key: str = ""
 
-    # Air France-KLM: no config needed (L2 GraphQL via primp, no API key)
+    # Air France-KLM: no config needed (L3 Playwright form automation, no API key)
 
     # Turkish Airlines Official API (developer.apim.turkishairlines.com)
     tk_api_key: str = ""

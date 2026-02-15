@@ -1,1 +1,1 @@
-"""Air France-KLM L2 crawler -- flight offers via Aviato GraphQL persisted queries."""
+"""Air France-KLM L3 crawler -- Playwright form automation + response interception."""
