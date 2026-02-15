@@ -46,7 +46,11 @@ class CrawlerSettings(BaseSettings):
 
     # Air France-KLM: no config needed (L2 GraphQL via primp, no API key)
 
-    # Turkish Airlines: no config needed (L2 website API via primp, no API key)
+    # Turkish Airlines Official API (developer.apim.turkishairlines.com)
+    tk_api_key: str = ""
+    tk_api_secret: str = ""
+    tk_api_hostname: str = "api.turkishairlines.com"  # production
+    tk_use_official_api: bool = False  # set True once API key is obtained
 
     # Currency
     default_currency: str = "KRW"

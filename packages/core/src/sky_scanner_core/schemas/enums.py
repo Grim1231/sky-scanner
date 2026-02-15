@@ -9,6 +9,7 @@ class DataSource(StrEnum):
     GOOGLE_PROTOBUF = "GOOGLE_PROTOBUF"
     KIWI_API = "KIWI_API"
     DIRECT_CRAWL = "DIRECT_CRAWL"
+    OFFICIAL_API = "OFFICIAL_API"
     GDS = "GDS"
 
 

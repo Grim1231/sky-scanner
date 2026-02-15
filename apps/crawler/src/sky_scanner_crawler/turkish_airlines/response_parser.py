@@ -1,6 +1,9 @@
-"""Parse Turkish Airlines website API responses into NormalizedFlight objects.
+"""Parse Turkish Airlines API responses into NormalizedFlight objects.
 
-The TK website API has two main availability endpoints:
+Supports both L2 website API responses and official developer API responses.
+
+L2 Website API Endpoints
+========================
 
 ``/api/v1/availability/cheapest-prices``
     Returns a daily price calendar with cheapest economy/business prices.
@@ -81,6 +84,17 @@ The TK website API has two main availability endpoints:
                 "businessStartingPrice": { ... }
             }
         }
+
+Official Developer API Endpoints
+=================================
+
+``POST /getTimeTable``
+    Returns flight schedule data.  Response structure varies but
+    typically includes flight segments with departure/arrival info,
+    flight numbers, aircraft types, and operation day flags.
+
+``POST /getAvailability``
+    Returns availability with fare families and pricing.
 """
 
 from __future__ import annotations
@@ -381,6 +395,241 @@ def parse_flight_matrix(
 
     logger.info(
         "Parsed %d flights from TK flight-matrix",
+        len(flights),
+    )
+    return flights
+
+
+# ------------------------------------------------------------------
+# Official API timetable parser
+# ------------------------------------------------------------------
+
+
+def parse_official_timetable(
+    data: dict[str, Any],
+    origin: str,
+    destination: str,
+    cabin_class: CabinClass = CabinClass.ECONOMY,
+) -> list[NormalizedFlight]:
+    """Parse the official ``/getTimeTable`` API response.
+
+    The timetable endpoint returns schedule data (no prices).  We
+    create one NormalizedFlight per flight entry with zero prices.
+
+    The response format may vary; this parser handles multiple
+    common structures returned by the TK official API.
+    """
+    now = datetime.now(tz=UTC)
+    flights: list[NormalizedFlight] = []
+
+    # The official API may wrap data in various envelopes.
+    # Try common keys: "data", "timetableList", "flights", or root-level list.
+    flight_list: list[dict[str, Any]] = []
+    if isinstance(data, list):
+        flight_list = data
+    elif isinstance(data, dict):
+        for key in ("data", "timetableList", "flights", "scheduleList"):
+            candidate = data.get(key)
+            if isinstance(candidate, list):
+                flight_list = candidate
+                break
+            if isinstance(candidate, dict):
+                # Nested envelope (e.g. data -> timetableList).
+                for inner_key in ("timetableList", "flights", "scheduleList"):
+                    inner = candidate.get(inner_key)
+                    if isinstance(inner, list):
+                        flight_list = inner
+                        break
+                if flight_list:
+                    break
+
+    for entry in flight_list:
+        # Extract flight identity.
+        flight_num = entry.get("flightNumber", entry.get("flightNo", ""))
+        carrier = entry.get("airlineCode", entry.get("marketingAirlineCode", "TK"))
+        if flight_num:
+            flight_number = f"{carrier}{flight_num}"
+        else:
+            flight_number = f"TK-{origin}{destination}"
+
+        # Times.
+        dep_str = entry.get("departureDateTime", entry.get("departureTime", ""))
+        arr_str = entry.get("arrivalDateTime", entry.get("arrivalTime", ""))
+        dep_time = _parse_dt(dep_str)
+        arr_time = _parse_dt(arr_str)
+
+        # Duration.
+        duration_str = entry.get("duration", entry.get("totalDuration", ""))
+        duration_minutes = _parse_duration(duration_str) if duration_str else 0
+        if not duration_minutes and dep_time and arr_time:
+            diff = (arr_time - dep_time).total_seconds()
+            if diff > 0:
+                duration_minutes = int(diff / 60)
+
+        # Ports (prefer entry-level, fall back to function args).
+        dep_port = entry.get(
+            "departureAirportCode", entry.get("originAirportCode", origin)
+        )
+        arr_port = entry.get(
+            "arrivalAirportCode", entry.get("destinationAirportCode", destination)
+        )
+
+        # Aircraft.
+        aircraft_type = entry.get("aircraftType", entry.get("equipmentCode"))
+
+        # Operating carrier.
+        operator = entry.get("operatingAirlineCode", carrier)
+
+        # Stops.
+        stops = entry.get("stopCount", entry.get("stops", 0))
+
+        flights.append(
+            NormalizedFlight(
+                flight_number=flight_number,
+                airline_code=carrier,
+                airline_name="Turkish Airlines",
+                operator=operator,
+                origin=dep_port,
+                destination=arr_port,
+                departure_time=dep_time,
+                arrival_time=arr_time,
+                duration_minutes=duration_minutes,
+                cabin_class=cabin_class,
+                aircraft_type=aircraft_type,
+                stops=stops,
+                prices=[],  # Timetable has no pricing.
+                source=DataSource.OFFICIAL_API,
+                crawled_at=now,
+            )
+        )
+
+    logger.info(
+        "Parsed %d flights from TK official timetable %s->%s",
+        len(flights),
+        origin,
+        destination,
+    )
+    return flights
+
+
+def parse_official_availability(
+    data: dict[str, Any],
+    cabin_class: CabinClass = CabinClass.ECONOMY,
+) -> list[NormalizedFlight]:
+    """Parse the official ``/getAvailability`` API response.
+
+    The availability endpoint returns flight options with fare families
+    and pricing.  The exact response format will be determined once the
+    API key is obtained; this parser provides best-effort handling of
+    the expected structure.
+    """
+    now = datetime.now(tz=UTC)
+    flights: list[NormalizedFlight] = []
+
+    # Try common response envelopes.
+    flight_list: list[dict[str, Any]] = []
+    if isinstance(data, list):
+        flight_list = data
+    elif isinstance(data, dict):
+        for key in ("data", "availabilityList", "flights", "flightList"):
+            candidate = data.get(key)
+            if isinstance(candidate, list):
+                flight_list = candidate
+                break
+            if isinstance(candidate, dict):
+                for inner_key in ("availabilityList", "flights", "flightList"):
+                    inner = candidate.get(inner_key)
+                    if isinstance(inner, list):
+                        flight_list = inner
+                        break
+                if flight_list:
+                    break
+
+    for entry in flight_list:
+        flight_num = entry.get("flightNumber", entry.get("flightNo", ""))
+        carrier = entry.get("airlineCode", entry.get("marketingAirlineCode", "TK"))
+        flight_number = f"{carrier}{flight_num}" if flight_num else ""
+
+        dep_str = entry.get("departureDateTime", entry.get("departureTime", ""))
+        arr_str = entry.get("arrivalDateTime", entry.get("arrivalTime", ""))
+        dep_time = _parse_dt(dep_str)
+        arr_time = _parse_dt(arr_str)
+
+        duration_str = entry.get("duration", entry.get("totalDuration", ""))
+        duration_minutes = _parse_duration(duration_str) if duration_str else 0
+        if not duration_minutes and dep_time and arr_time:
+            diff = (arr_time - dep_time).total_seconds()
+            if diff > 0:
+                duration_minutes = int(diff / 60)
+
+        origin = entry.get("departureAirportCode", entry.get("originAirportCode", ""))
+        destination = entry.get(
+            "arrivalAirportCode", entry.get("destinationAirportCode", "")
+        )
+        aircraft_type = entry.get("aircraftType", entry.get("equipmentCode"))
+        operator = entry.get("operatingAirlineCode", carrier)
+        stops = entry.get("stopCount", entry.get("stops", 0))
+
+        # Extract prices from fare families.
+        prices: list[NormalizedPrice] = []
+        fare_families: list[dict[str, Any]] = entry.get("fareFamilyList", [])
+        for ff in fare_families:
+            amount = ff.get("price", ff.get("amount"))
+            if amount is not None:
+                prices.append(
+                    NormalizedPrice(
+                        amount=float(amount),
+                        currency=ff.get("currency", ff.get("currencyCode", "USD")),
+                        source=DataSource.OFFICIAL_API,
+                        fare_class=ff.get("fareClass", ff.get("fareFamilyCode")),
+                        crawled_at=now,
+                    )
+                )
+
+        # Fallback: single price at entry level.
+        if not prices:
+            entry_price = entry.get("price", entry.get("totalPrice"))
+            if entry_price is not None:
+                currency = entry.get("currency", entry.get("currencyCode", "USD"))
+                if isinstance(entry_price, dict):
+                    amount_val = entry_price.get("amount")
+                    currency = entry_price.get("currencyCode", currency)
+                else:
+                    amount_val = entry_price
+                if amount_val is not None:
+                    prices.append(
+                        NormalizedPrice(
+                            amount=float(amount_val),
+                            currency=currency,
+                            source=DataSource.OFFICIAL_API,
+                            fare_class=None,
+                            crawled_at=now,
+                        )
+                    )
+
+        if flight_number:
+            flights.append(
+                NormalizedFlight(
+                    flight_number=flight_number,
+                    airline_code=carrier,
+                    airline_name="Turkish Airlines",
+                    operator=operator,
+                    origin=origin,
+                    destination=destination,
+                    departure_time=dep_time,
+                    arrival_time=arr_time,
+                    duration_minutes=duration_minutes,
+                    cabin_class=cabin_class,
+                    aircraft_type=aircraft_type,
+                    stops=stops,
+                    prices=prices,
+                    source=DataSource.OFFICIAL_API,
+                    crawled_at=now,
+                )
+            )
+
+    logger.info(
+        "Parsed %d flights from TK official availability",
         len(flights),
     )
     return flights
