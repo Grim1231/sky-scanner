@@ -42,9 +42,12 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | 12 | EVA 에바항공 | BR | TPE | L2 primp — `getBestPrices.ashx` 세션 | ~300일 최저가, 9,141 TWD | 5f74566 |
 | 13 | Singapore Airlines | SQ | SIN | L2 httpx — NDC API (API key 인증) | recommendations 파싱 성공 | 7ff9416 |
 | 14 | Air New Zealand | NZ | AKL | L2 primp — EveryMundo airTrfx Sputnik | AKL→NRT 5편, 604 NZD | 7ff9416 |
-| 15 | Vietnam Airlines | VN | SGN/HAN | L2 primp — middleware API (schedule+fare) | SGN→ICN 18편, 10,874,000 VND | — |
-| 16 | Philippine Airlines | PR | MNL | L2 httpx — flight status API (schedule only) | MNL→ICN 2편 | — |
-| 17 | Hainan Airlines | HU | PEK | L2 httpx — fare-trends HMAC-SHA1 (국내선만) | PEK→HAK 136일, 199-4190 CNY | — |
+| 15 | Vietnam Airlines | VN | SGN/HAN | L2 primp — middleware API (schedule+fare) | SGN→ICN 18편, 10,874,000 VND | 510f8b7 |
+| 16 | Philippine Airlines | PR | MNL | L2 httpx — flight status API (schedule only) | MNL→ICN 2편 | 510f8b7 |
+| 17 | Hainan Airlines | HU | PEK | L2 httpx — fare-trends HMAC-SHA1 (국내선만) | PEK→HAK 136일, 199-4190 CNY | 510f8b7 |
+| 18 | Ethiopian Airlines | ET | ADD | L2 primp — EveryMundo Sputnik (NZ와 동일) | ADD→DXB 5편, 72,195 ETB | — |
+| 19 | Cathay Pacific | CX | HKG | L2 primp — timetable + histogram (Akamai) | health OK, 검색 406/302 | — |
+| 20 | Malaysia Airlines | MH | KUL | L2 primp — AEM lowFares 엔드포인트 (인증 불필요) | KUL→SIN 153일, 260-357 MYR | — |
 
 ### 공식 API / L3 크롤러 (API 키 등록 또는 브라우저 필요)
 | # | 항공사 | 코드 | 허브 | 방식 | 비고 | 커밋 |
@@ -97,14 +100,17 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | ~~Garuda Indonesia~~ | GA | CGK | SkyTeam | Amadeus Altea | 낮음 | ~~L2 탐색~~ (504 타임아웃, Amadeus fallback) | ★★☆ ❌ |
 | **Vietnam Airlines** | VN | SGN/HAN | SkyTeam | Amadeus Altea | 낮음 (Imperva) | **~~L2 탐색~~ 완료!** (middleware API) | ★★☆ ✅ |
 | **Philippine Airlines** | PR | MNL | — | Amadeus Altea | 미확인 | **~~L2 탐색~~ 완료!** (flight status API, 스케줄만) | ★★☆ ✅ |
-| Malaysia Airlines | MH | KUL | oneworld | Amadeus Altea | 보통 | L2 탐색 (AEM 기반) | ★★★ |
-| Cathay Pacific | CX | HKG | oneworld | Amadeus Altea | 보통 | L2 NDC (trade partner 필요) | ★★★ |
+| **Malaysia Airlines** | MH | KUL | oneworld | Amadeus Altea | 보통 | **~~L2 탐색~~ 완료!** (AEM lowFares) | ★★☆ ✅ |
+| **Cathay Pacific** | CX | HKG | oneworld | Amadeus Altea | 보통 | **L2 부분 완료** (health OK, search 406/302) | ★★★ ⚠️ |
 | Thai Airways | TG | BKK | Star | Amadeus Altea | 높음 (403) | L3 Playwright | ★★★★ |
 | JAL (일본항공) | JL | NRT/HND | oneworld | Amadeus Altea | 높음 | L3 Playwright | ★★★★ |
 | **ANA (전일본공수)** | NH | NRT/HND | Star | Amadeus Altea | **Akamai Bot Manager (확인)** | L3 Playwright | ★★★★★ |
 | China Eastern | MU | PVG | SkyTeam | **TravelSky** | Alibaba 안티봇 | L3 또는 Amadeus | ★★★★ |
 | China Southern | CZ | CAN | SkyTeam | **TravelSky** | Alibaba 안티봇 | L3 또는 Amadeus | ★★★★ |
 | **Hainan Airlines** | HU | PEK | — | **TravelSky** | 보통 | **~~L2 탐색~~ 완료!** (fare-trends HMAC-SHA1, 국내선만) | ★★☆ ✅ |
+| **Ethiopian Airlines** | ET | ADD | Amadeus Altea | Akamai (허용적) | **~~L2 탐색~~ 완료!** (EveryMundo Sputnik, NZ와 동일 API) | ★★☆ ✅ |
+| **Malaysia Airlines** | MH | KUL | Amadeus Altea | 보통 | **~~L2 탐색~~ 완료!** (AEM lowFares, 인증 불필요, 153일) | ★★☆ ✅ |
+| **Cathay Pacific** | CX | HKG | Amadeus Altea | Akamai + PerimeterX | **L2 부분 완료** (health OK, 검색 406/302 — L3 필요) | ★★★ ⚠️ |
 
 #### Singapore Airlines NDC API (핵심 발견!)
 - **포털**: [developer.singaporeair.com](https://developer.singaporeair.com/)
@@ -134,7 +140,7 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | 항공사 | 코드 | 허브 | PSS | 안티봇 | 추천 방식 | 난이도 |
 |--------|------|------|-----|--------|-----------|--------|
 | **Air New Zealand** | NZ | AKL | Carina (자체) | **CloudFront (Akamai 없음!)** | **~~L2 탐색~~ 완료!** | ★★☆ ✅ |
-| Ethiopian Airlines | ET | ADD | Amadeus Altea | Akamai (허용적) | L2 탐색 (200 반환) | ★★★ |
+| **Ethiopian Airlines** | ET | ADD | Amadeus Altea | Akamai (허용적) | **~~L2 탐색~~ 완료!** (EveryMundo Sputnik) | ★★☆ ✅ |
 | Delta Air Lines | DL | ATL/DTW | Deltamatic (자체) | Akamai (444) | L2 hard (apiportal.delta.com 존재) | ★★★★ |
 | LATAM Airlines | LA | SCL | Amadeus Altea | Akamai | L3 Playwright | ★★★★ |
 | American Airlines | AA | DFW/MIA | Sabre | Akamai (403) | L3 Playwright | ★★★★★ |
@@ -157,8 +163,9 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 
 ### 다음 실행
 6. ~~**Phase B 탐색**: VN, PR, HU~~ 완료 (VN middleware + PR flight status + HU fare-trends)
-7. **Phase B 남은 대상**: ET (Ethiopian), MH (Malaysia), CX (Cathay) L2 탐색
-7. **AF/KLM 개선**: VPN/프록시 없이 L3 Playwright 안정화
+7. ~~**Phase B 남은 대상**: ET, MH, CX~~ 완료 (ET Sputnik + MH AEM + CX 부분)
+8. **CX 개선**: Cathay Pacific timetable 406 → query params 조정 또는 L3 Playwright
+9. **AF/KLM 개선**: VPN/프록시 없이 L3 Playwright 안정화
 8. **LH 공식 API**: developer.lufthansa.com 수동 등록
 9. **TK 공식 API**: developer.turkishairlines.com 수동 등록 (L2 POST 차단 fallback)
 
@@ -200,10 +207,14 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | 미들웨어 API 직접 호출 | Imperva 우회 | Vietnam Airlines (integration-middleware-website) |
 | Flight status API | 없음 | Philippine Airlines (pal/flights/v1/status) |
 | Mobile HMAC-SHA1 서명 | 없음 | Hainan Airlines (app.hnair.com fare-trends) |
+| EveryMundo Sputnik API (공유 키) | Cloudflare | Ethiopian Airlines (NZ와 동일 em-api-key) |
+| AEM Sling 서블릿 직접 호출 | Cloudflare | Malaysia Airlines (/bin/mh/revamp/lowFares) |
+| Akamai 웜업 + API 호출 | Akamai | Cathay Pacific (timetable/histogram, 부분 동작) |
 
 ---
 
 ## 목표 커버리지
 
-완료 시 **25+ 항공사** 직접 크롤링, Amadeus fallback으로 400+ 항공사 추가 커버.
-한국 출발 주요 경유 허브 (IST, DOH, SIN, HKG, NRT, FRA, CDG, AMS, BKK, TPE, WAW) 전부 포함.
+현재 **23개 크롤러** 운영 중 (L1 2 + Korean LCC 7 + GDS 1 + Global 13).
+Amadeus fallback으로 400+ 항공사 추가 커버.
+한국 출발 주요 경유 허브 (IST, DOH, SIN, HKG, NRT, FRA, CDG, AMS, BKK, TPE, WAW, KUL, ADD) 전부 포함.
