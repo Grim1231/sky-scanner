@@ -36,6 +36,15 @@ class CrawlerSettings(BaseSettings):
     amadeus_client_secret: str = ""
     amadeus_hostname: str = "test"  # "test" or "production"
 
+    # Lufthansa Group API (developer.lufthansa.com)
+    lufthansa_client_id: str = ""
+    lufthansa_client_secret: str = ""
+    lufthansa_hostname: str = "api.lufthansa.com"  # or "api-test.lufthansa.com"
+
+    # Air France-KLM: no config needed (L2 GraphQL via primp, no API key)
+
+    # Turkish Airlines: no config needed (L2 website API via primp, no API key)
+
     # Currency
     default_currency: str = "KRW"
 
