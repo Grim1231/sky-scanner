@@ -412,6 +412,47 @@ def crawl_air_seoul(
         _store_to_db(result.flights)
 
 
+@cli.command("crawl-air-busan")
+@click.argument("origin")
+@click.argument("destination")
+@click.argument("departure_date")
+@click.option("--cabin", default="ECONOMY", help="Cabin class")
+@click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
+def crawl_air_busan(
+    origin: str,
+    destination: str,
+    departure_date: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
+) -> None:
+    """L2: Air Busan flights via Naver Yeti UA bypass."""
+    from .air_busan.crawler import AirBusanCrawler
+
+    search_req = _build_search_request(origin, destination, departure_date, cabin)
+    task = CrawlTask(search_request=search_req, source=DataSource.DIRECT_CRAWL)
+
+    async def _run():  # type: ignore[return]
+        crawler = AirBusanCrawler()
+        try:
+            return await crawler.crawl(task)
+        finally:
+            await crawler.close()
+
+    result = asyncio.run(_run())
+    if json_output:
+        click.echo(json.dumps(result.model_dump(mode="json"), indent=2))
+    else:
+        click.echo(f"Source: {result.source.value} | Duration: {result.duration_ms}ms")
+        if result.error:
+            click.echo(f"Error: {result.error}", err=True)
+        _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
+
+
 @cli.command("crawl-amadeus")
 @click.argument("origin")
 @click.argument("destination")
@@ -507,6 +548,7 @@ def crawl_all(
 @cli.command("health")
 def health_check() -> None:
     """Check health of all crawl sources."""
+    from .air_busan.crawler import AirBusanCrawler
     from .air_premia.crawler import AirPremiaCrawler
     from .air_seoul.crawler import AirSeoulCrawler
     from .amadeus_gds.crawler import AmadeusCrawler
@@ -527,6 +569,7 @@ def health_check() -> None:
         air_seoul = AirSeoulCrawler()
         jin_air = JinAirCrawler()
         tway = TwayAirCrawler()
+        air_busan = AirBusanCrawler()
         try:
             results = await asyncio.gather(
                 google.health_check(),
@@ -538,6 +581,7 @@ def health_check() -> None:
                 air_seoul.health_check(),
                 jin_air.health_check(),
                 tway.health_check(),
+                air_busan.health_check(),
                 return_exceptions=True,
             )
         finally:
@@ -550,6 +594,7 @@ def health_check() -> None:
             await air_seoul.close()
             await jin_air.close()
             await tway.close()
+            await air_busan.close()
 
         return {
             "L1 (Google Protobuf)": not isinstance(results[0], Exception)
@@ -562,6 +607,7 @@ def health_check() -> None:
             "L2 (Air Seoul)": not isinstance(results[6], Exception) and results[6],
             "L2 (Jin Air)": not isinstance(results[7], Exception) and results[7],
             "L2 (T'way Air)": not isinstance(results[8], Exception) and results[8],
+            "L2 (Air Busan)": not isinstance(results[9], Exception) and results[9],
         }
 
     statuses = asyncio.run(_run())
