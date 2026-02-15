@@ -43,7 +43,6 @@ class LufthansaCrawler(BaseCrawler):
 
             flights = parse_flight_schedules(
                 raw_schedules,
-                departure_date=req.departure_date,
                 cabin_class=req.cabin_class,
             )
 

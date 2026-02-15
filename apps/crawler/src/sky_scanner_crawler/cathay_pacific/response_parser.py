@@ -1,47 +1,47 @@
 """Parse Cathay Pacific API responses into NormalizedFlight objects.
 
-Two response formats are supported:
+Three response formats are supported:
 
 1. **Flight Timetable** (``flightTimetable`` endpoint)
-   Returns flight schedule data with segment-level detail::
-
-       {
-           "flightScheduleList": [
-               {
-                   "flightNumber": "CX520",
-                   "departureDate": "2026-03-15",
-                   "departureTime": "08:15",
-                   "arrivalDate": "2026-03-15",
-                   "arrivalTime": "13:25",
-                   "origin": "HKG",
-                   "destination": "NRT",
-                   "duration": "PT4H10M",
-                   "aircraftType": "A350-900",
-                   "operatingCarrier": "CX",
-                   "stops": 0,
-                   "cabinAvailability": {
-                       "Y": {"available": true},
-                       "J": {"available": true},
-                       "F": {"available": false},
-                   },
-               }
-           ]
-       }
+   Returns flight schedule data with segment-level detail.
+   NOTE: Currently broken server-side (HTTP 406).
 
 2. **Histogram / Fare Calendar** (``histogram`` endpoint)
-   Returns daily lowest prices::
+   Returns a JSON array of monthly cheapest fares::
 
-       {
-           "dates": [
-               {
-                   "date": "2026-03-15",
-                   "lowestPrice": {"amount": 4500.0, "currency": "USD"},
-               }
-           ]
-       }
+       [
+           {
+               "date_departure": "20260217",
+               "date_return": "20260303",
+               "base_fare": 1790.00,
+               "total_fare": 2834.00,
+               "currency": "HKD",
+               "tax": 1044.00,
+               "outbound_cabin": "Y",
+               "inbound_cabin": "Y",
+               "month": 2,
+               "tax_inclusive": true,
+           }
+       ]
 
-Note: The exact response structure may vary as Cathay Pacific updates
-their API.  Parsers are written defensively to handle missing fields.
+3. **Open-search** (``open-search`` endpoint)
+   Returns cheapest fares from an origin to multiple destinations::
+
+       [
+           {
+               "base_fare": 2440.00,
+               "currency": "HKD",
+               "date_departure": "20260215",
+               "date_return": "20260217",
+               "destination": "PEK",
+               "inbound_cabin": "Y",
+               "origin": "HKG",
+               "outbound_cabin": "Y",
+               "tax": 775.00,
+               "tax_inclusive": true,
+               "total_fare": 3215.00,
+           }
+       ]
 """
 
 from __future__ import annotations
@@ -113,6 +113,14 @@ def _parse_dt(dt_str: str) -> datetime:
     return datetime.now(tz=UTC)
 
 
+def _parse_compact_date(compact: str) -> datetime:
+    """Parse ``YYYYMMDD`` compact date into a UTC datetime."""
+    try:
+        return datetime.strptime(compact, "%Y%m%d").replace(tzinfo=UTC)
+    except (ValueError, TypeError):
+        return datetime.now(tz=UTC)
+
+
 def _combine_date_time(date_str: str, time_str: str) -> datetime:
     """Combine separate date and time strings into a UTC datetime.
 
@@ -140,20 +148,23 @@ def parse_timetable(
 ) -> list[NormalizedFlight]:
     """Parse the ``flightTimetable`` API response.
 
-    The response may use different field names depending on the API
-    version.  This parser tries multiple known structures defensively.
+    The response contains ``toFlightSchedules`` (outbound) and
+    optionally ``returnFlightSchedules`` (inbound), plus
+    ``resultOrigin``, ``resultDestination``, ``toAllLocalTimes``, etc.
+
+    This parser tries multiple known structures defensively.
     """
     now = datetime.now(tz=UTC)
     flights: list[NormalizedFlight] = []
 
-    # Try different known response structures.
+    # Try the v2 response structure first (from SPA Redux reducer).
     schedule_list: list[dict[str, Any]] = (
-        data.get("flightScheduleList", [])
+        data.get("toFlightSchedules", [])
+        or data.get("flightScheduleList", [])
         or data.get("schedules", [])
+        or data.get("data", {}).get("toFlightSchedules", [])
         or data.get("data", {}).get("flightScheduleList", [])
-        or data.get("data", {}).get("schedules", [])
         or data.get("flights", [])
-        or data.get("data", {}).get("flights", [])
     )
 
     # Some responses wrap in a results array.
@@ -306,76 +317,65 @@ def parse_timetable(
 
 
 def parse_histogram(
-    data: dict[str, Any],
+    data: list[dict[str, Any]],
     origin: str,
     destination: str,
     cabin_class: CabinClass = CabinClass.ECONOMY,
 ) -> list[NormalizedFlight]:
     """Parse the ``histogram`` API fare calendar response.
 
-    Creates one NormalizedFlight per day with the lowest available price.
-    Flight number is synthesized as ``CX-{origin}{destination}`` since
-    the histogram does not provide individual flight identity.
+    The response is a JSON array (not a dict).  Each element has::
+
+        {
+            "date_departure": "20260217",  # YYYYMMDD
+            "date_return": "20260303",  # YYYYMMDD
+            "base_fare": 1790.00,
+            "total_fare": 2834.00,
+            "currency": "HKD",
+            "tax": 1044.00,
+            "outbound_cabin": "Y",
+            "inbound_cabin": "Y",
+            "month": 2,
+            "tax_inclusive": true,
+        }
+
+    Creates one NormalizedFlight per departure date with the cheapest
+    available price.  Flight number is synthesized as
+    ``CX-{origin}{destination}`` since the histogram does not provide
+    individual flight identity.
     """
     now = datetime.now(tz=UTC)
     flights: list[NormalizedFlight] = []
 
-    # Try different response structures.
-    date_list: list[dict[str, Any]] = (
-        data.get("dates", [])
-        or data.get("data", {}).get("dates", [])
-        or data.get("histogram", [])
-        or data.get("data", {}).get("histogram", [])
-        or data.get("calendarDates", [])
-        or data.get("data", {}).get("calendarDates", [])
-    )
-
-    # Some responses use a flat daily prices structure.
-    if not date_list:
-        daily = data.get("dailyPrices", data.get("data", {}).get("dailyPrices", []))
-        if daily:
-            date_list = daily
-
-    for entry in date_list:
-        date_str = (
-            entry.get("date", "")
-            or entry.get("departureDate", "")
-            or entry.get("day", "")
-        )
+    for entry in data:
+        # Date extraction -- compact ``YYYYMMDD`` format.
+        date_str = entry.get("date_departure", "")
         if not date_str:
             continue
 
-        # Price extraction -- handle various structures.
-        price_data = (
-            entry.get("lowestPrice")
-            or entry.get("price")
-            or entry.get("cheapestPrice")
-            or entry.get("startingPrice")
-        )
+        dep_time = _parse_compact_date(date_str)
 
-        amount: float | None = None
-        currency = "USD"
+        # Return date (for reference, stored in arrival_time).
+        return_str = entry.get("date_return", "")
+        arr_time = _parse_compact_date(return_str) if return_str else dep_time
 
-        if price_data and isinstance(price_data, dict):
-            amount = price_data.get("amount")
-            currency = price_data.get("currency", price_data.get("currencyCode", "USD"))
-        elif isinstance(entry.get("amount"), (int, float)):
-            amount = entry["amount"]
-            currency = entry.get("currency", entry.get("currencyCode", "USD"))
-        elif isinstance(price_data, (int, float)):
-            amount = price_data
-
-        if amount is None or float(amount) <= 0:
+        # Price -- total_fare includes tax.
+        total_fare = entry.get("total_fare")
+        if total_fare is None or float(total_fare) <= 0:
             continue
 
-        dep_time = _parse_dt(date_str)
+        currency = entry.get("currency", "HKD")
+
+        # Cabin from the outbound leg.
+        outbound_cabin = entry.get("outbound_cabin", "Y")
+        mapped_cabin = _CABIN_MAP.get(outbound_cabin, cabin_class)
 
         prices = [
             NormalizedPrice(
-                amount=float(amount),
+                amount=float(total_fare),
                 currency=currency,
                 source=DataSource.DIRECT_CRAWL,
-                fare_class=None,
+                fare_class=outbound_cabin,
                 crawled_at=now,
             )
         ]
@@ -388,9 +388,9 @@ def parse_histogram(
                 origin=origin,
                 destination=destination,
                 departure_time=dep_time,
-                arrival_time=dep_time,  # Not available from calendar API.
+                arrival_time=arr_time,
                 duration_minutes=0,
-                cabin_class=cabin_class,
+                cabin_class=mapped_cabin,
                 stops=0,
                 prices=prices,
                 source=DataSource.DIRECT_CRAWL,
@@ -403,5 +403,106 @@ def parse_histogram(
         len(flights),
         origin,
         destination,
+    )
+    return flights
+
+
+# ------------------------------------------------------------------
+# Open-search parser
+# ------------------------------------------------------------------
+
+
+def parse_open_search(
+    data: list[dict[str, Any]],
+    origin: str,
+    destination: str | None = None,
+    cabin_class: CabinClass = CabinClass.ECONOMY,
+) -> list[NormalizedFlight]:
+    """Parse the ``open-search`` API response.
+
+    The response is a JSON array of cheapest fares from *origin* to
+    multiple destinations.  Each element has::
+
+        {
+            "base_fare": 2440.00,
+            "currency": "HKD",
+            "date_departure": "20260215",
+            "date_return": "20260217",
+            "destination": "PEK",
+            "inbound_cabin": "Y",
+            "origin": "HKG",
+            "outbound_cabin": "Y",
+            "tax": 775.00,
+            "tax_inclusive": true,
+            "total_fare": 3215.00,
+        }
+
+    If *destination* is given, only fares for that destination are
+    returned.  Otherwise all destinations are included.
+    """
+    now = datetime.now(tz=UTC)
+    flights: list[NormalizedFlight] = []
+
+    for entry in data:
+        entry_dest = entry.get("destination", "")
+        if not entry_dest:
+            continue
+
+        # Filter by destination if specified.
+        if destination and entry_dest != destination:
+            continue
+
+        entry_origin = entry.get("origin", origin)
+
+        date_str = entry.get("date_departure", "")
+        if not date_str:
+            continue
+
+        dep_time = _parse_compact_date(date_str)
+
+        return_str = entry.get("date_return", "")
+        arr_time = _parse_compact_date(return_str) if return_str else dep_time
+
+        total_fare = entry.get("total_fare")
+        if total_fare is None or float(total_fare) <= 0:
+            continue
+
+        currency = entry.get("currency", "HKD")
+        outbound_cabin = entry.get("outbound_cabin", "Y")
+        mapped_cabin = _CABIN_MAP.get(outbound_cabin, cabin_class)
+
+        prices = [
+            NormalizedPrice(
+                amount=float(total_fare),
+                currency=currency,
+                source=DataSource.DIRECT_CRAWL,
+                fare_class=outbound_cabin,
+                crawled_at=now,
+            )
+        ]
+
+        flights.append(
+            NormalizedFlight(
+                flight_number=f"{_CX_AIRLINE_CODE}-{entry_origin}{entry_dest}",
+                airline_code=_CX_AIRLINE_CODE,
+                airline_name=_CX_AIRLINE_NAME,
+                origin=entry_origin,
+                destination=entry_dest,
+                departure_time=dep_time,
+                arrival_time=arr_time,
+                duration_minutes=0,
+                cabin_class=mapped_cabin,
+                stops=0,
+                prices=prices,
+                source=DataSource.DIRECT_CRAWL,
+                crawled_at=now,
+            )
+        )
+
+    logger.info(
+        "Parsed %d fares from CX open-search (origin=%s, dest=%s)",
+        len(flights),
+        origin,
+        destination or "all",
     )
     return flights

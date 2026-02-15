@@ -128,55 +128,40 @@ class LufthansaClient:
         destination: str,
         departure_date: date,
         *,
-        airlines: str | None = None,
+        direct_flights: bool = False,
     ) -> list[dict[str, Any]]:
-        """Fetch flight schedules from the Lufthansa flight-schedules API.
+        """Fetch flight schedules from the Lufthansa Operations API.
 
-        Endpoint::
+        Endpoint (LH Public / Open Developer free tier)::
 
-            GET /flight-schedules/flightschedules/passenger
-                ?airlines=LH,LX,OS,...
-                &startDate=15FEB26
-                &endDate=15FEB26
-                &origin=FRA
-                &destination=ICN
-                &daysOfOperation=1234567
-                &timeMode=UTC
+            GET /v1/operations/schedules/{origin}/{destination}/{date}
+                ?directFlights=0|1
 
-        Returns the raw list of schedule objects from the API.
+        Returns a list of schedule objects from the
+        ``ScheduleResource.Schedule`` envelope.
         """
         http = await self._ensure_http()
         token = await self._ensure_token()
 
-        # Format date as DDMMMYY (e.g. "15FEB26")
-        date_str = departure_date.strftime("%d%b%y").upper()
-
-        if airlines is None:
-            airlines = ",".join(sorted(LH_GROUP_AIRLINES))
-
+        date_str = departure_date.isoformat()  # YYYY-MM-DD
+        path = f"/v1/operations/schedules/{origin}/{destination}/{date_str}"
         params: dict[str, str] = {
-            "airlines": airlines,
-            "startDate": date_str,
-            "endDate": date_str,
-            "origin": origin,
-            "destination": destination,
-            "daysOfOperation": "1234567",
-            "timeMode": "UTC",
+            "directFlights": "1" if direct_flights else "0",
         }
 
         resp = await http.get(
-            "/flight-schedules/flightschedules/passenger",
+            path,
             params=params,
             headers=self._auth_headers(token),
         )
 
         # If 401, refresh token and retry once.
         if resp.status_code == 401:
-            logger.warning("Lufthansa token expired, refreshing…")
+            logger.warning("Lufthansa token expired, refreshing...")
             await self._fetch_token()
             token = self._access_token
             resp = await http.get(
-                "/flight-schedules/flightschedules/passenger",
+                path,
                 params=params,
                 headers=self._auth_headers(token),
             )
@@ -184,12 +169,16 @@ class LufthansaClient:
         resp.raise_for_status()
         data = resp.json()
 
-        # API returns a JSON array of schedule objects directly.
+        # Response envelope: {"ScheduleResource": {"Schedule": [...]}}
+        if isinstance(data, dict):
+            resource = data.get("ScheduleResource", data)
+            schedules = resource.get("Schedule", [])
+            if isinstance(schedules, dict):
+                # Single schedule returned as dict instead of list.
+                return [schedules]
+            return schedules if isinstance(schedules, list) else []
         if isinstance(data, list):
             return data
-        # Some responses wrap in an envelope.
-        if isinstance(data, dict):
-            return data.get("data", data.get("flightSchedules", [data]))
         return []
 
     async def health_check(self) -> bool:
