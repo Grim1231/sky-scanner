@@ -155,22 +155,8 @@ async def test_tway_air(make_task):
 
 
 @pytest.mark.timeout(60)
-@pytest.mark.xfail(reason="CF hard-blocks all primp profiles on flyairseoul.com")
 async def test_air_seoul(make_task):
-    from sky_scanner_crawler.air_seoul.crawler import AirSeoulCrawler
-
-    task = make_task("ICN", "NRT")
-    crawler = AirSeoulCrawler()
-    try:
-        result = await crawler.crawl(task)
-    finally:
-        await crawler.close()
-    assert_crawl_result(result)
-
-
-@pytest.mark.timeout(60)
-async def test_air_seoul_via_amadeus(make_task):
-    """RS direct crawl blocked by CF — verify RS flights available via Amadeus GDS."""
+    """RS direct crawl blocked by CF — use Amadeus GDS instead."""
     from sky_scanner_core.schemas import DataSource
     from sky_scanner_crawler.amadeus_gds.crawler import AmadeusCrawler
 
