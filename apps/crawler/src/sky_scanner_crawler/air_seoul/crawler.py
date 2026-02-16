@@ -36,7 +36,7 @@ class AirSeoulCrawler(BaseCrawler):
     NORMAL).
     """
 
-    def __init__(self, *, enable_l3_fallback: bool = True) -> None:
+    def __init__(self, *, enable_l3_fallback: bool = False) -> None:
         self._l2_client = AirSeoulClient(timeout=settings.l2_timeout)
         self._enable_l3_fallback = enable_l3_fallback
         self._l3_client = None

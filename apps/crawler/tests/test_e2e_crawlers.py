@@ -100,17 +100,16 @@ async def test_eastar_jet(make_task):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.timeout(180)
-@pytest.mark.xfail(reason="L3 Playwright — CF may block", strict=False)
+@pytest.mark.timeout(60)
 async def test_air_premia(make_task):
     from sky_scanner_crawler.air_premia.crawler import AirPremiaCrawler
 
     task = make_task("ICN", "HNL")
     crawler = AirPremiaCrawler()
     try:
-        result = await asyncio.wait_for(crawler.crawl(task), timeout=150)
+        result = await crawler.crawl(task)
     finally:
-        await asyncio.wait_for(crawler.close(), timeout=10)
+        await crawler.close()
     assert_crawl_result(result)
 
 

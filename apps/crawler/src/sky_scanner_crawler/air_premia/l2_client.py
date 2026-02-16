@@ -10,11 +10,19 @@ Strategy:
 2. Warm up with a GET to ``https://www.airpremia.com/`` (collects CF cookies)
 3. Call ``/api/v1/low-fares`` with query parameters
 4. All blocking I/O runs via ``asyncio.to_thread()``
+
+Date alignment:
+    Air Premia's ``/api/v1/low-fares`` requires **month-aligned** date
+    ranges:  the end date must be the last day of its calendar month, and
+    each request can span at most two consecutive months.  Arbitrary date
+    ranges are automatically split into valid month-aligned chunks, fetched
+    individually, and merged back together.
 """
 
 from __future__ import annotations
 
 import asyncio
+import calendar
 import logging
 from datetime import date, timedelta
 from typing import Any
@@ -26,6 +34,58 @@ from sky_scanner_crawler.retry import async_retry
 logger = logging.getLogger(__name__)
 
 _BASE_URL = "https://www.airpremia.com"
+
+
+def _last_day_of_month(year: int, month: int) -> date:
+    """Return the last day of the given *year*/*month*."""
+    _, day = calendar.monthrange(year, month)
+    return date(year, month, day)
+
+
+def _month_aligned_chunks(
+    begin: date,
+    end: date,
+) -> list[tuple[date, date]]:
+    """Split ``[begin, end]`` into Air Premia-compatible chunks.
+
+    Each chunk satisfies two constraints enforced by the API:
+    * The end date is the last calendar day of its month.
+    * The chunk spans at most two consecutive months (e.g. Mar 15 -- Apr 30).
+
+    Returns a list of ``(chunk_begin, chunk_end)`` tuples that together
+    cover the full ``[begin, end]`` interval.
+    """
+    chunks: list[tuple[date, date]] = []
+    cursor = begin
+
+    while cursor <= end:
+        # End of the current month.
+        eom = _last_day_of_month(cursor.year, cursor.month)
+
+        if eom >= end:
+            # The remaining range fits within one month.
+            chunks.append((cursor, eom))
+            break
+
+        # Try extending to the end of the *next* month (2-month span).
+        if cursor.month == 12:
+            next_eom = _last_day_of_month(cursor.year + 1, 1)
+        else:
+            next_eom = _last_day_of_month(cursor.year, cursor.month + 1)
+
+        if next_eom >= end:
+            chunks.append((cursor, next_eom))
+            break
+
+        # Take a 2-month chunk and advance.
+        chunks.append((cursor, next_eom))
+        # Next chunk starts on the first day of the month after next_eom.
+        if next_eom.month == 12:
+            cursor = date(next_eom.year + 1, 1, 1)
+        else:
+            cursor = date(next_eom.year, next_eom.month + 1, 1)
+
+    return chunks
 
 
 class AirPremiaL2Client:
@@ -94,6 +154,39 @@ class AirPremiaL2Client:
         max_delay=20.0,
         exceptions=(RuntimeError, OSError),
     )
+    async def _fetch_chunk(
+        self,
+        origin: str,
+        destination: str,
+        begin_date: str,
+        end_date: str,
+        trip_type: str,
+        adt_count: int,
+    ) -> dict[str, Any]:
+        """Fetch a single month-aligned chunk from the low-fares API."""
+        params = {
+            "origin": origin,
+            "destination": destination,
+            "beginDate": begin_date,
+            "endDate": end_date,
+            "tripType": trip_type,
+            "adtCount": str(adt_count),
+        }
+        result = await asyncio.to_thread(
+            self._warm_and_get,
+            "/api/v1/low-fares",
+            params,
+        )
+        logger.debug(
+            "Air Premia L2 chunk %s->%s (%s ~ %s): %d result groups",
+            origin,
+            destination,
+            begin_date,
+            end_date,
+            len(result.get("results", [])),
+        )
+        return result
+
     async def get_low_fares(
         self,
         origin: str,
@@ -104,6 +197,11 @@ class AirPremiaL2Client:
         adt_count: int = 1,
     ) -> dict[str, Any]:
         """Fetch daily lowest fares for a route/date range.
+
+        The Air Premia low-fares API requires the end date to be the last
+        calendar day of its month and each request to span at most two
+        months.  This method transparently splits arbitrary date ranges
+        into valid chunks, fetches each one, and merges the results.
 
         Parameters
         ----------
@@ -123,31 +221,69 @@ class AirPremiaL2Client:
         Returns
         -------
         dict
-            Raw JSON response from the Air Premia low-fares API.
+            Merged JSON response from the Air Premia low-fares API.
         """
-        params = {
-            "origin": origin,
-            "destination": destination,
-            "beginDate": begin_date,
-            "endDate": end_date,
-            "tripType": trip_type,
-            "adtCount": str(adt_count),
-        }
-        result = await asyncio.to_thread(
-            self._warm_and_get,
-            "/api/v1/low-fares",
-            params,
+        begin = date.fromisoformat(begin_date)
+        end = date.fromisoformat(end_date)
+
+        chunks = _month_aligned_chunks(begin, end)
+        logger.debug(
+            "Air Premia date range %s ~ %s split into %d chunk(s)",
+            begin_date,
+            end_date,
+            len(chunks),
         )
-        n_results = len(result.get("results", []))
+
+        # Fetch all chunks (sequentially to avoid CF rate-limiting).
+        all_availabilities: list[dict[str, Any]] = []
+        for chunk_begin, chunk_end in chunks:
+            chunk_result = await self._fetch_chunk(
+                origin=origin,
+                destination=destination,
+                begin_date=chunk_begin.isoformat(),
+                end_date=chunk_end.isoformat(),
+                trip_type=trip_type,
+                adt_count=adt_count,
+            )
+            for result_group in chunk_result.get("results", []):
+                all_availabilities.extend(
+                    result_group.get("dailyLowFareAvailabilities", []),
+                )
+
+        # Filter to only include days within the originally requested range.
+        filtered: list[dict[str, Any]] = []
+        for day in all_availabilities:
+            day_date_str = day.get("date", "")
+            if not day_date_str:
+                continue
+            try:
+                day_date = date.fromisoformat(day_date_str)
+            except (ValueError, TypeError):
+                continue
+            if begin <= day_date <= end:
+                filtered.append(day)
+
+        # Reconstruct a response in the same format the parser expects.
+        merged: dict[str, Any] = {
+            "results": [
+                {
+                    "origin": origin,
+                    "destination": destination,
+                    "dailyLowFareAvailabilities": filtered,
+                },
+            ],
+        }
+
         logger.info(
-            "Air Premia L2 %s->%s (%s ~ %s): %d result groups",
+            "Air Premia L2 %s->%s (%s ~ %s): %d days from %d chunk(s)",
             origin,
             destination,
             begin_date,
             end_date,
-            n_results,
+            len(filtered),
+            len(chunks),
         )
-        return result
+        return merged
 
     async def search_low_fares(
         self,
