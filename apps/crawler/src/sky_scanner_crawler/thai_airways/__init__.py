@@ -1,1 +1,1 @@
-"""Thai Airways (TG) L3 Playwright crawler -- Amadeus OSCI search."""
+"""Thai Airways (TG) crawler -- L2 primp (Sputnik + popular-fares) with L3 fallback."""

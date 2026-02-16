@@ -1,1 +1,1 @@
-"""Turkish Airlines crawler -- L2 website scrape and official developer API."""
+"""Turkish Airlines crawler -- L2 scrape, L3 Playwright, official API."""

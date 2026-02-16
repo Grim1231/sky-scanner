@@ -1,4 +1,4 @@
-"""ANA (NH) L3 crawler -- Playwright-based international flight search."""
+"""ANA (NH) L2 crawler -- daily lowest fares via EveryMundo Sputnik API."""
 
 from __future__ import annotations
 
@@ -9,57 +9,56 @@ from datetime import UTC, datetime
 from sky_scanner_core.schemas import CrawlResult, CrawlTask, DataSource
 
 from ..base import BaseCrawler
-from .client import AnaPlaywrightClient
-from .response_parser import parse_api_responses, parse_dom_flights
+from ..config import settings
+from .sputnik_client import AnaSputnikClient
+from .sputnik_parser import parse_fares
 
 logger = logging.getLogger(__name__)
 
 
 class AnaCrawler(BaseCrawler):
-    """L3 crawler: ANA international flight search via Playwright.
+    """L2 crawler: ANA daily lowest fares via Sputnik API.
 
-    Automates ANA's booking search form at ``ana.co.jp/en/jp/international/``
-    to retrieve flight schedules and fares.  Uses Playwright to bypass
-    Akamai Bot Manager protection.
+    ANA (All Nippon Airways) publishes fares through EveryMundo's airTrfx
+    platform at ``flights.ana.co.jp``.  The Sputnik fare search endpoint
+    returns up to ~300 days of daily lowest one-way fares across the entire
+    NH route network.
 
-    Returns ``NormalizedFlight`` objects extracted from:
-    1. Intercepted API JSON responses from ``aswbe.ana.co.jp``
-    2. DOM-scraped flight result cards (fallback)
+    The API does not require session cookies -- only a public ``em-api-key``
+    header and correct ``Referer`` / ``Origin`` headers.
+
+    If ``origin`` and ``destination`` are specified in the search request,
+    the crawler filters results to that specific route.  Otherwise it
+    returns fares for all routes from the given origin.
+
+    Hub: Narita International Airport (NRT) / Haneda Airport (HND).
+    IATA code: NH.
+
+    Note: The previous L3 Playwright crawler (``AnaPlaywrightClient``) is
+    retained in ``client.py`` but no longer used by default due to Akamai
+    blocking at ``aswbe.ana.co.jp``.
     """
 
     def __init__(self) -> None:
-        self._client = AnaPlaywrightClient(timeout=60)
+        self._client = AnaSputnikClient(timeout=settings.l2_timeout)
 
     async def crawl(self, task: CrawlTask) -> CrawlResult:
-        """Execute a search and return normalized results."""
+        """Fetch daily lowest fares for the requested route."""
         start = time.monotonic()
         req = task.search_request
 
         try:
-            raw = await self._client.search_flights(
+            raw = await self._client.search_fares(
                 origin=req.origin,
-                destination=req.destination,
-                departure_date=req.departure_date,
+                destination=req.destination if req.destination else None,
             )
 
-            # Parse API responses first (higher quality).
-            flights = parse_api_responses(
-                raw.get("api_responses", []),
-                origin=req.origin,
-                destination=req.destination,
-                departure_date=req.departure_date.isoformat(),
+            flights = parse_fares(
+                raw,
+                origin_filter=req.origin,
+                destination_filter=req.destination if req.destination else None,
                 cabin_class=req.cabin_class,
             )
-
-            # If no API flights, fall back to DOM-scraped data.
-            if not flights:
-                flights = parse_dom_flights(
-                    raw.get("dom_flights", []),
-                    origin=req.origin,
-                    destination=req.destination,
-                    departure_date=req.departure_date.isoformat(),
-                    cabin_class=req.cabin_class,
-                )
 
             elapsed_ms = int((time.monotonic() - start) * 1000)
             return CrawlResult(
@@ -71,7 +70,7 @@ class AnaCrawler(BaseCrawler):
 
         except Exception as exc:
             elapsed_ms = int((time.monotonic() - start) * 1000)
-            logger.exception("ANA crawl failed for %s->%s", req.origin, req.destination)
+            logger.exception("ANA crawl failed")
             return CrawlResult(
                 source=DataSource.DIRECT_CRAWL,
                 crawled_at=datetime.now(tz=UTC),
@@ -81,9 +80,9 @@ class AnaCrawler(BaseCrawler):
             )
 
     async def health_check(self) -> bool:
-        """Check if ANA's website is reachable."""
+        """Check if the ANA fare API is reachable."""
         return await self._client.health_check()
 
     async def close(self) -> None:
-        """Release resources (no-op for Playwright-per-request model)."""
+        """Shut down the HTTP client."""
         await self._client.close()

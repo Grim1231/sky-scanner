@@ -1036,6 +1036,47 @@ def crawl_amadeus(
         _store_to_db(result.flights)
 
 
+@cli.command("crawl-emirates")
+@click.argument("origin")
+@click.argument("destination")
+@click.argument("departure_date")
+@click.option("--cabin", default="ECONOMY", help="Cabin class")
+@click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--store", is_flag=True, help="Store results to database")
+def crawl_emirates(
+    origin: str,
+    destination: str,
+    departure_date: str,
+    cabin: str,
+    json_output: bool,
+    store: bool,
+) -> None:
+    """L2: Emirates featured fares via primp (EK)."""
+    from .emirates.crawler import EmiratesCrawler
+
+    search_req = _build_search_request(origin, destination, departure_date, cabin)
+    task = CrawlTask(search_request=search_req, source=DataSource.DIRECT_CRAWL)
+
+    async def _run():  # type: ignore[return]
+        crawler = EmiratesCrawler()
+        try:
+            return await crawler.crawl(task)
+        finally:
+            await crawler.close()
+
+    result = asyncio.run(_run())
+    if json_output:
+        click.echo(json.dumps(result.model_dump(mode="json"), indent=2))
+    else:
+        click.echo(f"Source: {result.source.value} | Duration: {result.duration_ms}ms")
+        if result.error:
+            click.echo(f"Error: {result.error}", err=True)
+        _print_results(result.flights)
+
+    if store and result.flights:
+        _store_to_db(result.flights)
+
+
 @cli.command("crawl")
 @click.argument("origin")
 @click.argument("destination")
@@ -1266,6 +1307,7 @@ def health_check() -> None:
     from .ana.crawler import AnaCrawler
     from .cathay_pacific.crawler import CathayPacificCrawler
     from .eastar_jet.crawler import EastarJetCrawler
+    from .emirates.crawler import EmiratesCrawler
     from .ethiopian_airlines.crawler import EthiopianAirlinesCrawler
     from .eva_air.crawler import EvaAirCrawler
     from .google.crawler import GoogleFlightsCrawler
@@ -1290,6 +1332,7 @@ def health_check() -> None:
         kiwi = KiwiCrawler()
         jeju = JejuAirCrawler()
         eastar = EastarJetCrawler()
+        emirates = EmiratesCrawler()
         premia = AirPremiaCrawler()
         amadeus = AmadeusCrawler()
         air_seoul = AirSeoulCrawler()
@@ -1319,6 +1362,7 @@ def health_check() -> None:
                 kiwi.health_check(),
                 jeju.health_check(),
                 eastar.health_check(),
+                emirates.health_check(),
                 premia.health_check(),
                 amadeus.health_check(),
                 air_seoul.health_check(),
@@ -1349,6 +1393,7 @@ def health_check() -> None:
             await kiwi.close()
             await jeju.close()
             await eastar.close()
+            await emirates.close()
             await premia.close()
             await amadeus.close()
             await air_seoul.close()
@@ -1379,41 +1424,42 @@ def health_check() -> None:
             "L2 (Kiwi API)": not isinstance(results[1], Exception) and results[1],
             "L2 (Jeju Air)": not isinstance(results[2], Exception) and results[2],
             "L2 (Eastar Jet)": not isinstance(results[3], Exception) and results[3],
-            "L3 (Air Premia)": not isinstance(results[4], Exception) and results[4],
-            "L2 (Amadeus GDS)": not isinstance(results[5], Exception) and results[5],
-            "L2 (Air Seoul)": not isinstance(results[6], Exception) and results[6],
-            "L2 (Jin Air)": not isinstance(results[7], Exception) and results[7],
-            "L2 (T'way Air)": not isinstance(results[8], Exception) and results[8],
-            "L2 (Air Busan)": not isinstance(results[9], Exception) and results[9],
-            "L2 (Lufthansa Group)": not isinstance(results[10], Exception)
-            and results[10],
-            "L2 (Singapore Airlines)": not isinstance(results[11], Exception)
+            "L2 (Emirates)": not isinstance(results[4], Exception) and results[4],
+            "L3 (Air Premia)": not isinstance(results[5], Exception) and results[5],
+            "L2 (Amadeus GDS)": not isinstance(results[6], Exception) and results[6],
+            "L2 (Air Seoul)": not isinstance(results[7], Exception) and results[7],
+            "L2 (Jin Air)": not isinstance(results[8], Exception) and results[8],
+            "L2 (T'way Air)": not isinstance(results[9], Exception) and results[9],
+            "L2 (Air Busan)": not isinstance(results[10], Exception) and results[10],
+            "L2 (Lufthansa Group)": not isinstance(results[11], Exception)
             and results[11],
-            "L3 (Air France-KLM)": not isinstance(results[12], Exception)
+            "L2 (Singapore Airlines)": not isinstance(results[12], Exception)
             and results[12],
-            "L2 (Turkish Airlines)": not isinstance(results[13], Exception)
+            "L3 (Air France-KLM)": not isinstance(results[13], Exception)
             and results[13],
-            "L2 (EVA Air)": not isinstance(results[14], Exception) and results[14],
-            "L2 (LOT Polish)": not isinstance(results[15], Exception) and results[15],
-            "L2 (Air New Zealand)": not isinstance(results[16], Exception)
-            and results[16],
-            "L2 (Vietnam Airlines)": not isinstance(results[17], Exception)
+            "L2 (Turkish Airlines)": not isinstance(results[14], Exception)
+            and results[14],
+            "L2 (EVA Air)": not isinstance(results[15], Exception) and results[15],
+            "L2 (LOT Polish)": not isinstance(results[16], Exception) and results[16],
+            "L2 (Air New Zealand)": not isinstance(results[17], Exception)
             and results[17],
-            "L2 (Philippine Airlines)": not isinstance(results[18], Exception)
+            "L2 (Vietnam Airlines)": not isinstance(results[18], Exception)
             and results[18],
-            "L2 (Hainan Airlines)": not isinstance(results[19], Exception)
+            "L2 (Philippine Airlines)": not isinstance(results[19], Exception)
             and results[19],
-            "L2 (Ethiopian Airlines)": not isinstance(results[20], Exception)
+            "L2 (Hainan Airlines)": not isinstance(results[20], Exception)
             and results[20],
-            "L2 (Cathay Pacific)": not isinstance(results[21], Exception)
+            "L2 (Ethiopian Airlines)": not isinstance(results[21], Exception)
             and results[21],
-            "L2 (Malaysia Airlines)": not isinstance(results[22], Exception)
+            "L2 (Cathay Pacific)": not isinstance(results[22], Exception)
             and results[22],
-            "L2 (JAL)": not isinstance(results[23], Exception) and results[23],
-            "L3 (ANA)": not isinstance(results[24], Exception) and results[24],
-            "L3 (Thai Airways)": not isinstance(results[25], Exception) and results[25],
-            "L3 (Qatar Airways)": not isinstance(results[26], Exception)
-            and results[26],
+            "L2 (Malaysia Airlines)": not isinstance(results[23], Exception)
+            and results[23],
+            "L2 (JAL)": not isinstance(results[24], Exception) and results[24],
+            "L3 (ANA)": not isinstance(results[25], Exception) and results[25],
+            "L3 (Thai Airways)": not isinstance(results[26], Exception) and results[26],
+            "L3 (Qatar Airways)": not isinstance(results[27], Exception)
+            and results[27],
         }
 
     statuses = asyncio.run(_run())

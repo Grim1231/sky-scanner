@@ -1,15 +1,19 @@
-"""Async HTTP client for the Singapore Airlines NDC Flight Availability API.
+"""Async HTTP client for the Singapore Airlines KrisConnect Flight Search API.
 
-Singapore Airlines exposes a public NDC-style JSON API at
-``developer.singaporeair.com``.  Authentication is via a static API key
+Singapore Airlines exposes a public REST API via their KrisConnect (Mashery)
+gateway at ``apigw.singaporeair.com``.  Authentication is via a static API key
 passed in the ``apikey`` header.
 
-Endpoint::
+Endpoint (UAT)::
 
-    POST / flightavailability / get
+    POST / api / uat / v1 / commercial / flightavailability / get
 
-Returns per-recommendation data: flight legs, operating/marketing carriers,
-durations, fare families, and per-passenger pricing with tax breakdown.
+Returns per-recommendation data: flight segments, operating/marketing carriers,
+fare classes, and per-passenger pricing with deep referral links.
+
+Note: The UAT (test) environment only supports SIN as origin.  To use the
+production endpoint (``/api/v1/...``), register a Trial or Business plan
+on the developer portal.
 
 API portal: https://developer.singaporeair.com
 """
@@ -30,7 +34,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_BASE_URL = "https://developer.singaporeair.com"
+_BASE_URL = "https://apigw.singaporeair.com"
 
 # Map internal CabinClass values to SQ API cabin codes.
 _CABIN_MAP: dict[str, str] = {
@@ -120,12 +124,12 @@ class SingaporeAirlinesClient:
                         "originAirportCode": origin.upper(),
                         "destinationAirportCode": destination.upper(),
                         "departureDate": departure_date.isoformat(),
-                        "cabinClass": sq_cabin,
-                        "adultCount": adults,
-                        "childCount": children,
-                        "infantCount": infants,
                     }
-                ]
+                ],
+                "cabinClass": sq_cabin,
+                "adultCount": adults,
+                "childCount": children,
+                "infantCount": infants,
             },
         }
 
@@ -135,7 +139,7 @@ class SingaporeAirlinesClient:
         }
 
         resp = await http.post(
-            "/flightavailability/get",
+            "/api/uat/v1/commercial/flightavailability/get",
             json=payload,
             headers=headers,
         )

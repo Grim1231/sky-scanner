@@ -1,1 +1,1 @@
-"""Air Premia L3 crawler (Playwright-assisted API call)."""
+"""Air Premia crawler — L2 primp (default) or L3 Playwright fallback."""

@@ -14,6 +14,7 @@ dev = [
     "pytest-cov>=6.0.0",
     "pytest-asyncio>=0.25.0",
     "pre-commit>=4.0.0",
+    "pytest-timeout>=2.4.0",
 ]
 
 
@@ -85,6 +86,9 @@ include = ["packages/*/src", "apps/*/src"]
 testpaths = ["tests", "packages/*/tests", "apps/*/tests"]
 asyncio_mode = "auto"
 addopts = "--cov --cov-report=term-missing -q"
+markers = [
+    "e2e: end-to-end tests that hit real APIs (may be slow/flaky)",
+]
 
 [tool.coverage.run]
 source = [
