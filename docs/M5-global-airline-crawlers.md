@@ -55,20 +55,20 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 | 27 | **Air France-KLM** | AF/KL | CDG/AMS | **L2 Sputnik** | AF+KL 듀얼 tenant, 500 fares (EUR) | ✅ |
 | 28 | SQ via Amadeus | SQ | SIN | Amadeus GDS | Amadeus fallback (코드셰어) | ✅ |
 
-### L2/L3 실패 → Amadeus fallback (11개)
-| 항공사 | 코드 | 실패 이유 | 대안 |
-|--------|------|-----------|------|
-| Qatar Airways | QR | Akamai WAF 403 (페이지 자체 차단) | Amadeus |
-| Garuda Indonesia | GA | 504 타임아웃 | Amadeus |
-| Saudia | SV | Imperva + CORS | Amadeus |
-| Etihad | EY | Akamai HTTP/2 차단 | Amadeus |
-| China Eastern | MU | TravelSky + Alibaba 봇 감지 | Amadeus |
-| China Southern | CZ | TravelSky + Alibaba 봇 감지 | Amadeus |
-| Delta | DL | Akamai 444 | Amadeus |
-| American Airlines | AA | Akamai 403 | Amadeus |
-| United Airlines | UA | Akamai HTTP/2 차단 | Amadeus |
-| Qantas | QF | Akamai 봇 쿠키 5개 | Amadeus |
-| Air Canada | AC | Akamai + **소송 전례** | Amadeus만 |
+### L2/L3 실패 → Amadeus fallback (11개, 전체 검증 완료 ✅)
+| 항공사 | 코드 | 실패 이유 | 테스트 노선 | Amadeus 결과 | 검증 |
+|--------|------|-----------|------------|-------------|------|
+| Qatar Airways | QR | Akamai WAF 403 | ICN→DOH | 39편 (QR 7편) | ✅ |
+| Garuda Indonesia | GA | 504 타임아웃 | ICN→CGK | 50편 (GA 3편) | ✅ |
+| Saudia | SV | Imperva + CORS | ICN→JED | 50편 (SV 2편) | ✅ |
+| Etihad | EY | Akamai HTTP/2 차단 | ICN→AUH | 50편 (EY 3편) | ✅ |
+| China Eastern | MU | TravelSky + Alibaba 봇 감지 | ICN→PVG | 50편 (MU 3편) | ✅ |
+| China Southern | CZ | TravelSky + Alibaba 봇 감지 | ICN→CAN | 50편 (CZ 10편) | ✅ |
+| Delta | DL | Akamai 444 | ICN→SEA | 46편 (코드셰어) | ✅ |
+| American Airlines | AA | Akamai 403 | ICN→DFW | 43편 (코드셰어) | ✅ |
+| United Airlines | UA | Akamai HTTP/2 차단 | ICN→SFO | 50편 (UA 2편) | ✅ |
+| Qantas | QF | Akamai 봇 쿠키 5개 | ICN→SYD | 50편 (QF 2편) | ✅ |
+| Air Canada | AC | Akamai + **소송 전례** | ICN→YVR | 42편 (AC 2편) | ✅ |
 
 ---
 
@@ -180,9 +180,11 @@ L2 (직접 HTTP) 우선, 불가능한 경우 L3 (Playwright headless browser) �
 
 ## 커버리지 요약
 
+- **전체 커버 항공사**: 39개 (직접 L2/L3 27개 + Amadeus fallback 12개)
 - **총 크롤러**: 29개 (L1 2 + Korean LCC 7 + GDS 1 + Global L2 18 + Amadeus fallback 1)
 - **E2E 테스트**: 28 passed, 1 xfailed (Kiwi — 초대제 API key)
 - **Sputnik 사용 항공사**: 8개 (NZ, ET, JL, NH, TG, SQ, AF, KL)
-- **Amadeus fallback**: QR + RS + GA, SV, EY, MU, CZ, DL, AA, UA, QF, AC (12개)
+- **Amadeus fallback**: QR, RS, GA, SV, EY, MU, CZ, DL, AA, UA, QF, AC (12개, 전체 검증 완료)
 - **한국 출발 주요 허브 커버리지**:
-  IST ✅ DOH(Amadeus) SIN ✅ HKG ✅ NRT ✅ FRA ✅ CDG ✅ AMS ✅ BKK ✅ TPE ✅ WAW ✅ KUL ✅ ADD ✅ DXB ✅
+  IST ✅ DOH ✅ SIN ✅ HKG ✅ NRT ✅ FRA ✅ CDG ✅ AMS ✅ BKK ✅ TPE ✅ WAW ✅ KUL ✅ ADD ✅ DXB ✅
+  CGK ✅ JED ✅ AUH ✅ PVG ✅ CAN ✅ SEA ✅ DFW ✅ SFO ✅ SYD ✅ YVR ✅
