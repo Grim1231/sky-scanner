@@ -1,1 +1,1 @@
-"""Air France-KLM L3 crawler -- Playwright form automation + response interception."""
+"""Air France-KLM L2 crawler -- daily lowest fares via EveryMundo Sputnik API."""

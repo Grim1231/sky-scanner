@@ -508,21 +508,20 @@ async def test_emirates(make_task):
 
 
 # ---------------------------------------------------------------------------
-# L3: Air France-KLM (Playwright — Akamai blocks)
+# L2: Air France-KLM (Sputnik — EveryMundo fare search)
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.timeout(120)
-@pytest.mark.xfail(reason="Akamai HTTP/2 blocks AF/KL Playwright crawl")
+@pytest.mark.timeout(60)
 async def test_air_france_klm(make_task):
     from sky_scanner_crawler.air_france_klm.crawler import AirFranceKlmCrawler
 
-    task = make_task("ICN", "CDG")
+    task = make_task("CDG", "ICN")
     crawler = AirFranceKlmCrawler()
     try:
-        result = await asyncio.wait_for(crawler.crawl(task), timeout=90)
+        result = await crawler.crawl(task)
     finally:
-        await asyncio.wait_for(crawler.close(), timeout=10)
+        await crawler.close()
     assert_crawl_result(result)
 
 

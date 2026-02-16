@@ -73,7 +73,7 @@ from sky_scanner_core.schemas import (
     NormalizedPrice,
 )
 
-from .client import AIRLINE_NAMES
+from .sputnik_client import AIRLINE_NAMES
 
 logger = logging.getLogger(__name__)
 

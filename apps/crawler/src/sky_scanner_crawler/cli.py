@@ -550,7 +550,7 @@ def crawl_afklm(
     json_output: bool,
     store: bool,
 ) -> None:
-    """L3: Air France-KLM flight offers via Playwright GraphQL (AF/KL)."""
+    """L2: Air France-KLM daily lowest fares via Sputnik API (AF/KL)."""
     from .air_france_klm.crawler import AirFranceKlmCrawler
 
     search_req = _build_search_request(origin, destination, departure_date, cabin)
